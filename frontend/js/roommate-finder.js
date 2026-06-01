@@ -45,11 +45,14 @@ document.addEventListener('DOMContentLoaded', () => {
           const haveCount = roommate.roommatesAlreadyHave || 0;
           const membersList = roommate.members || [];
           
+          const images = item.imageUrl ? item.imageUrl.split(',') : [];
+          const mainImage = images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800';
+
           const card = document.createElement('div');
           card.className = 'card glass-panel listing-item-card roommate-finder-card animate-fade-in';
           card.innerHTML = `
             <div class="card-image-wrapper">
-              <img src="${item.imageUrl || 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800'}" alt="${item.title}">
+              <img src="${mainImage}" alt="${item.title}">
               <span class="card-category-badge">ROOMMATES</span>
               ${item.price ? `<span class="card-price-tag">${item.price} BDT/mo</span>` : ''}
             </div>

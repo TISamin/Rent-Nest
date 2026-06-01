@@ -49,14 +49,131 @@ document.addEventListener('DOMContentLoaded', () => {
     return await snapshot.ref.getDownloadURL();
   }
 
-  // Bind Cover Image uploads
-  setupDropzone('cover-photo-dropzone', 'cover-photo-input', 'cover-photo-preview-container', 'cover-photo-preview', 'cover-photo-url-hidden', 'listings/covers');
+  // Bind Cover Image uploads (Multiple)
+  let uploadedImages = [];
+  let activeUploadsCount = 0;
 
-  // Bind Owner Image uploads
+  setupMultiPhotoDropzone('cover-photo-dropzone', 'cover-photo-input', 'photos-preview-grid', 'cover-photo-url-hidden', 'listings/covers');
+
+  // Bind Owner Image uploads (Single)
   setupDropzone('owner-photo-dropzone', 'owner-photo-input', 'owner-photo-preview-container', 'owner-photo-preview', 'owner-photo-url-hidden', 'listings/roommates/owners');
 
   /**
-   * Setup Dropzones and handlers for direct image uploads
+   * Setup Dropzone for multiple photos upload
+   */
+  function setupMultiPhotoDropzone(dropzoneId, inputId, previewGridId, hiddenUrlId, pathPrefix) {
+    const dropzone = document.getElementById(dropzoneId);
+    const input = document.getElementById(inputId);
+    const previewGrid = document.getElementById(previewGridId);
+    const hiddenUrl = document.getElementById(hiddenUrlId);
+
+    dropzone.addEventListener('click', () => input.click());
+
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = '#10b981';
+    });
+
+    dropzone.addEventListener('dragleave', () => {
+      dropzone.style.borderColor = 'rgba(255,255,255,0.15)';
+    });
+
+    dropzone.addEventListener('drop', async (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = 'rgba(255,255,255,0.15)';
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        handleImageFiles(files);
+      }
+    });
+
+    input.addEventListener('change', async (e) => {
+      const files = e.target.files;
+      if (files && files.length > 0) {
+        handleImageFiles(files);
+      }
+    });
+
+    async function handleImageFiles(files) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const uniqueId = 'img_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+        
+        // Create preview card container
+        const previewCard = document.createElement('div');
+        previewCard.id = `preview-${uniqueId}`;
+        previewCard.className = "relative border border-white/10 rounded-xl overflow-hidden bg-white/5 h-36 flex items-center justify-center";
+        previewCard.innerHTML = `
+          <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+            <span class="text-xs text-white font-medium animate-pulse">Uploading...</span>
+          </div>
+        `;
+        previewGrid.appendChild(previewCard);
+
+        // Immediate local thumbnail preview
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          previewCard.innerHTML = `
+            <img src="${event.target.result}" class="w-full h-full object-cover opacity-50">
+            <div class="absolute inset-0 flex flex-col items-center justify-center bg-black/40">
+              <span class="text-xs text-white font-medium animate-pulse">Uploading...</span>
+            </div>
+          `;
+        };
+        reader.readAsDataURL(file);
+
+        // Start upload
+        activeUploadsCount++;
+        updateSubmitButtonState();
+
+        try {
+          const downloadUrl = await uploadFileToFirebase(file, pathPrefix);
+          uploadedImages.push(downloadUrl);
+          hiddenUrl.value = uploadedImages.join(',');
+
+          // Show uploaded image with a remove button
+          previewCard.innerHTML = `
+            <img src="${downloadUrl}" class="w-full h-full object-cover">
+            <button type="button" class="absolute top-2 right-2 bg-red-500/95 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold hover:bg-red-600 transition-colors remove-photo-btn">&times;</button>
+          `;
+
+          previewCard.querySelector('.remove-photo-btn').addEventListener('click', (e) => {
+            e.stopPropagation();
+            uploadedImages = uploadedImages.filter(url => url !== downloadUrl);
+            hiddenUrl.value = uploadedImages.join(',');
+            previewCard.remove();
+          });
+
+          showToast(`Image "${file.name}" uploaded successfully!`, "success");
+        } catch (err) {
+          console.error("Upload failed for file: " + file.name, err);
+          showToast(`Failed to upload "${file.name}": ` + err.message, "error");
+          previewCard.remove();
+        } finally {
+          activeUploadsCount--;
+          updateSubmitButtonState();
+        }
+      }
+      input.value = ''; // Reset file input so same file can be re-selected if removed
+    }
+  }
+
+  function updateSubmitButtonState() {
+    const submitBtn = document.getElementById('submit-listing-btn');
+    if (!submitBtn) return;
+    if (activeUploadsCount > 0) {
+      submitBtn.disabled = true;
+      submitBtn.innerText = `⏳ Uploading Images (${activeUploadsCount})...`;
+      submitBtn.className = "w-full py-4 rounded-xl bg-gray-700 text-gray-400 font-bold text-lg cursor-not-allowed transition-all duration-300";
+    } else {
+      submitBtn.disabled = false;
+      submitBtn.innerText = "🚀 Publish Listing";
+      submitBtn.className = "w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold text-lg hover:shadow-xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02]";
+    }
+  }
+
+  /**
+   * Setup Dropzones and handlers for single direct image uploads
    */
   function setupDropzone(dropzoneId, inputId, previewContainerId, previewImgId, hiddenUrlId, pathPrefix) {
     const dropzone = document.getElementById(dropzoneId);
@@ -70,16 +187,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     dropzone.addEventListener('dragover', (e) => {
       e.preventDefault();
-      dropzone.style.borderColor = 'var(--accent-primary)';
+      dropzone.style.borderColor = '#10b981';
     });
 
     dropzone.addEventListener('dragleave', () => {
-      dropzone.style.borderColor = 'var(--glass-border)';
+      dropzone.style.borderColor = 'rgba(255,255,255,0.1)';
     });
 
     dropzone.addEventListener('drop', async (e) => {
       e.preventDefault();
-      dropzone.style.borderColor = 'var(--glass-border)';
+      dropzone.style.borderColor = 'rgba(255,255,255,0.1)';
       const file = e.dataTransfer.files[0];
       if (file) handleImageFile(file);
     });
@@ -193,7 +310,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
     if (!imageUrl) {
-      showToast("Please upload a listing cover image.", "warning");
+      showToast("Please upload at least one listing photo.", "warning");
       return;
     }
 

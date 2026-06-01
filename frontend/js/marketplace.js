@@ -40,11 +40,14 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (res.success && res.data && res.data.length > 0) {
         res.data.forEach(item => {
+          const images = item.imageUrl ? item.imageUrl.split(',') : [];
+          const mainImage = images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800';
+
           const card = document.createElement('div');
           card.className = 'card glass-panel listing-item-card animate-fade-in';
           card.innerHTML = `
             <div class="card-image-wrapper">
-              <img src="${item.imageUrl || 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800'}" alt="${item.title}">
+              <img src="${mainImage}" alt="${item.title}">
               <span class="card-category-badge">MARKETPLACE</span>
               ${item.price ? `<span class="card-price-tag">${item.price} BDT</span>` : '<span class="card-price-tag">Free / Contact</span>'}
             </div>

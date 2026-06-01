@@ -126,9 +126,10 @@
             class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none"></textarea>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="listing-price" class="block text-sm font-medium text-gray-300 mb-2">Price (BDT)</label>
-            <input type="number" id="listing-price" placeholder="0.00" min="0" step="0.01"
+            <label for="listing-price" class="block text-sm font-medium text-gray-300 mb-2">Price (BDT) <span class="text-gray-500 text-xs font-normal">(Optional)</span></label>
+            <input type="number" id="listing-price" placeholder="e.g. 15000 (leave blank for negotiable)" min="0" step="0.01"
               class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
           </div>
           <div>
@@ -139,18 +140,20 @@
         </div>
       </div>
 
-      <!-- Cover Image -->
+      <!-- Photos Upload -->
       <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-semibold mb-4">📸 Cover Photo <span class="text-red-400">*</span></h2>
+        <h2 class="text-lg font-semibold mb-2">📸 Listing Photos <span class="text-red-400">*</span></h2>
+        <p class="text-xs text-gray-400 mb-4">Upload one or more photos. The first photo will be used as the main cover image.</p>
         <div id="cover-photo-dropzone" class="image-upload-dropzone">
           <span class="upload-icon">📷</span>
-          <span class="upload-text">Click or drag an image here to upload</span>
+          <span class="upload-text">Click or drag images here to upload (multiple allowed)</span>
         </div>
-        <input type="file" id="cover-photo-input" accept="image/*" class="hidden">
+        <input type="file" id="cover-photo-input" accept="image/*" multiple class="hidden">
         <input type="hidden" id="cover-photo-url-hidden">
-        <div id="cover-photo-preview-container" class="hidden mt-4">
-          <img id="cover-photo-preview" src="" alt="Cover preview" class="preview-thumbnail">
-          <button type="button" id="remove-cover-photo-btn" class="remove-preview-btn">&times;</button>
+        
+        <!-- Grid for multi-photo previews -->
+        <div id="photos-preview-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
+          <!-- Populated dynamically via JavaScript -->
         </div>
       </div>
 

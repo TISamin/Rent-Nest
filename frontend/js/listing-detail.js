@@ -19,8 +19,35 @@ document.addEventListener('DOMContentLoaded', () => {
       if (res.success && res.data) {
         const item = res.data;
         
-        // Render Cover Image
-        document.getElementById('detail-image').src = item.imageUrl || 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800';
+        // Render Cover Image & Gallery
+        const images = item.imageUrl ? item.imageUrl.split(',') : [];
+        const mainImage = images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800';
+        document.getElementById('detail-image').src = mainImage;
+        
+        const galleryRow = document.getElementById('detail-gallery-row');
+        if (galleryRow) {
+          galleryRow.innerHTML = '';
+          if (images.length > 1) {
+            images.forEach((imgUrl, index) => {
+              const thumb = document.createElement('img');
+              thumb.src = imgUrl;
+              thumb.className = `w-24 h-16 object-cover rounded-lg cursor-pointer border-2 transition-all duration-200 ${index === 0 ? 'border-emerald-500 opacity-100 scale-95' : 'border-transparent opacity-60 hover:opacity-100'}`;
+              thumb.addEventListener('click', () => {
+                // Change active main image
+                document.getElementById('detail-image').src = imgUrl;
+                // Reset styling for all thumbnails, then highlight active one
+                const children = galleryRow.children;
+                for (let i = 0; i < children.length; i++) {
+                  children[i].className = 'w-24 h-16 object-cover rounded-lg cursor-pointer border-2 border-transparent opacity-60 hover:opacity-100 transition-all duration-200';
+                }
+                thumb.className = 'w-24 h-16 object-cover rounded-lg cursor-pointer border-2 border-emerald-500 opacity-100 scale-95 transition-all duration-200';
+              });
+              galleryRow.appendChild(thumb);
+            });
+          } else {
+            galleryRow.classList.add('hidden');
+          }
+        }
         
         // Render Category Badge
         const categoryBadge = document.getElementById('detail-category-badge');

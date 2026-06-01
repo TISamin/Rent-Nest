@@ -67,11 +67,17 @@
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
       <!-- Main Content -->
       <div class="lg:col-span-2 space-y-6">
-        <!-- Cover Image -->
-        <div class="relative rounded-2xl overflow-hidden animate-fade-in-up">
-          <img id="detail-image" src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800" alt="Listing cover"
-            class="w-full h-72 sm:h-96 object-cover">
-          <span id="detail-category-badge" class="absolute top-4 left-4 bg-emerald-500/90 text-white text-xs font-semibold px-3 py-1.5 rounded-lg uppercase tracking-wide"></span>
+        <!-- Cover Image & Gallery -->
+        <div class="space-y-4 animate-fade-in-up">
+          <div class="relative rounded-2xl overflow-hidden">
+            <img id="detail-image" src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800" alt="Listing cover"
+              class="w-full h-72 sm:h-96 object-cover">
+            <span id="detail-category-badge" class="absolute top-4 left-4 bg-emerald-500/90 text-white text-xs font-semibold px-3 py-1.5 rounded-lg uppercase tracking-wide"></span>
+          </div>
+          <!-- Thumbnail Row (hidden if only 1 image) -->
+          <div id="detail-gallery-row" class="flex gap-2 overflow-x-auto py-2 scroll-smooth">
+            <!-- Dynamically populated thumbnails -->
+          </div>
         </div>
 
         <!-- Title & Location -->
