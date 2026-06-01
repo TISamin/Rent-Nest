@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Post a Listing — RentNest</title>
+  <!-- Outfit & Inter Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/listing.css">
+  
+  <!-- Firebase Compat Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-logo">
+        <span class="logo-icon">🏠</span>
+        <span class="logo-text">RentNest</span>
+      </a>
+
+      <nav class="nav-links" id="nav-links">
+        <a href="browse-rental.html" class="nav-item">Browse Rentals</a>
+        <a href="marketplace.html" class="nav-item">Marketplace</a>
+        <a href="roommate-finder.html" class="nav-item">Find Roommates</a>
+        <a href="post-listing.html" class="nav-item active">Post a Listing</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div id="user-profile-menu" class="user-menu">
+          <a href="profile.html" class="user-avatar-btn">
+            <img id="navbar-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User profile" class="avatar-sm">
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Post Form Content -->
+  <main class="post-listing-container">
+    <div class="form-card glass-panel animate-fade-in">
+      <div class="auth-header">
+        <h2 class="auth-title">Create a New <span class="gradient-text">Listing</span></h2>
+        <p class="auth-subtitle">Fill in details below to post your rental category, service, or marketplace item</p>
+      </div>
+
+      <form id="post-listing-form" class="auth-form">
+        
+        <!-- Category Selector -->
+        <div class="form-group category-selector-wrapper">
+          <label for="listing-category" class="form-label">Category</label>
+          <select id="listing-category" class="form-select" required>
+            <option value="" disabled selected>Select Category</option>
+            <optgroup label="Properties">
+              <option value="FLAT">🏢 Flat & Apartment</option>
+              <option value="HOTEL">🏨 Premium Hotel</option>
+              <option value="HOUSE">🏡 House & Villa</option>
+              <option value="CONVENTION_HALL">🏛️ Convention Hall</option>
+            </optgroup>
+            <optgroup label="Roommates">
+              <option value="ROOMMATE_FINDER">🤝 Find Roommates</option>
+            </optgroup>
+            <optgroup label="Marketplace">
+              <option value="MARKETPLACE">🛒 Buy & Sell Local Items</option>
+            </optgroup>
+            <optgroup label="Services">
+              <option value="SHIFTING_SERVICE">🚚 Shifting Service</option>
+              <option value="EVENT_PLANNING">🎉 Event Planning</option>
+              <option value="DECORATION_SERVICE">🎈 Decoration Service</option>
+              <option value="MAINTENANCE_SERVICE">🔧 Maintenance Service</option>
+              <option value="CLEANING_SERVICE">🧹 Cleaning Service</option>
+              <option value="CATERING_SERVICE">🍽️ Catering Service</option>
+            </optgroup>
+          </select>
+        </div>
+
+        <!-- Title -->
+        <div class="form-group">
+          <label for="listing-title" class="form-label">Title</label>
+          <input type="text" id="listing-title" class="form-input" placeholder="e.g. Spacious 3BHK Apartment in Dhanmondi" maxlength="200" required>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label for="listing-description" class="form-label">Description</label>
+          <textarea id="listing-description" class="form-textarea" placeholder="Detail your listing, key features, pricing terms..." rows="4"></textarea>
+        </div>
+
+        <!-- Price -->
+        <div class="form-group">
+          <label for="listing-price" class="form-label">Price (BDT)</label>
+          <input type="number" id="listing-price" class="form-input" placeholder="e.g. 25000" min="0">
+        </div>
+
+        <!-- Contact Phone -->
+        <div class="form-group">
+          <label for="listing-contact-phone" class="form-label">Contact Phone</label>
+          <input type="tel" id="listing-contact-phone" class="form-input" placeholder="e.g. +8801712345678" required>
+        </div>
+
+        <!-- Primary Image Upload -->
+        <div class="form-group">
+          <label class="form-label">Listing Cover Photo</label>
+          <div class="image-upload-dropzone" id="cover-photo-dropzone">
+            <span class="upload-icon">📸</span>
+            <span class="upload-text">Click or Drag & Drop Image Here</span>
+            <span class="form-help-text">JPG, PNG, WebP up to 5MB</span>
+          </div>
+          <input type="file" id="cover-photo-input" accept="image/*" class="hidden">
+          <input type="hidden" id="cover-photo-url-hidden" required>
+          
+          <div class="preview-thumbnail-container hidden" id="cover-photo-preview-container">
+            <img src="" alt="Cover Photo Preview" class="preview-thumbnail" id="cover-photo-preview">
+            <button type="button" class="remove-preview-btn" id="remove-cover-photo-btn">&times;</button>
+          </div>
+        </div>
+
+        <!-- Geolocation & Map picker -->
+        <div class="form-group">
+          <label for="listing-location-text" class="form-label">Location Address</label>
+          <div class="map-search-wrapper">
+            <input type="text" id="listing-location-text" class="form-input" placeholder="Enter street, city, area or search on map...">
+            <button type="button" class="btn btn-secondary" onclick="searchLocationText()">Search</button>
+          </div>
+          
+          <div class="map-container" id="leaflet-post-map"></div>
+          
+          <div class="text-right">
+            <button type="button" class="btn btn-ghost btn-sm" onclick="detectUserLocation()">
+              📍 Use My Location
+            </button>
+          </div>
+
+          <input type="hidden" id="listing-latitude">
+          <input type="hidden" id="listing-longitude">
+        </div>
+
+        <!-- === ROOMMATE FINDER ADDITIONAL OPTIONAL EXTRA SECTION === -->
+        <div class="roommate-extra-section hidden" id="roommate-fields-section">
+          <h3 class="member-header mb-1">Roommate Finder Specifications</h3>
+          
+          <!-- Owner Photo -->
+          <div class="form-group">
+            <label class="form-label">Your Photo (Listing Owner)</label>
+            <div class="image-upload-dropzone" id="owner-photo-dropzone">
+              <span class="upload-icon">👤</span>
+              <span class="upload-text">Click or Drag to Upload Your Photo</span>
+            </div>
+            <input type="file" id="owner-photo-input" accept="image/*" class="hidden">
+            <input type="hidden" id="owner-photo-url-hidden">
+            
+            <div class="preview-thumbnail-container hidden" id="owner-photo-preview-container">
+              <img src="" alt="Owner Photo Preview" class="preview-thumbnail" id="owner-photo-preview">
+              <button type="button" class="remove-preview-btn" id="remove-owner-photo-btn">&times;</button>
+            </div>
+          </div>
+
+          <!-- Roommates counts wanted & already have -->
+          <div class="roommate-counts-grid">
+            <div class="form-group">
+              <label for="total-roommates-wanted" class="form-label">Roommates Wanted</label>
+              <input type="number" id="total-roommates-wanted" class="form-input" placeholder="e.g. 2" min="1" value="1">
+            </div>
+            <div class="form-group">
+              <label for="roommates-already-have" class="form-label">Members Already Present</label>
+              <input type="number" id="roommates-already-have" class="form-input" placeholder="e.g. 1" min="0" value="0">
+            </div>
+          </div>
+
+          <!-- Roommate Members dynamically rendered cards -->
+          <div class="form-group">
+            <label class="form-label">Present Roommate Details</label>
+            <div class="members-cards-container" id="members-list-cards">
+              <!-- Dynamically rendered fields go here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" id="submit-listing-btn" class="btn btn-primary btn-full-width mt-2">
+          Publish Listing
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer mt-3">
+    <div class="container text-center">
+      <p>&copy; 2026 RentNest. Secure Listings Manager.</p>
+    </div>
+  </footer>
+
+  <!-- Leaflet Javascript -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  
+  <!-- Scripts -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/post-listing.js"></script>
+</body>
+</html>
