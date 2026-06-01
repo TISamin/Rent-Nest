@@ -56,4 +56,31 @@ public class SearchService {
         }
         return listings;
     }
+
+    public List<Listing> searchServices(String location, ListingCategory category) {
+        List<Listing> listings;
+        if (category != null) {
+            listings = listingRepository.findByCategoryAndIsActiveTrueOrderByCreatedAtDesc(category);
+        } else {
+            List<ListingCategory> serviceCategories = java.util.List.of(
+                ListingCategory.SHIFTING_SERVICE,
+                ListingCategory.EVENT_PLANNING,
+                ListingCategory.DECORATION_SERVICE,
+                ListingCategory.MAINTENANCE_SERVICE,
+                ListingCategory.CLEANING_SERVICE,
+                ListingCategory.CATERING_SERVICE
+            );
+            listings = listingRepository.findByIsActiveTrueOrderByCreatedAtDesc().stream()
+                    .filter(l -> serviceCategories.contains(l.getCategory()))
+                    .collect(Collectors.toList());
+        }
+
+        if (location != null && !location.trim().isEmpty()) {
+            String lowerLoc = location.toLowerCase();
+            return listings.stream()
+                    .filter(l -> l.getLocationText() != null && l.getLocationText().toLowerCase().contains(lowerLoc))
+                    .collect(Collectors.toList());
+        }
+        return listings;
+    }
 }

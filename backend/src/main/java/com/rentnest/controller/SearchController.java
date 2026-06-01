@@ -52,4 +52,15 @@ public class SearchController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(ApiResponse.success(responses, "Roommate listings retrieved successfully"));
     }
+
+    @GetMapping("/services")
+    public ResponseEntity<ApiResponse<List<ListingResponse>>> searchServices(
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) ListingCategory category) {
+        List<Listing> listings = searchService.searchServices(location, category);
+        List<ListingResponse> responses = listings.stream()
+                .map(ListingResponse::fromEntity)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(ApiResponse.success(responses, "Service listings retrieved successfully"));
+    }
 }
