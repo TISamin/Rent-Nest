@@ -9,7 +9,7 @@ import java.util.UUID;
 
 /**
  * User entity representing a registered platform user.
- * Users are identified by their phone number (Firebase phone auth).
+ * Users are identified by their email address (Email OTP auth).
  */
 @Entity
 @Table(name = "users")
@@ -23,13 +23,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "phone_number", unique = true, nullable = false, length = 20)
+    @Column(name = "phone_number", unique = true, length = 20)
     private String phoneNumber;
 
     @Column(name = "name", length = 100)
     private String name;
 
-    @Column(name = "email", length = 100)
+    @Column(name = "email", unique = true, length = 100)
     private String email;
 
     @Column(name = "address", columnDefinition = "TEXT")

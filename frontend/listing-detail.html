@@ -3,116 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Listing Details — RentNest</title>
-  <!-- Outfit & Inter Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  
+  <title>Listing Details | RentNest</title>
+  <meta name="description" content="View listing details, photos, location, and contact information on RentNest.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'], heading: ['Outfit','Inter','sans-serif'] } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
   <!-- Leaflet CSS -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/browse.css">
-  <link rel="stylesheet" href="css/listing.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-heading { font-family: 'Outfit', 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0e17; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+    .gradient-text { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    .animate-fade-in { animation: fadeInUp 0.4s ease-out forwards; }
+    #leaflet-detail-map { height: 300px; border-radius: 12px; z-index: 1; }
+    .member-form-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+    .member-header { font-weight: 600; color: #8b5cf6; font-size: 0.9rem; }
+    .text-secondary { color: #94a3b8; }
+  </style>
 </head>
-<body>
+<body class="bg-[#0a0e17] text-gray-100 min-h-screen">
 
   <!-- Navbar -->
-  <header class="navbar">
-    <div class="container navbar-container">
-      <a href="index.html" class="navbar-logo">
-        <span class="logo-icon">🏠</span>
-        <span class="logo-text">RentNest</span>
-      </a>
-      <a href="index.html" class="btn btn-ghost">Home</a>
-    </div>
-  </header>
-
-  <!-- Detail Container -->
-  <main class="detail-layout-container container" id="detail-layout">
-    
-    <!-- Detail Main Panel -->
-    <div class="detail-main-panel animate-fade-in" id="detail-main">
-      <img src="" alt="Listing Image" class="detail-cover-image" id="detail-image">
-      
-      <div class="glass-panel" style="padding: 30px;">
-        <span class="card-category-badge" id="detail-category-badge" style="position: static; display: inline-block; margin-bottom: 15px;">Category</span>
-        <h1 class="auth-title mt-xs" id="detail-title" style="text-align: left; font-size: 2rem;">Listing Title</h1>
-        <div class="card-location-text mt-sm" id="detail-location-text" style="font-size: 1rem;">📍 Address location</div>
-        
-        <h3 class="member-header mt-lg mb-1">Description</h3>
-        <p class="card-description-text" id="detail-description" style="font-size: 1.05rem; line-height: 1.6; color: var(--text-primary);">Detailed description...</p>
-      </div>
-
-      <!-- Roommate member list details if category matches -->
-      <div class="glass-panel hidden" id="detail-roommates-panel" style="padding: 30px;">
-        <h3 class="member-header mb-1">Co-living Members Details</h3>
-        
-        <div class="roommate-stats-row" style="margin-bottom: 30px;">
-          <div class="roommate-stat-badge">
-            <span class="roommate-stat-num" id="detail-wanted-count">0</span>
-            <span class="roommate-stat-lbl">Roommates Wanted</span>
-          </div>
-          <div class="roommate-stat-badge">
-            <span class="roommate-stat-num" id="detail-have-count">0</span>
-            <span class="roommate-stat-lbl">Members Already Have</span>
-          </div>
+  <nav class="fixed top-0 w-full z-50 bg-gray-900/80 backdrop-blur-xl border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center space-x-2"><span class="text-2xl">🏠</span><span class="text-xl font-bold font-heading bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">RentNest</span></a>
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="browse-rental.html" class="text-gray-300 hover:text-white transition-colors">Rentals</a>
+          <a href="marketplace.html" class="text-gray-300 hover:text-white transition-colors">Marketplace</a>
+          <a href="roommate-finder.html" class="text-gray-300 hover:text-white transition-colors">Roommates</a>
+          <a href="post-listing.html" class="text-gray-300 hover:text-white transition-colors">Post Ad</a>
         </div>
-
-        <h4 class="member-header mb-1" style="font-size: 1.1rem;">Present Roommates Profile Cards</h4>
-        <div class="members-cards-container" id="detail-members-cards">
-          <!-- Roommate dynamic member profiles -->
+        <div class="flex items-center space-x-4">
+          <a href="login.html" id="loginBtn" class="px-5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105">Login</a>
+          <a href="profile.html" id="profileBtn" class="hidden px-5 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-all duration-300">Profile</a>
+          <button id="logoutBtn" class="hidden px-4 py-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 text-sm">Logout</button>
+          <button id="mobileMenuBtn" class="md:hidden text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         </div>
       </div>
     </div>
+    <div id="mobileMenu" class="hidden md:hidden bg-gray-900/95 backdrop-blur-xl border-b border-white/10">
+      <div class="px-4 py-3 space-y-2"><a href="browse-rental.html" class="block py-2 text-gray-300">Rentals</a><a href="marketplace.html" class="block py-2 text-gray-300">Marketplace</a><a href="roommate-finder.html" class="block py-2 text-gray-300">Roommates</a><a href="post-listing.html" class="block py-2 text-gray-300">Post Ad</a></div>
+    </div>
+  </nav>
 
-    <!-- Detail Sidebar Panel -->
-    <div class="detail-sidebar-panel animate-fade-in" id="detail-sidebar">
-      
-      <!-- Transaction Card -->
-      <div class="card glass-panel" style="padding: 30px;">
-        <div class="price-header" style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 15px; margin-bottom: 20px;">
-          <span class="form-help-text" style="font-size: 0.9rem;">Requested Pricing:</span>
-          <h2 class="auth-title mt-xs" id="detail-price-text" style="text-align: left; color: var(--accent-primary); font-size: 1.8rem;">Contact / Negotiable</h2>
+  <main class="max-w-5xl mx-auto px-4 pt-24 pb-12">
+    <!-- Back Button -->
+    <div class="mb-6 animate-fade-in-up">
+      <button onclick="history.back()" class="text-gray-400 hover:text-white transition-colors flex items-center gap-2 text-sm">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+        Back to listings
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Cover Image -->
+        <div class="relative rounded-2xl overflow-hidden animate-fade-in-up">
+          <img id="detail-image" src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800" alt="Listing cover"
+            class="w-full h-72 sm:h-96 object-cover">
+          <span id="detail-category-badge" class="absolute top-4 left-4 bg-emerald-500/90 text-white text-xs font-semibold px-3 py-1.5 rounded-lg uppercase tracking-wide"></span>
         </div>
 
-        <!-- Contact Author Details -->
-        <h4 class="member-header mb-sm" style="font-size: 1rem;">Listing Author</h4>
-        <div class="card-author-profile mb-md" style="gap: 12px;">
-          <img id="detail-owner-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="Author avatar" style="width: 45px; height: 45px;">
-          <div>
-            <h4 class="card-author-name" id="detail-owner-name" style="font-size: 0.95rem; color: var(--text-primary);">Anonymous Owner</h4>
-            <span class="form-help-text">Listing Representative</span>
+        <!-- Title & Location -->
+        <div class="animate-fade-in-up" style="animation-delay:0.1s;">
+          <h1 id="detail-title" class="text-2xl sm:text-3xl font-bold font-heading mb-2"></h1>
+          <p id="detail-location-text" class="text-gray-400 flex items-center gap-1"></p>
+        </div>
+
+        <!-- Description -->
+        <div class="glass rounded-2xl p-6 animate-fade-in-up" style="animation-delay:0.2s;">
+          <h2 class="text-lg font-semibold mb-3">Description</h2>
+          <p id="detail-description" class="text-gray-400 leading-relaxed"></p>
+        </div>
+
+        <!-- Map -->
+        <div class="glass rounded-2xl p-6 animate-fade-in-up" style="animation-delay:0.3s;">
+          <h2 class="text-lg font-semibold mb-3">📍 Location</h2>
+          <div id="leaflet-detail-map"></div>
+        </div>
+
+        <!-- Roommate Panel (hidden by default) -->
+        <div id="detail-roommates-panel" class="hidden glass rounded-2xl p-6 animate-fade-in-up">
+          <h2 class="text-lg font-semibold mb-4">🤝 Roommate Details</h2>
+          <div class="flex gap-4 mb-4">
+            <div class="flex-1 bg-purple-500/10 border border-purple-500/20 rounded-xl p-4 text-center">
+              <span id="detail-wanted-count" class="block text-2xl font-bold text-purple-400">0</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Wanted</span>
+            </div>
+            <div class="flex-1 bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4 text-center">
+              <span id="detail-have-count" class="block text-2xl font-bold text-emerald-400">0</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wide">Already Have</span>
+            </div>
+          </div>
+          <div id="detail-members-cards">
+            <!-- JS populates member cards -->
           </div>
         </div>
-
-        <!-- Dynamic Action buttons -->
-        <a id="detail-contact-btn" href="tel:" class="btn btn-primary btn-full-width text-center">
-          📞 Contact Owner
-        </a>
       </div>
 
-      <!-- Detail map picker with Leaflet pins -->
-      <div class="card glass-panel" style="padding: 20px;">
-        <h4 class="member-header mb-sm" style="font-size: 1rem;">Listing Location Map</h4>
-        <div class="detail-map-box" id="leaflet-detail-map"></div>
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Price Card -->
+        <div class="glass rounded-2xl p-6 text-center animate-fade-in-up" style="animation-delay:0.15s;">
+          <p class="text-gray-400 text-sm mb-1">Price</p>
+          <p id="detail-price-text" class="text-3xl font-bold gradient-text"></p>
+        </div>
+
+        <!-- Owner Card -->
+        <div class="glass rounded-2xl p-6 animate-fade-in-up" style="animation-delay:0.25s;">
+          <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-4">Listed By</h3>
+          <div class="flex items-center gap-3 mb-4">
+            <img id="detail-owner-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="Owner"
+              class="w-12 h-12 rounded-full object-cover border-2 border-emerald-500/30">
+            <span id="detail-owner-name" class="font-medium"></span>
+          </div>
+          <a id="detail-contact-btn" href="#"
+            class="block w-full text-center py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02]">
+            📞 Contact Owner
+          </a>
+        </div>
       </div>
     </div>
   </main>
 
-  <footer class="footer mt-3">
-    <div class="container text-center">
-      <p>&copy; 2026 RentNest. Designed with absolute visual excellence.</p>
+  <!-- Footer -->
+  <footer class="bg-gray-900/50 border-t border-white/10 mt-20">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div><div class="flex items-center space-x-2 mb-4"><span class="text-2xl">🏠</span><span class="text-xl font-bold font-heading bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">RentNest</span></div><p class="text-gray-400 text-sm">Your one-stop platform for rentals, services, and roommate connections.</p></div>
+        <div><h4 class="text-white font-semibold mb-3">Browse</h4><div class="space-y-2"><a href="browse-rental.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Rentals</a><a href="marketplace.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Marketplace</a><a href="roommate-finder.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Roommates</a></div></div>
+        <div><h4 class="text-white font-semibold mb-3">Account</h4><div class="space-y-2"><a href="login.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Login</a><a href="profile.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Profile</a><a href="post-listing.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Post a Listing</a></div></div>
+        <div><h4 class="text-white font-semibold mb-3">Contact</h4><p class="text-gray-400 text-sm">support@rentnest.com</p></div>
+      </div>
+      <div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-500 text-sm">&copy; 2025 RentNest. All rights reserved.</div>
     </div>
   </footer>
 
-  <!-- Leaflet JavaScript -->
+  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-  <!-- Scripts -->
   <script src="js/api.js"></script>
   <script src="js/listing-detail.js"></script>
+  <script>
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => { document.getElementById('mobileMenu')?.classList.toggle('hidden'); });
+    function updateNavAuth() { const t = localStorage.getItem('rentnest_token'); const l = document.getElementById('loginBtn'); const p = document.getElementById('profileBtn'); const o = document.getElementById('logoutBtn'); if(t){l?.classList.add('hidden');p?.classList.remove('hidden');o?.classList.remove('hidden');}else{l?.classList.remove('hidden');p?.classList.add('hidden');o?.classList.add('hidden');} }
+    updateNavAuth();
+    document.getElementById('logoutBtn')?.addEventListener('click', () => { logout(); });
+  </script>
 </body>
 </html>

@@ -1,4 +1,5 @@
 // Firebase v9 Compat Web SDK Configuration & Initialization
+// Storage only — auth is handled via email OTP through backend
 const firebaseConfig = {
   apiKey: "AIzaSyAdyuzAsSvI0Lb4ggFyCdcxdOy7UlSk6FU",
   authDomain: "rent-nest-b9e74.firebaseapp.com",
@@ -9,15 +10,9 @@ const firebaseConfig = {
   measurementId: "G-L7QJZ15GBQ"
 };
 
-// Initialize Firebase compat
 firebase.initializeApp(firebaseConfig);
 
-const auth = firebase.auth();
 const storage = firebase.storage();
-
-// Expose globally
-window.auth = auth;
 window.storage = storage;
-window.firebase = firebase;
 
-console.log("Firebase services successfully initialized.");
+console.log("Firebase Storage initialized.");

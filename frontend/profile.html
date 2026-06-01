@@ -3,111 +3,208 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Setup Profile — RentNest</title>
-  <!-- Outfit & Inter Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/auth.css">
-  <!-- Firebase Compat Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <title>Profile | RentNest</title>
+  <meta name="description" content="Manage your RentNest profile, upload a photo, and update your personal details.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            heading: ['Outfit', 'Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Firebase Storage CDN (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
   <!-- EmailJS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-heading { font-family: 'Outfit', 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0e17; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+    .gradient-text { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    .hero-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.15; }
+    .avatar-container { position: relative; cursor: pointer; }
+    .avatar-container:hover .avatar-overlay { opacity: 1; }
+    .avatar-overlay { position: absolute; inset: 0; border-radius: 50%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+  </style>
 </head>
-<body>
+<body class="bg-[#0a0e17] text-gray-100 min-h-screen">
 
   <!-- Navbar -->
-  <header class="navbar">
-    <div class="container navbar-container">
-      <a href="index.html" class="navbar-logo">
-        <span class="logo-icon">🏠</span>
-        <span class="logo-text">RentNest</span>
-      </a>
-      <button id="nav-logout-btn" class="btn btn-ghost">Logout</button>
-    </div>
-  </header>
-
-  <!-- Main Profile Page Content -->
-  <main class="auth-wrapper container">
-    <div class="auth-card profile-card glass-panel animate-fade-in">
-      <div class="auth-header">
-        <h2 class="auth-title">Complete Your <span class="gradient-text">Profile</span></h2>
-        <p class="auth-subtitle">Provide your basic information so other users can identify you</p>
+  <nav class="fixed top-0 w-full z-50 bg-gray-900/80 backdrop-blur-xl border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center space-x-2">
+          <span class="text-2xl">🏠</span>
+          <span class="text-xl font-bold font-heading bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">RentNest</span>
+        </a>
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="browse-rental.html" class="text-gray-300 hover:text-white transition-colors duration-200">Rentals</a>
+          <a href="marketplace.html" class="text-gray-300 hover:text-white transition-colors duration-200">Marketplace</a>
+          <a href="roommate-finder.html" class="text-gray-300 hover:text-white transition-colors duration-200">Roommates</a>
+          <a href="post-listing.html" class="text-gray-300 hover:text-white transition-colors duration-200">Post Ad</a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <a href="login.html" id="loginBtn" class="px-5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105">Login</a>
+          <a href="profile.html" id="profileBtn" class="hidden px-5 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-all duration-300">Profile</a>
+          <button id="logoutBtn" class="hidden px-4 py-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 text-sm">Logout</button>
+          <button id="mobileMenuBtn" class="md:hidden text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+        </div>
       </div>
+    </div>
+    <div id="mobileMenu" class="hidden md:hidden bg-gray-900/95 backdrop-blur-xl border-b border-white/10">
+      <div class="px-4 py-3 space-y-2">
+        <a href="browse-rental.html" class="block py-2 text-gray-300 hover:text-white">Rentals</a>
+        <a href="marketplace.html" class="block py-2 text-gray-300 hover:text-white">Marketplace</a>
+        <a href="roommate-finder.html" class="block py-2 text-gray-300 hover:text-white">Roommates</a>
+        <a href="post-listing.html" class="block py-2 text-gray-300 hover:text-white">Post Ad</a>
+      </div>
+    </div>
+  </nav>
 
-      <form id="profile-form" class="auth-form">
-        
-        <!-- Avatar Upload with Hover Camera Icon -->
-        <div class="profile-avatar-wrapper">
-          <div class="profile-avatar-container">
-            <img id="avatar-preview" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="Profile Preview">
-            <label for="photo-input" class="avatar-edit-overlay">
-              <span class="camera-icon">📷</span>
-            </label>
+  <!-- Profile Content -->
+  <main class="relative min-h-screen flex items-center justify-center px-4 pt-24 pb-12 overflow-hidden">
+    <div class="hero-orb w-72 h-72 bg-emerald-500 -top-20 -right-36"></div>
+    <div class="hero-orb w-56 h-56 bg-cyan-500 bottom-10 -left-28"></div>
+
+    <div class="relative z-10 w-full max-w-2xl">
+      <div class="glass rounded-2xl p-8 sm:p-10 animate-fade-in-up">
+        <div class="text-center mb-8">
+          <h1 class="text-2xl font-bold font-heading">Your <span class="gradient-text">Profile</span></h1>
+          <p class="text-gray-400 text-sm mt-1">Keep your details up to date</p>
+        </div>
+
+        <form id="profile-form">
+          <!-- Avatar Upload -->
+          <div class="flex justify-center mb-8">
+            <div class="avatar-container w-28 h-28" onclick="document.getElementById('photo-input').click()">
+              <img id="avatar-preview" src="https://ui-avatars.com/api/?name=User&background=10b981&color=fff&size=128&rounded=true" alt="Avatar"
+                class="w-28 h-28 rounded-full object-cover border-2 border-emerald-500/30">
+              <div class="avatar-overlay rounded-full">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </div>
+              <input type="file" id="photo-input" accept="image/*" class="hidden">
+              <input type="hidden" id="photo-url-hidden">
+            </div>
           </div>
-          <input type="file" id="photo-input" accept="image/*" class="hidden-file-input">
-          <input type="hidden" id="photo-url-hidden">
-          <small class="form-help-text mt-1">Click image above to upload custom photo.</small>
-        </div>
 
-        <!-- Phone Field (Disabled/Read-only from Firebase Auth) -->
-        <div class="form-group">
-          <label for="profile-phone" class="form-label">Phone Number</label>
-          <input type="text" id="profile-phone" class="form-input" disabled>
-          <small class="form-help-text">Your phone is permanently linked to this account.</small>
-        </div>
+          <!-- Email Display (readonly) -->
+          <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-300 mb-2">Email (login)</label>
+            <input type="email" id="profile-email-display" readonly
+              class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-gray-400 cursor-not-allowed">
+          </div>
 
-        <!-- Name Input -->
-        <div class="form-group">
-          <label for="profile-name" class="form-label">Full Name</label>
-          <input type="text" id="profile-name" class="form-input" placeholder="e.g. John Doe" required>
-        </div>
+          <!-- Name -->
+          <div class="mb-5">
+            <label for="profile-name" class="block text-sm font-medium text-gray-300 mb-2">Full Name <span class="text-red-400">*</span></label>
+            <input type="text" id="profile-name" placeholder="John Doe"
+              class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200">
+          </div>
 
-        <!-- Email Input -->
-        <div class="form-group">
-          <label for="profile-email" class="form-label">Email Address</label>
-          <input type="email" id="profile-email" class="form-input" placeholder="e.g. john@example.com" required>
-        </div>
+          <!-- Secondary Email -->
+          <div class="mb-5">
+            <label for="profile-email" class="block text-sm font-medium text-gray-300 mb-2">Contact Email</label>
+            <input type="email" id="profile-email" placeholder="contact@example.com"
+              class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200">
+          </div>
 
-        <!-- Address Textarea -->
-        <div class="form-group">
-          <label for="profile-address" class="form-label">Address</label>
-          <textarea id="profile-address" class="form-textarea" placeholder="e.g. Dhanmondi, Dhaka, Bangladesh" rows="3"></textarea>
-        </div>
+          <!-- Address -->
+          <div class="mb-8">
+            <label for="profile-address" class="block text-sm font-medium text-gray-300 mb-2">Address</label>
+            <textarea id="profile-address" rows="3" placeholder="Your address..."
+              class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200 resize-none"></textarea>
+          </div>
 
-        <button type="submit" id="save-profile-btn" class="btn btn-primary btn-full-width mt-1">
-          Save Profile
-        </button>
-      </form>
+          <!-- Save Button -->
+          <button type="submit" id="save-profile-btn"
+            class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02]">
+            Save Profile
+          </button>
+        </form>
+      </div>
     </div>
   </main>
 
-  <footer class="footer mt-3">
-    <div class="container text-center">
-      <p>&copy; 2026 RentNest. Secure profile settings.</p>
+  <!-- Footer -->
+  <footer class="bg-gray-900/50 border-t border-white/10 mt-20">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-4">
+            <span class="text-2xl">🏠</span>
+            <span class="text-xl font-bold font-heading bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">RentNest</span>
+          </div>
+          <p class="text-gray-400 text-sm">Your one-stop platform for rentals, services, and roommate connections.</p>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-3">Browse</h4>
+          <div class="space-y-2">
+            <a href="browse-rental.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Rentals</a>
+            <a href="marketplace.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Marketplace</a>
+            <a href="roommate-finder.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Roommates</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-3">Account</h4>
+          <div class="space-y-2">
+            <a href="login.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Login</a>
+            <a href="profile.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Profile</a>
+            <a href="post-listing.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Post a Listing</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-3">Contact</h4>
+          <p class="text-gray-400 text-sm">support@rentnest.com</p>
+        </div>
+      </div>
+      <div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-500 text-sm">
+        &copy; 2025 RentNest. All rights reserved.
+      </div>
     </div>
   </footer>
 
-  <!-- Scripts -->
   <script src="js/firebase-config.js"></script>
   <script src="js/api.js"></script>
-  <script src="js/auth.js"></script>
   <script src="js/profile.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Logout in profile navbar
-      const navLogout = document.getElementById('nav-logout-btn');
-      if (navLogout) {
-        navLogout.addEventListener('click', (e) => {
-          e.preventDefault();
-          logout();
-        });
-      }
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu')?.classList.toggle('hidden');
     });
+    function updateNavAuth() {
+      const token = localStorage.getItem('rentnest_token');
+      const loginBtn = document.getElementById('loginBtn');
+      const profileBtn = document.getElementById('profileBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (token) {
+        if (loginBtn) loginBtn.classList.add('hidden');
+        if (profileBtn) profileBtn.classList.remove('hidden');
+        if (logoutBtn) logoutBtn.classList.remove('hidden');
+      } else {
+        if (loginBtn) loginBtn.classList.remove('hidden');
+        if (profileBtn) profileBtn.classList.add('hidden');
+        if (logoutBtn) logoutBtn.classList.add('hidden');
+      }
+    }
+    updateNavAuth();
+    document.getElementById('logoutBtn')?.addEventListener('click', () => { logout(); });
   </script>
 </body>
 </html>

@@ -3,95 +3,117 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Marketplace — RentNest</title>
-  <!-- Outfit & Inter Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/browse.css">
+  <title>Marketplace | RentNest</title>
+  <meta name="description" content="Buy and sell items on the RentNest Marketplace. Find furniture, electronics, and more.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'], heading: ['Outfit','Inter','sans-serif'] } } } }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-heading { font-family: 'Outfit', 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0e17; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+    .gradient-text { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    .card-image-wrapper { position: relative; overflow: hidden; border-radius: 12px 12px 0 0; }
+    .card-image-wrapper img { width: 100%; height: 200px; object-fit: cover; transition: transform 0.3s; }
+    .card-image-wrapper:hover img { transform: scale(1.05); }
+    .card-category-badge { position: absolute; top: 12px; left: 12px; background: rgba(6,182,212,0.9); color: #fff; font-size: 0.7rem; font-weight: 600; padding: 4px 10px; border-radius: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+    .card-price-tag { position: absolute; bottom: 12px; right: 12px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); color: #10b981; font-weight: 700; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; }
+    .card-body-content { padding: 16px; }
+    .card-title-text { font-size: 1.1rem; font-weight: 600; color: #f1f5f9; margin-bottom: 4px; }
+    .card-location-text { font-size: 0.8rem; color: #94a3b8; margin-bottom: 8px; }
+    .card-description-text { font-size: 0.85rem; color: #64748b; line-height: 1.5; margin-bottom: 12px; }
+    .card-footer-info { display: flex; align-items: center; justify-content: space-between; }
+    .card-author-profile { display: flex; align-items: center; gap: 8px; }
+    .card-author-profile img { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
+    .card-author-name { font-size: 0.8rem; color: #94a3b8; }
+    .listing-item-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; transition: all 0.3s; }
+    .listing-item-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.4); border-color: rgba(6,182,212,0.3); }
+    .btn-ghost { padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); color: #06b6d4; font-size: 0.8rem; font-weight: 500; text-decoration: none; transition: all 0.2s; }
+    .btn-ghost:hover { background: rgba(6,182,212,0.1); border-color: #06b6d4; }
+    .skeleton-card { border-radius: 12px; padding: 0; overflow: hidden; }
+    .skeleton-image { height: 200px; background: linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; }
+    .skeleton-title { height: 20px; margin: 16px; width: 70%; background: linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+    .skeleton-text { height: 14px; margin: 0 16px 16px; width: 50%; background: linear-gradient(90deg,rgba(255,255,255,0.05) 25%,rgba(255,255,255,0.1) 50%,rgba(255,255,255,0.05) 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 6px; }
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+  </style>
 </head>
-<body>
+<body class="bg-[#0a0e17] text-gray-100 min-h-screen">
 
   <!-- Navbar -->
-  <header class="navbar">
-    <div class="container navbar-container">
-      <a href="index.html" class="navbar-logo">
-        <span class="logo-icon">🏠</span>
-        <span class="logo-text">RentNest</span>
-      </a>
-
-      <nav class="nav-links" id="nav-links">
-        <a href="browse-rental.html" class="nav-item">Browse Rentals</a>
-        <a href="marketplace.html" class="nav-item active">Marketplace</a>
-        <a href="roommate-finder.html" class="nav-item">Find Roommates</a>
-        <a href="post-listing.html" class="nav-item">Post a Listing</a>
-      </nav>
-
-      <div class="nav-actions">
-        <a href="login.html" id="auth-btn" class="btn btn-primary">Login</a>
-        <div id="user-profile-menu" class="user-menu hidden">
-          <a href="profile.html" class="user-avatar-btn">
-            <img id="navbar-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User profile" class="avatar-sm">
-          </a>
+  <nav class="fixed top-0 w-full z-50 bg-gray-900/80 backdrop-blur-xl border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center space-x-2"><span class="text-2xl">🏠</span><span class="text-xl font-bold font-heading bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">RentNest</span></a>
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="browse-rental.html" class="text-gray-300 hover:text-white transition-colors">Rentals</a>
+          <a href="marketplace.html" class="text-white font-medium">Marketplace</a>
+          <a href="roommate-finder.html" class="text-gray-300 hover:text-white transition-colors">Roommates</a>
+          <a href="post-listing.html" class="text-gray-300 hover:text-white transition-colors">Post Ad</a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <a href="login.html" id="loginBtn" class="px-5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105">Login</a>
+          <a href="profile.html" id="profileBtn" class="hidden px-5 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-all duration-300">Profile</a>
+          <button id="logoutBtn" class="hidden px-4 py-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 text-sm">Logout</button>
+          <button id="mobileMenuBtn" class="md:hidden text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         </div>
       </div>
     </div>
-  </header>
+    <div id="mobileMenu" class="hidden md:hidden bg-gray-900/95 backdrop-blur-xl border-b border-white/10">
+      <div class="px-4 py-3 space-y-2"><a href="browse-rental.html" class="block py-2 text-gray-300 hover:text-white">Rentals</a><a href="marketplace.html" class="block py-2 text-white font-medium">Marketplace</a><a href="roommate-finder.html" class="block py-2 text-gray-300 hover:text-white">Roommates</a><a href="post-listing.html" class="block py-2 text-gray-300 hover:text-white">Post Ad</a></div>
+    </div>
+  </nav>
 
-  <!-- Filter Panel -->
-  <main class="browse-header-panel">
-    <div class="auth-header">
-      <h2 class="auth-title">Community Local <span class="gradient-text">Marketplace</span></h2>
-      <p class="auth-subtitle">Buy or sell furniture, accessories, appliances, and items locally from other users</p>
+  <main class="max-w-7xl mx-auto px-4 pt-24 pb-12">
+    <div class="text-center mb-10 animate-fade-in-up">
+      <h1 class="text-3xl sm:text-4xl font-bold font-heading mb-2">🛒 <span class="gradient-text">Marketplace</span></h1>
+      <p class="text-gray-400">Buy, sell, and trade items with people near you.</p>
     </div>
 
-    <!-- Search Controls -->
-    <form class="browse-search-grid" id="marketplace-search-form">
-      <div class="form-group">
-        <label for="search-item" class="form-label">Search items by keyword...</label>
-        <input type="text" id="search-item" class="form-input" placeholder="e.g. sofa, study table, air conditioner...">
+    <!-- Search Bar -->
+    <form id="marketplace-search-form" class="glass rounded-2xl p-5 mb-10 flex flex-col sm:flex-row gap-4 items-end animate-fade-in-up" style="animation-delay:0.1s;">
+      <div class="flex-1 w-full">
+        <label class="block text-sm text-gray-400 mb-1">Search Items</label>
+        <input type="text" id="search-item" placeholder="Search furniture, electronics, books..."
+          class="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/20 transition-all">
       </div>
-      <button type="submit" class="btn btn-primary mt-1">Search Items</button>
+      <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105 whitespace-nowrap">
+        🔍 Search
+      </button>
     </form>
 
-    <!-- Dynamic Marketplace listings Grid -->
-    <div class="listings-cards-grid" id="marketplace-listings-grid">
-      <!-- Skeletons loading initially -->
-      <div class="card glass-panel skeleton-card">
-        <div class="skeleton-image"></div>
-        <div class="skeleton-title"></div>
-        <div class="skeleton-text"></div>
-      </div>
+    <!-- Listings Grid -->
+    <div id="marketplace-listings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <!-- JS will populate -->
     </div>
   </main>
 
-  <footer class="footer mt-3">
-    <div class="container text-center">
-      <p>&copy; 2026 RentNest. Friendly neighborhood marketplace.</p>
+  <!-- Footer -->
+  <footer class="bg-gray-900/50 border-t border-white/10 mt-20">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div><div class="flex items-center space-x-2 mb-4"><span class="text-2xl">🏠</span><span class="text-xl font-bold font-heading bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">RentNest</span></div><p class="text-gray-400 text-sm">Your one-stop platform for rentals, services, and roommate connections.</p></div>
+        <div><h4 class="text-white font-semibold mb-3">Browse</h4><div class="space-y-2"><a href="browse-rental.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Rentals</a><a href="marketplace.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Marketplace</a><a href="roommate-finder.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Roommates</a></div></div>
+        <div><h4 class="text-white font-semibold mb-3">Account</h4><div class="space-y-2"><a href="login.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Login</a><a href="profile.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Profile</a><a href="post-listing.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Post a Listing</a></div></div>
+        <div><h4 class="text-white font-semibold mb-3">Contact</h4><p class="text-gray-400 text-sm">support@rentnest.com</p></div>
+      </div>
+      <div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-500 text-sm">&copy; 2025 RentNest. All rights reserved.</div>
     </div>
   </footer>
 
-  <!-- Scripts -->
   <script src="js/api.js"></script>
   <script src="js/marketplace.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Navbar states
-      if (isAuthenticated()) {
-        document.getElementById('auth-btn').classList.add('hidden');
-        document.getElementById('user-profile-menu').classList.remove('hidden');
-        
-        const localUser = localStorage.getItem('rentnest_user');
-        if (localUser) {
-          const userObj = JSON.parse(localUser);
-          if (userObj.profilePhotoUrl) {
-            document.getElementById('navbar-avatar').src = userObj.profilePhotoUrl;
-          }
-        }
-      }
-    });
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => { document.getElementById('mobileMenu')?.classList.toggle('hidden'); });
+    function updateNavAuth() { const t = localStorage.getItem('rentnest_token'); const l = document.getElementById('loginBtn'); const p = document.getElementById('profileBtn'); const o = document.getElementById('logoutBtn'); if(t){l?.classList.add('hidden');p?.classList.remove('hidden');o?.classList.remove('hidden');}else{l?.classList.remove('hidden');p?.classList.add('hidden');o?.classList.add('hidden');} }
+    updateNavAuth();
+    document.getElementById('logoutBtn')?.addEventListener('click', () => { logout(); });
   </script>
 </body>
 </html>

@@ -6,10 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const profileForm = document.getElementById('profile-form');
   const photoInput = document.getElementById('photo-input');
-  const avatarContainer = document.querySelector('.profile-avatar-container');
   const saveBtn = document.getElementById('save-profile-btn');
 
-  // Preview Photo Upload to Firebase Storage
+  // Photo Upload to Firebase Storage
   if (photoInput) {
     photoInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
@@ -57,8 +56,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const address = document.getElementById('profile-address').value.trim();
       const profilePhotoUrl = document.getElementById('photo-url-hidden').value;
 
-      if (!name || !email) {
-        showToast("Name and Email are required.", "warning");
+      if (!name) {
+        showToast("Name is required.", "warning");
         return;
       }
 
@@ -73,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
           localStorage.setItem('rentnest_user', JSON.stringify(res.data));
           showToast("Profile updated successfully!", "success");
 
-          // Send verification confirmation email using EmailJS
+          // Send welcome / confirmation email using EmailJS
           try {
             await emailjs.send("service_o9wjmag", "template_xrdy6ao", {
               to_name: name,
@@ -115,8 +114,11 @@ async function loadProfile() {
     const res = await apiGet('/auth/me');
     if (res.success && res.data) {
       const user = res.data;
-      document.getElementById('profile-phone').value = user.phoneNumber;
-      
+
+      // Set the readonly email display field
+      const emailDisplay = document.getElementById('profile-email-display');
+      if (emailDisplay) emailDisplay.value = user.email || '';
+
       if (user.name) document.getElementById('profile-name').value = user.name;
       if (user.email) document.getElementById('profile-email').value = user.email;
       if (user.address) document.getElementById('profile-address').value = user.address;

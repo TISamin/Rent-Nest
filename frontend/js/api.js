@@ -82,49 +82,28 @@ function logout() {
 }
 
 /**
- * Display premium dynamic toast notifications.
+ * Display premium dynamic toast notifications with Tailwind styling.
  * @param {string} message 
- * @param {'success'|'error'|'info'} type 
+ * @param {'success'|'error'|'info'|'warning'} type 
  */
 function showToast(message, type = 'info') {
-  let toastContainer = document.querySelector('.toast-container');
-  if (!toastContainer) {
-    toastContainer = document.createElement('div');
-    toastContainer.className = 'toast-container';
-    document.body.appendChild(toastContainer);
+  let container = document.querySelector('.toast-container');
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'toast-container';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;';
+    document.body.appendChild(container);
   }
-
+  const colors = {
+    success: 'border-emerald-500 bg-emerald-500/10 text-emerald-300',
+    error: 'border-red-500 bg-red-500/10 text-red-300',
+    info: 'border-cyan-500 bg-cyan-500/10 text-cyan-300',
+    warning: 'border-yellow-500 bg-yellow-500/10 text-yellow-300'
+  };
   const toast = document.createElement('div');
-  toast.className = `toast toast-${type} animate-slide-up`;
-  
-  // Custom SVG Icons for each type
-  let iconSvg = '';
-  if (type === 'success') {
-    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>`;
-  } else if (type === 'error') {
-    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>`;
-  } else {
-    iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>`;
-  }
-
-  toast.innerHTML = `
-    <span class="toast-icon">${iconSvg}</span>
-    <span class="toast-message">${message}</span>
-    <button class="toast-close-btn">&times;</button>
-  `;
-
-  toastContainer.appendChild(toast);
-
-  // Close event listener
-  toast.querySelector('.toast-close-btn').addEventListener('click', () => {
-    toast.remove();
-  });
-
-  // Auto-dismiss after 4 seconds
-  setTimeout(() => {
-    if (toast.parentNode) {
-      toast.classList.add('toast-fade-out');
-      setTimeout(() => toast.remove(), 300);
-    }
-  }, 4000);
+  toast.className = `px-5 py-3 rounded-lg border backdrop-blur-xl shadow-lg flex items-center gap-3 animate-fade-in-up ${colors[type] || colors.info}`;
+  toast.innerHTML = `<span class="flex-1">${message}</span><button class="opacity-60 hover:opacity-100 text-lg">&times;</button>`;
+  container.appendChild(toast);
+  toast.querySelector('button').addEventListener('click', () => toast.remove());
+  setTimeout(() => { if (toast.parentNode) { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); } }, 4000);
 }

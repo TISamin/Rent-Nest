@@ -3,238 +3,320 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — RentNest</title>
-  <!-- Outfit & Inter Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <!-- Stylesheets -->
-  <link rel="stylesheet" href="css/main.css">
-  <link rel="stylesheet" href="css/auth.css">
-  <!-- Firebase Compat Scripts -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <title>Login | RentNest</title>
+  <meta name="description" content="Sign in to RentNest with your email to access rentals, services, and roommate connections.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            heading: ['Outfit', 'Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- EmailJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-heading { font-family: 'Outfit', 'Inter', sans-serif; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0a0e17; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
+    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+    .gradient-text { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
+    .hero-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.2; }
+    /* OTP digit boxes */
+    .otp-input {
+      width: 52px; height: 58px; text-align: center; font-size: 1.5rem; font-weight: 700;
+      background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px; color: white; outline: none; transition: all 0.2s;
+    }
+    .otp-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+    .step-hidden { display: none; }
+    .btn-loading { pointer-events: none; opacity: 0.7; }
+  </style>
 </head>
-<body>
+<body class="bg-[#0a0e17] text-gray-100 min-h-screen">
 
   <!-- Navbar -->
-  <header class="navbar">
-    <div class="container navbar-container">
-      <a href="index.html" class="navbar-logo">
-        <span class="logo-icon">🏠</span>
-        <span class="logo-text">RentNest</span>
-      </a>
-      <a href="index.html" class="btn btn-ghost">Home</a>
+  <nav class="fixed top-0 w-full z-50 bg-gray-900/80 backdrop-blur-xl border-b border-white/10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <a href="index.html" class="flex items-center space-x-2">
+          <span class="text-2xl">🏠</span>
+          <span class="text-xl font-bold font-heading bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">RentNest</span>
+        </a>
+        <div class="hidden md:flex items-center space-x-8">
+          <a href="browse-rental.html" class="text-gray-300 hover:text-white transition-colors duration-200">Rentals</a>
+          <a href="marketplace.html" class="text-gray-300 hover:text-white transition-colors duration-200">Marketplace</a>
+          <a href="roommate-finder.html" class="text-gray-300 hover:text-white transition-colors duration-200">Roommates</a>
+          <a href="post-listing.html" class="text-gray-300 hover:text-white transition-colors duration-200">Post Ad</a>
+        </div>
+        <div class="flex items-center space-x-4">
+          <a href="login.html" id="loginBtn" class="px-5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105">Login</a>
+          <a href="profile.html" id="profileBtn" class="hidden px-5 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-all duration-300">Profile</a>
+          <button id="logoutBtn" class="hidden px-4 py-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 text-sm">Logout</button>
+          <button id="mobileMenuBtn" class="md:hidden text-white">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+        </div>
+      </div>
     </div>
-  </header>
+    <div id="mobileMenu" class="hidden md:hidden bg-gray-900/95 backdrop-blur-xl border-b border-white/10">
+      <div class="px-4 py-3 space-y-2">
+        <a href="browse-rental.html" class="block py-2 text-gray-300 hover:text-white">Rentals</a>
+        <a href="marketplace.html" class="block py-2 text-gray-300 hover:text-white">Marketplace</a>
+        <a href="roommate-finder.html" class="block py-2 text-gray-300 hover:text-white">Roommates</a>
+        <a href="post-listing.html" class="block py-2 text-gray-300 hover:text-white">Post Ad</a>
+      </div>
+    </div>
+  </nav>
 
-  <!-- Main Auth Page Content -->
-  <main class="auth-wrapper container">
-    <div class="auth-card glass-panel animate-fade-in" id="auth-card">
-      <div class="auth-header">
-        <h2 class="auth-title">Welcome to <span class="gradient-text">RentNest</span></h2>
-        <p class="auth-subtitle" id="auth-instruction">Enter your phone number to receive a verification OTP</p>
+  <!-- Login Content -->
+  <main class="relative min-h-screen flex items-center justify-center px-4 pt-20 pb-12 overflow-hidden">
+    <!-- Background orbs -->
+    <div class="hero-orb w-80 h-80 bg-emerald-500 -top-20 -left-40"></div>
+    <div class="hero-orb w-64 h-64 bg-cyan-500 -bottom-20 -right-32"></div>
+
+    <div class="relative z-10 w-full max-w-md">
+      <!-- Step Indicator -->
+      <div class="flex items-center justify-center mb-8 gap-3">
+        <div id="step1Indicator" class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">1</div>
+          <span class="text-sm text-emerald-400 font-medium hidden sm:inline">Email</span>
+        </div>
+        <div class="w-12 h-0.5 bg-gray-700" id="stepConnector"></div>
+        <div id="step2Indicator" class="flex items-center gap-2 opacity-40">
+          <div class="w-8 h-8 rounded-full border-2 border-gray-600 flex items-center justify-center text-gray-400 font-bold text-sm">2</div>
+          <span class="text-sm text-gray-400 font-medium hidden sm:inline">Verify</span>
+        </div>
       </div>
 
-      <!-- STEP 1: Phone Input Form -->
-      <form id="phone-form" class="auth-form">
-        <div class="form-group">
-          <label for="phone-number" class="form-label">Phone Number</label>
-          <div class="phone-input-container">
-            <span class="phone-prefix">+880</span>
-            <input type="tel" id="phone-number" class="form-input" placeholder="1712345678" pattern="[0-9]{10}" required autofocus>
-          </div>
-          <small class="form-help-text">We'll send a 6-digit verification code via SMS.</small>
+      <!-- Glass Card -->
+      <div class="glass rounded-2xl p-8 sm:p-10 animate-fade-in-up">
+        <div class="text-center mb-8">
+          <div class="text-4xl mb-3">🔐</div>
+          <h1 class="text-2xl font-bold font-heading" id="authTitle">Welcome Back</h1>
+          <p class="text-gray-400 text-sm mt-1" id="authSubtitle">Enter your email to receive a verification code</p>
         </div>
 
-        <!-- reCAPTCHA placeholder -->
-        <div id="recaptcha-container"></div>
-
-        <button type="submit" id="send-otp-btn" class="btn btn-primary btn-full-width">
-          Send Verification Code
-        </button>
-      </form>
-
-      <!-- STEP 2: OTP Input Form (Hidden Initially) -->
-      <form id="otp-form" class="auth-form hidden">
-        <div class="form-group">
-          <label class="form-label text-center">Enter Verification Code</label>
-          <div class="otp-digits-container">
-            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required autofocus>
-            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required>
-            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required>
-            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required>
-            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required>
-            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required>
+        <!-- Step 1: Email Input -->
+        <div id="step1">
+          <div class="mb-5">
+            <label for="emailInput" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
+            <input type="email" id="emailInput" placeholder="you@example.com"
+              class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200">
           </div>
-          <input type="hidden" id="otp-code-hidden">
-          <div class="resend-container">
-            <span>Didn't receive code?</span>
-            <button type="button" id="resend-code-btn" class="btn-link" disabled>Resend in <span id="timer-sec">60</span>s</button>
-          </div>
+          <button id="sendOtpBtn" onclick="handleSendOtp()"
+            class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02]">
+            Send Verification Code
+          </button>
         </div>
 
-        <button type="submit" id="verify-otp-btn" class="btn btn-primary btn-full-width">
-          Verify & Continue
-        </button>
+        <!-- Step 2: OTP Input -->
+        <div id="step2" class="step-hidden">
+          <p class="text-center text-gray-400 text-sm mb-6">
+            We sent a 6-digit code to <span id="sentEmailDisplay" class="text-emerald-400 font-medium"></span>
+          </p>
+          <div class="flex justify-center gap-3 mb-6" id="otpContainer">
+            <input type="text" maxlength="1" class="otp-input" data-index="0" inputmode="numeric" autocomplete="one-time-code">
+            <input type="text" maxlength="1" class="otp-input" data-index="1" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-input" data-index="2" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-input" data-index="3" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-input" data-index="4" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-input" data-index="5" inputmode="numeric">
+          </div>
+          <button id="verifyOtpBtn" onclick="handleVerifyOtp()"
+            class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] mb-4">
+            Verify &amp; Login
+          </button>
+          <div class="text-center">
+            <button onclick="handleResendOtp()" class="text-sm text-gray-400 hover:text-emerald-400 transition-colors underline underline-offset-4">
+              Resend Code
+            </button>
+            <span class="text-gray-600 mx-2">·</span>
+            <button onclick="goBackToEmail()" class="text-sm text-gray-400 hover:text-cyan-400 transition-colors underline underline-offset-4">
+              Change Email
+            </button>
+          </div>
+        </div>
+      </div>
 
-        <button type="button" id="change-phone-btn" class="btn btn-ghost btn-full-width mt-1">
-          Change Phone Number
-        </button>
-      </form>
+      <p class="text-center text-gray-500 text-xs mt-6">
+        By continuing, you agree to RentNest's Terms of Service and Privacy Policy.
+      </p>
     </div>
   </main>
 
-  <footer class="footer mt-3">
-    <div class="container text-center">
-      <p>&copy; 2026 RentNest. Fully secured OTP portal.</p>
+  <!-- Footer -->
+  <footer class="bg-gray-900/50 border-t border-white/10">
+    <div class="max-w-7xl mx-auto px-4 py-12">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div>
+          <div class="flex items-center space-x-2 mb-4">
+            <span class="text-2xl">🏠</span>
+            <span class="text-xl font-bold font-heading bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">RentNest</span>
+          </div>
+          <p class="text-gray-400 text-sm">Your one-stop platform for rentals, services, and roommate connections.</p>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-3">Browse</h4>
+          <div class="space-y-2">
+            <a href="browse-rental.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Rentals</a>
+            <a href="marketplace.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Marketplace</a>
+            <a href="roommate-finder.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Roommates</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-3">Account</h4>
+          <div class="space-y-2">
+            <a href="login.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Login</a>
+            <a href="profile.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Profile</a>
+            <a href="post-listing.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Post a Listing</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="text-white font-semibold mb-3">Contact</h4>
+          <p class="text-gray-400 text-sm">support@rentnest.com</p>
+        </div>
+      </div>
+      <div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-500 text-sm">
+        &copy; 2025 RentNest. All rights reserved.
+      </div>
     </div>
   </footer>
 
-  <!-- Scripts -->
-  <script src="js/firebase-config.js"></script>
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Redirect if already authenticated
-      if (isAuthenticated()) {
-        window.location.href = 'index.html';
-        return;
+    // Nav auth
+    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu')?.classList.toggle('hidden');
+    });
+    function updateNavAuth() {
+      const token = localStorage.getItem('rentnest_token');
+      const loginBtn = document.getElementById('loginBtn');
+      const profileBtn = document.getElementById('profileBtn');
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (token) {
+        if (loginBtn) loginBtn.classList.add('hidden');
+        if (profileBtn) profileBtn.classList.remove('hidden');
+        if (logoutBtn) logoutBtn.classList.remove('hidden');
+      } else {
+        if (loginBtn) loginBtn.classList.remove('hidden');
+        if (profileBtn) profileBtn.classList.add('hidden');
+        if (logoutBtn) logoutBtn.classList.add('hidden');
       }
+    }
+    updateNavAuth();
+    document.getElementById('logoutBtn')?.addEventListener('click', () => { logout(); });
 
-      const phoneForm = document.getElementById('phone-form');
-      const otpForm = document.getElementById('otp-form');
-      const phoneInput = document.getElementById('phone-number');
-      const sendOtpBtn = document.getElementById('send-otp-btn');
-      const verifyOtpBtn = document.getElementById('verify-otp-btn');
-      const authInstruction = document.getElementById('auth-instruction');
-      const changePhoneBtn = document.getElementById('change-phone-btn');
-      
-      let fullPhoneNumber = '';
-      let timerInterval = null;
+    // If already logged in, redirect
+    if (isAuthenticated()) {
+      window.location.href = 'index.html';
+    }
 
-      // Handle Step 1 Submit (Send OTP)
-      phoneForm.addEventListener('submit', async (e) => {
+    // OTP digit auto-focus
+    const otpInputs = document.querySelectorAll('.otp-input');
+    otpInputs.forEach((input, i) => {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/\D/g, '');
+        e.target.value = val;
+        if (val && i < otpInputs.length - 1) {
+          otpInputs[i + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && i > 0) {
+          otpInputs[i - 1].focus();
+        }
+      });
+      // Allow paste
+      input.addEventListener('paste', (e) => {
         e.preventDefault();
-        const rawPhone = phoneInput.value.trim();
-        if (!/^[0-9]{10}$/.test(rawPhone)) {
-          showToast("Please enter a valid 10-digit number.", "warning");
-          return;
-        }
-
-        fullPhoneNumber = `+880${rawPhone}`;
-
-        try {
-          sendOtpBtn.disabled = true;
-          sendOtpBtn.innerText = 'Sending SMS...';
-          
-          const success = await sendOTP(fullPhoneNumber);
-          if (success) {
-            // Swap Form Views
-            phoneForm.classList.add('hidden');
-            otpForm.classList.remove('hidden');
-            authInstruction.innerText = `Enter the 6-digit code sent to ${fullPhoneNumber}`;
-            startResendTimer();
-            
-            // Auto focus on first digit box
-            document.querySelector('.otp-digit').focus();
-          }
-        } catch (error) {
-          sendOtpBtn.disabled = false;
-          sendOtpBtn.innerText = 'Send Verification Code';
-        }
-      });
-
-      // Handle OTP Inputs digit focus flow
-      const digitInputs = document.querySelectorAll('.otp-digit');
-      digitInputs.forEach((input, index) => {
-        input.addEventListener('input', (e) => {
-          if (e.target.value.length === 1 && index < digitInputs.length - 1) {
-            digitInputs[index + 1].focus();
-          }
-          combineOTP();
+        const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+        pasted.split('').forEach((ch, j) => {
+          if (otpInputs[j]) otpInputs[j].value = ch;
         });
-
-        input.addEventListener('keydown', (e) => {
-          if (e.key === 'Backspace' && !e.target.value && index > 0) {
-            digitInputs[index - 1].focus();
-          }
-        });
-      });
-
-      function combineOTP() {
-        let code = '';
-        digitInputs.forEach(input => {
-          code += input.value;
-        });
-        document.getElementById('otp-code-hidden').value = code;
-      }
-
-      // Handle Step 2 Submit (Verify OTP)
-      otpForm.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const code = document.getElementById('otp-code-hidden').value;
-        if (code.length !== 6) {
-          showToast("Please fill in all 6 digits.", "warning");
-          return;
-        }
-
-        try {
-          verifyOtpBtn.disabled = true;
-          verifyOtpBtn.innerText = 'Verifying...';
-          
-          await verifyOTP(code);
-        } catch (error) {
-          verifyOtpBtn.disabled = false;
-          verifyOtpBtn.innerText = 'Verify & Continue';
-        }
-      });
-
-      // Change Phone button clicked
-      changePhoneBtn.addEventListener('click', () => {
-        clearInterval(timerInterval);
-        phoneForm.classList.remove('hidden');
-        otpForm.classList.add('hidden');
-        authInstruction.innerText = "Enter your phone number to receive a verification OTP";
-        sendOtpBtn.disabled = false;
-        sendOtpBtn.innerText = 'Send Verification Code';
-        
-        // Reset digit inputs
-        digitInputs.forEach(input => input.value = '');
-        document.getElementById('otp-code-hidden').value = '';
-      });
-
-      // Countdown Timer for Resend
-      function startResendTimer() {
-        const timerSec = document.getElementById('timer-sec');
-        const resendBtn = document.getElementById('resend-code-btn');
-        let timeLeft = 60;
-        
-        resendBtn.disabled = true;
-        
-        clearInterval(timerInterval);
-        timerInterval = setInterval(() => {
-          timeLeft--;
-          timerSec.innerText = timeLeft;
-          
-          if (timeLeft <= 0) {
-            clearInterval(timerInterval);
-            resendBtn.disabled = false;
-            resendBtn.innerHTML = 'Resend Code';
-          }
-        }, 1000);
-      }
-
-      // Resend button trigger
-      document.getElementById('resend-code-btn').addEventListener('click', async () => {
-        try {
-          await sendOTP(fullPhoneNumber);
-          startResendTimer();
-        } catch (err) {}
+        if (pasted.length > 0) otpInputs[Math.min(pasted.length, 5)].focus();
       });
     });
+
+    // Allow Enter key submission
+    document.getElementById('emailInput')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleSendOtp();
+    });
+
+    let storedEmail = '';
+
+    async function handleSendOtp() {
+      const email = document.getElementById('emailInput').value.trim();
+      if (!email || !email.includes('@')) {
+        showToast('Please enter a valid email address.', 'warning');
+        return;
+      }
+      const btn = document.getElementById('sendOtpBtn');
+      btn.textContent = 'Sending...';
+      btn.classList.add('btn-loading');
+
+      const success = await requestOtp(email);
+      if (success) {
+        storedEmail = email;
+        document.getElementById('sentEmailDisplay').textContent = email;
+        document.getElementById('step1').classList.add('step-hidden');
+        document.getElementById('step2').classList.remove('step-hidden');
+        document.getElementById('authTitle').textContent = 'Check Your Email';
+        document.getElementById('authSubtitle').textContent = 'Enter the 6-digit code we sent you';
+        // Activate step 2 indicator
+        document.getElementById('step1Indicator').classList.add('opacity-60');
+        document.getElementById('step2Indicator').classList.remove('opacity-40');
+        document.getElementById('step2Indicator').querySelector('div').classList.add('bg-gradient-to-r', 'from-emerald-500', 'to-cyan-500', 'text-white');
+        document.getElementById('step2Indicator').querySelector('div').classList.remove('border-2', 'border-gray-600', 'text-gray-400');
+        document.getElementById('stepConnector').classList.add('bg-emerald-500');
+        document.getElementById('stepConnector').classList.remove('bg-gray-700');
+        otpInputs[0].focus();
+      }
+      btn.textContent = 'Send Verification Code';
+      btn.classList.remove('btn-loading');
+    }
+
+    async function handleVerifyOtp() {
+      const otp = Array.from(otpInputs).map(i => i.value).join('');
+      if (otp.length !== 6) {
+        showToast('Please enter all 6 digits.', 'warning');
+        return;
+      }
+      const btn = document.getElementById('verifyOtpBtn');
+      btn.textContent = 'Verifying...';
+      btn.classList.add('btn-loading');
+      await verifyOtp(storedEmail, otp);
+      btn.textContent = 'Verify & Login';
+      btn.classList.remove('btn-loading');
+    }
+
+    async function handleResendOtp() {
+      if (!storedEmail) return;
+      otpInputs.forEach(i => i.value = '');
+      await requestOtp(storedEmail);
+      otpInputs[0].focus();
+    }
+
+    function goBackToEmail() {
+      document.getElementById('step2').classList.add('step-hidden');
+      document.getElementById('step1').classList.remove('step-hidden');
+      document.getElementById('authTitle').textContent = 'Welcome Back';
+      document.getElementById('authSubtitle').textContent = 'Enter your email to receive a verification code';
+      document.getElementById('step1Indicator').classList.remove('opacity-60');
+      document.getElementById('step2Indicator').classList.add('opacity-40');
+      otpInputs.forEach(i => i.value = '');
+    }
   </script>
 </body>
 </html>

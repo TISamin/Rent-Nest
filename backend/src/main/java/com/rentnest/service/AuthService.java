@@ -1,7 +1,5 @@
 package com.rentnest.service;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseToken;
 import com.rentnest.model.User;
 import com.rentnest.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +9,10 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import com.google.firebase.auth.UserRecord;
-
+/**
+ * Authentication service handling user lookup and creation.
+ * Primary auth is now email-based OTP (no Firebase dependency).
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -21,22 +21,24 @@ public class AuthService {
     private final UserRepository userRepository;
 
     /**
-     * Verifies a Firebase ID token using the Firebase Admin SDK.
-     * Returns the phone number associated with the token.
+     * Finds a user by email or creates a new one.
      */
-    public String verifyFirebaseToken(String idToken) throws Exception {
-        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-        String uid = decodedToken.getUid();
-        UserRecord userRecord = FirebaseAuth.getInstance().getUser(uid);
-        String phoneNumber = userRecord.getPhoneNumber();
-        if (phoneNumber == null || phoneNumber.isEmpty()) {
-            throw new IllegalArgumentException("Firebase token does not contain a phone number.");
+    public User findOrCreateUserByEmail(String email) {
+        Optional<User> existingUser = userRepository.findByEmail(email);
+        if (existingUser.isPresent()) {
+            return existingUser.get();
         }
-        return phoneNumber;
+
+        log.info("Creating new user for email: {}", email);
+        User newUser = User.builder()
+                .email(email)
+                .createdAt(LocalDateTime.now())
+                .build();
+        return userRepository.save(newUser);
     }
 
     /**
-     * Finds a user by phone number or creates a new one.
+     * Finds a user by phone number or creates a new one (legacy support).
      */
     public User findOrCreateUser(String phoneNumber) {
         Optional<User> existingUser = userRepository.findByPhoneNumber(phoneNumber);

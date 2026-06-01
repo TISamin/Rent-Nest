@@ -32,16 +32,16 @@ public class JwtTokenProvider {
     /**
      * Generate a JWT token for the given user.
      *
-     * @param userId      the user's UUID
-     * @param phoneNumber the user's phone number (stored as subject)
+     * @param userId the user's UUID
+     * @param email  the user's email address (stored as subject)
      * @return signed JWT string
      */
-    public String generateToken(UUID userId, String phoneNumber) {
+    public String generateToken(UUID userId, String email) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + expirationMs);
 
         return Jwts.builder()
-                .subject(phoneNumber)
+                .subject(email)
                 .claim("userId", userId.toString())
                 .issuedAt(now)
                 .expiration(expiry)

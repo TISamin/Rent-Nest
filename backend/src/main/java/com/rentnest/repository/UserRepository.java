@@ -14,7 +14,12 @@ import java.util.UUID;
 public interface UserRepository extends JpaRepository<User, UUID> {
 
     /**
-     * Find a user by their phone number (used during authentication).
+     * Find a user by their phone number (legacy support).
      */
     Optional<User> findByPhoneNumber(String phoneNumber);
+
+    /**
+     * Find a user by their email address (primary auth method).
+     */
+    Optional<User> findByEmail(String email);
 }
