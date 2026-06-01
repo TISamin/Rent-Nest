@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8080/api';
+const API_BASE_URL = 'https://rent-nest-wntm.onrender.com/api';
 
 /**
  * Perform an HTTP fetch request against the RentNest backend API.
