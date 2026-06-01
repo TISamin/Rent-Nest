@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Profile — RentNest</title>
+  <!-- Outfit & Inter Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <!-- Firebase Compat Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+  <!-- EmailJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-logo">
+        <span class="logo-icon">🏠</span>
+        <span class="logo-text">RentNest</span>
+      </a>
+      <button id="nav-logout-btn" class="btn btn-ghost">Logout</button>
+    </div>
+  </header>
+
+  <!-- Main Profile Page Content -->
+  <main class="auth-wrapper container">
+    <div class="auth-card profile-card glass-panel animate-fade-in">
+      <div class="auth-header">
+        <h2 class="auth-title">Complete Your <span class="gradient-text">Profile</span></h2>
+        <p class="auth-subtitle">Provide your basic information so other users can identify you</p>
+      </div>
+
+      <form id="profile-form" class="auth-form">
+        
+        <!-- Avatar Upload with Hover Camera Icon -->
+        <div class="profile-avatar-wrapper">
+          <div class="profile-avatar-container">
+            <img id="avatar-preview" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="Profile Preview">
+            <label for="photo-input" class="avatar-edit-overlay">
+              <span class="camera-icon">📷</span>
+            </label>
+          </div>
+          <input type="file" id="photo-input" accept="image/*" class="hidden-file-input">
+          <input type="hidden" id="photo-url-hidden">
+          <small class="form-help-text mt-1">Click image above to upload custom photo.</small>
+        </div>
+
+        <!-- Phone Field (Disabled/Read-only from Firebase Auth) -->
+        <div class="form-group">
+          <label for="profile-phone" class="form-label">Phone Number</label>
+          <input type="text" id="profile-phone" class="form-input" disabled>
+          <small class="form-help-text">Your phone is permanently linked to this account.</small>
+        </div>
+
+        <!-- Name Input -->
+        <div class="form-group">
+          <label for="profile-name" class="form-label">Full Name</label>
+          <input type="text" id="profile-name" class="form-input" placeholder="e.g. John Doe" required>
+        </div>
+
+        <!-- Email Input -->
+        <div class="form-group">
+          <label for="profile-email" class="form-label">Email Address</label>
+          <input type="email" id="profile-email" class="form-input" placeholder="e.g. john@example.com" required>
+        </div>
+
+        <!-- Address Textarea -->
+        <div class="form-group">
+          <label for="profile-address" class="form-label">Address</label>
+          <textarea id="profile-address" class="form-textarea" placeholder="e.g. Dhanmondi, Dhaka, Bangladesh" rows="3"></textarea>
+        </div>
+
+        <button type="submit" id="save-profile-btn" class="btn btn-primary btn-full-width mt-1">
+          Save Profile
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer mt-3">
+    <div class="container text-center">
+      <p>&copy; 2026 RentNest. Secure profile settings.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/profile.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Logout in profile navbar
+      const navLogout = document.getElementById('nav-logout-btn');
+      if (navLogout) {
+        navLogout.addEventListener('click', (e) => {
+          e.preventDefault();
+          logout();
+        });
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RentNest — Premium Rental & Services Listing Platform</title>
+  <!-- Outfit & Inter Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <!-- Firebase Compat Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-logo">
+        <span class="logo-icon">🏠</span>
+        <span class="logo-text">RentNest</span>
+      </a>
+
+      <nav class="nav-links" id="nav-links">
+        <a href="browse-rental.html" class="nav-item">Browse Rentals</a>
+        <a href="marketplace.html" class="nav-item">Marketplace</a>
+        <a href="roommate-finder.html" class="nav-item">Find Roommates</a>
+        <a href="post-listing.html" class="nav-item">Post a Listing</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="login.html" id="auth-btn" class="btn btn-primary">Login</a>
+        <div id="user-profile-menu" class="user-menu hidden">
+          <a href="profile.html" class="user-avatar-btn">
+            <img id="navbar-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User profile" class="avatar-sm">
+          </a>
+          <button id="logout-btn" class="btn btn-ghost btn-sm">Logout</button>
+        </div>
+      </div>
+
+      <button class="mobile-menu-toggle" id="mobile-toggle" aria-label="Toggle menu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+    </div>
+    <div class="container hero-container animate-fade-in">
+      <h1 class="hero-title">Find Your Perfect <br><span class="gradient-text">Space & Services</span></h1>
+      <p class="hero-subtitle">Discover premium residential rentals, peer-to-peer roommate finders, event planning, and utility services in your area. Secure, rapid, and tailored to you.</p>
+
+      <!-- Central Search Widget -->
+      <form class="hero-search-bar glass-panel animate-slide-up" id="hero-search-form">
+        <div class="search-field">
+          <label for="search-location" class="search-label">Location</label>
+          <input type="text" id="search-location" class="search-input" placeholder="Enter city or area...">
+        </div>
+        <div class="search-divider"></div>
+        <div class="search-field">
+          <label for="search-category" class="search-label">Category</label>
+          <select id="search-category" class="search-select">
+            <option value="">All Categories</option>
+            <option value="FLAT">Flat & Apartment</option>
+            <option value="HOTEL">Hotels</option>
+            <option value="HOUSE">Houses</option>
+            <option value="CONVENTION_HALL">Convention Halls</option>
+            <option value="ROOMMATE_FINDER">Roommates</option>
+            <option value="MARKETPLACE">Marketplace Items</option>
+            <option value="MAINTENANCE_SERVICE">Maintenance & Repair</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary search-submit-btn">
+          <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+          Search
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="categories-section container">
+    <h2 class="section-title text-center">Browse by Category</h2>
+    <p class="section-subtitle text-center">Seamlessly navigate our wide variety of offerings</p>
+    
+    <div class="categories-grid">
+      <a href="browse-rental.html?category=FLAT" class="category-card glass-panel">
+        <div class="category-icon">🏢</div>
+        <h3 class="category-title">Flats & Apartments</h3>
+        <p class="category-desc">Modern apartments and suites curated for comfort.</p>
+      </a>
+
+      <a href="browse-rental.html?category=HOTEL" class="category-card glass-panel">
+        <div class="category-icon">🏨</div>
+        <h3 class="category-title">Premium Hotels</h3>
+        <p class="category-desc">Stays and luxury lodging with outstanding support.</p>
+      </a>
+
+      <a href="browse-rental.html?category=HOUSE" class="category-card glass-panel">
+        <div class="category-icon">🏡</div>
+        <h3 class="category-title">Houses & Villas</h3>
+        <p class="category-desc">Spacious private houses perfect for families.</p>
+      </a>
+
+      <a href="browse-rental.html?category=CONVENTION_HALL" class="category-card glass-panel">
+        <div class="category-icon">🏛️</div>
+        <h3 class="category-title">Convention Halls</h3>
+        <p class="category-desc">Premium halls for your events, weddings & conferences.</p>
+      </a>
+
+      <a href="marketplace.html" class="category-card glass-panel">
+        <div class="category-icon">🛒</div>
+        <h3 class="category-title">Marketplace</h3>
+        <p class="category-desc">Buy or sell household furniture, tools and goods locally.</p>
+      </a>
+
+      <a href="roommate-finder.html" class="category-card glass-panel">
+        <div class="category-icon">🤝</div>
+        <h3 class="category-title">Roommate Finder</h3>
+        <p class="category-desc">Find perfect co-living roommate listings easily.</p>
+      </a>
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="how-it-works-section">
+    <div class="container">
+      <h2 class="section-title text-center">How It Works</h2>
+      <p class="section-subtitle text-center">Get started with RentNest in three simple steps</p>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-number">1</div>
+          <h3 class="step-title">Select Location</h3>
+          <p class="step-desc">Enter your target town or area code to see direct nearby matching services.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">2</div>
+          <h3 class="step-title">Explore Listings</h3>
+          <p class="step-desc">Browse through rich details, accurate maps, price ranges, and photos.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-number">3</div>
+          <h3 class="step-title">Connect Directly</h3>
+          <p class="step-desc">Instantly access contact phones or call listing owners to proceed.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Statistics -->
+  <section class="stats-section container glass-panel">
+    <div class="stats-grid">
+      <div class="stat-item">
+        <span class="stat-number" data-target="500">0</span><span class="stat-plus">+</span>
+        <span class="stat-label">Active Listings</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="200">0</span><span class="stat-plus">+</span>
+        <span class="stat-label">Happy Tenants</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="50">0</span><span class="stat-plus">+</span>
+        <span class="stat-label">Served Areas</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div class="footer-brand-col">
+        <a href="#" class="footer-logo">🏠 RentNest</a>
+        <p class="footer-tagline">Making space hunting simple, gorgeous, and accessible for everyone.</p>
+      </div>
+      <div class="footer-links-col">
+        <h4>Browse</h4>
+        <a href="browse-rental.html">Rentals</a>
+        <a href="marketplace.html">Marketplace</a>
+        <a href="roommate-finder.html">Roommates</a>
+      </div>
+      <div class="footer-links-col">
+        <h4>Support</h4>
+        <a href="#">FAQ</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom text-center">
+      <p>&copy; 2026 RentNest. Designed with absolute visual excellence.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Toggle Mobile Menu
+      const mobileToggle = document.getElementById('mobile-toggle');
+      const navLinks = document.getElementById('nav-links');
+      
+      if (mobileToggle && navLinks) {
+        mobileToggle.addEventListener('click', () => {
+          mobileToggle.classList.toggle('active');
+          navLinks.classList.toggle('active');
+        });
+      }
+
+      // Check Authentication state to update nav menu
+      const authBtn = document.getElementById('auth-btn');
+      const userProfileMenu = document.getElementById('user-profile-menu');
+      const navbarAvatar = document.getElementById('navbar-avatar');
+
+      if (isAuthenticated()) {
+        authBtn.classList.add('hidden');
+        userProfileMenu.classList.remove('hidden');
+
+        const localUser = localStorage.getItem('rentnest_user');
+        if (localUser) {
+          const userObj = JSON.parse(localUser);
+          if (userObj.profilePhotoUrl) {
+            navbarAvatar.src = userObj.profilePhotoUrl;
+          }
+        }
+      }
+
+      // Logout handler
+      const logoutBtn = document.getElementById('logout-btn');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          logout();
+        });
+      }
+
+      // Search redirect handler
+      const searchForm = document.getElementById('hero-search-form');
+      if (searchForm) {
+        searchForm.addEventListener('submit', (e) => {
+          e.preventDefault();
+          const location = document.getElementById('search-location').value.trim();
+          const category = document.getElementById('search-category').value;
+          
+          if (category === 'MARKETPLACE') {
+            window.location.href = `marketplace.html?item=${encodeURIComponent(location)}`;
+          } else if (category === 'ROOMMATE_FINDER') {
+            window.location.href = `roommate-finder.html?area=${encodeURIComponent(location)}`;
+          } else {
+            window.location.href = `browse-rental.html?location=${encodeURIComponent(location)}&category=${category}`;
+          }
+        });
+      }
+
+      // Smooth counter statistics animation
+      const stats = document.querySelectorAll('.stat-number');
+      stats.forEach(counter => {
+        const target = +counter.getAttribute('data-target');
+        const updateCount = () => {
+          const count = +counter.innerText;
+          const speed = target / 50;
+          if (count < target) {
+            counter.innerText = Math.ceil(count + speed);
+            setTimeout(updateCount, 30);
+          } else {
+            counter.innerText = target;
+          }
+        };
+        updateCount();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — RentNest</title>
+  <!-- Outfit & Inter Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/auth.css">
+  <!-- Firebase Compat Scripts -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-logo">
+        <span class="logo-icon">🏠</span>
+        <span class="logo-text">RentNest</span>
+      </a>
+      <a href="index.html" class="btn btn-ghost">Home</a>
+    </div>
+  </header>
+
+  <!-- Main Auth Page Content -->
+  <main class="auth-wrapper container">
+    <div class="auth-card glass-panel animate-fade-in" id="auth-card">
+      <div class="auth-header">
+        <h2 class="auth-title">Welcome to <span class="gradient-text">RentNest</span></h2>
+        <p class="auth-subtitle" id="auth-instruction">Enter your phone number to receive a verification OTP</p>
+      </div>
+
+      <!-- STEP 1: Phone Input Form -->
+      <form id="phone-form" class="auth-form">
+        <div class="form-group">
+          <label for="phone-number" class="form-label">Phone Number</label>
+          <div class="phone-input-container">
+            <span class="phone-prefix">+880</span>
+            <input type="tel" id="phone-number" class="form-input" placeholder="1712345678" pattern="[0-9]{10}" required autofocus>
+          </div>
+          <small class="form-help-text">We'll send a 6-digit verification code via SMS.</small>
+        </div>
+
+        <!-- reCAPTCHA placeholder -->
+        <div id="recaptcha-container"></div>
+
+        <button type="submit" id="send-otp-btn" class="btn btn-primary btn-full-width">
+          Send Verification Code
+        </button>
+      </form>
+
+      <!-- STEP 2: OTP Input Form (Hidden Initially) -->
+      <form id="otp-form" class="auth-form hidden">
+        <div class="form-group">
+          <label class="form-label text-center">Enter Verification Code</label>
+          <div class="otp-digits-container">
+            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required autofocus>
+            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required>
+            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required>
+            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required>
+            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required>
+            <input type="text" class="otp-digit" maxlength="1" pattern="[0-9]" required>
+          </div>
+          <input type="hidden" id="otp-code-hidden">
+          <div class="resend-container">
+            <span>Didn't receive code?</span>
+            <button type="button" id="resend-code-btn" class="btn-link" disabled>Resend in <span id="timer-sec">60</span>s</button>
+          </div>
+        </div>
+
+        <button type="submit" id="verify-otp-btn" class="btn btn-primary btn-full-width">
+          Verify & Continue
+        </button>
+
+        <button type="button" id="change-phone-btn" class="btn btn-ghost btn-full-width mt-1">
+          Change Phone Number
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <footer class="footer mt-3">
+    <div class="container text-center">
+      <p>&copy; 2026 RentNest. Fully secured OTP portal.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Redirect if already authenticated
+      if (isAuthenticated()) {
+        window.location.href = 'index.html';
+        return;
+      }
+
+      const phoneForm = document.getElementById('phone-form');
+      const otpForm = document.getElementById('otp-form');
+      const phoneInput = document.getElementById('phone-number');
+      const sendOtpBtn = document.getElementById('send-otp-btn');
+      const verifyOtpBtn = document.getElementById('verify-otp-btn');
+      const authInstruction = document.getElementById('auth-instruction');
+      const changePhoneBtn = document.getElementById('change-phone-btn');
+      
+      let fullPhoneNumber = '';
+      let timerInterval = null;
+
+      // Handle Step 1 Submit (Send OTP)
+      phoneForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const rawPhone = phoneInput.value.trim();
+        if (!/^[0-9]{10}$/.test(rawPhone)) {
+          showToast("Please enter a valid 10-digit number.", "warning");
+          return;
+        }
+
+        fullPhoneNumber = `+880${rawPhone}`;
+
+        try {
+          sendOtpBtn.disabled = true;
+          sendOtpBtn.innerText = 'Sending SMS...';
+          
+          const success = await sendOTP(fullPhoneNumber);
+          if (success) {
+            // Swap Form Views
+            phoneForm.classList.add('hidden');
+            otpForm.classList.remove('hidden');
+            authInstruction.innerText = `Enter the 6-digit code sent to ${fullPhoneNumber}`;
+            startResendTimer();
+            
+            // Auto focus on first digit box
+            document.querySelector('.otp-digit').focus();
+          }
+        } catch (error) {
+          sendOtpBtn.disabled = false;
+          sendOtpBtn.innerText = 'Send Verification Code';
+        }
+      });
+
+      // Handle OTP Inputs digit focus flow
+      const digitInputs = document.querySelectorAll('.otp-digit');
+      digitInputs.forEach((input, index) => {
+        input.addEventListener('input', (e) => {
+          if (e.target.value.length === 1 && index < digitInputs.length - 1) {
+            digitInputs[index + 1].focus();
+          }
+          combineOTP();
+        });
+
+        input.addEventListener('keydown', (e) => {
+          if (e.key === 'Backspace' && !e.target.value && index > 0) {
+            digitInputs[index - 1].focus();
+          }
+        });
+      });
+
+      function combineOTP() {
+        let code = '';
+        digitInputs.forEach(input => {
+          code += input.value;
+        });
+        document.getElementById('otp-code-hidden').value = code;
+      }
+
+      // Handle Step 2 Submit (Verify OTP)
+      otpForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const code = document.getElementById('otp-code-hidden').value;
+        if (code.length !== 6) {
+          showToast("Please fill in all 6 digits.", "warning");
+          return;
+        }
+
+        try {
+          verifyOtpBtn.disabled = true;
+          verifyOtpBtn.innerText = 'Verifying...';
+          
+          await verifyOTP(code);
+        } catch (error) {
+          verifyOtpBtn.disabled = false;
+          verifyOtpBtn.innerText = 'Verify & Continue';
+        }
+      });
+
+      // Change Phone button clicked
+      changePhoneBtn.addEventListener('click', () => {
+        clearInterval(timerInterval);
+        phoneForm.classList.remove('hidden');
+        otpForm.classList.add('hidden');
+        authInstruction.innerText = "Enter your phone number to receive a verification OTP";
+        sendOtpBtn.disabled = false;
+        sendOtpBtn.innerText = 'Send Verification Code';
+        
+        // Reset digit inputs
+        digitInputs.forEach(input => input.value = '');
+        document.getElementById('otp-code-hidden').value = '';
+      });
+
+      // Countdown Timer for Resend
+      function startResendTimer() {
+        const timerSec = document.getElementById('timer-sec');
+        const resendBtn = document.getElementById('resend-code-btn');
+        let timeLeft = 60;
+        
+        resendBtn.disabled = true;
+        
+        clearInterval(timerInterval);
+        timerInterval = setInterval(() => {
+          timeLeft--;
+          timerSec.innerText = timeLeft;
+          
+          if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            resendBtn.disabled = false;
+            resendBtn.innerHTML = 'Resend Code';
+          }
+        }, 1000);
+      }
+
+      // Resend button trigger
+      document.getElementById('resend-code-btn').addEventListener('click', async () => {
+        try {
+          await sendOTP(fullPhoneNumber);
+          startResendTimer();
+        } catch (err) {}
+      });
+    });
+  </script>
+</body>
+</html>
