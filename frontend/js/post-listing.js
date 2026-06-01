@@ -40,13 +40,26 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMemberCards();
   });
 
-  // Helper to upload files directly to Firebase Storage
+  // Helper to upload files directly to Firebase Storage with a timeout
   async function uploadFileToFirebase(file, pathPrefix) {
     const userJson = localStorage.getItem('rentnest_user');
     const user = userJson ? JSON.parse(userJson) : { id: 'anonymous' };
+
+    if (typeof storage === 'undefined') {
+      throw new Error("Firebase Storage is not initialized. Please verify your internet connection or check the browser console for script loading errors.");
+    }
+
     const storageRef = storage.ref(`${pathPrefix}/${user.id}/${Date.now()}_${file.name}`);
-    const snapshot = await storageRef.put(file);
-    return await snapshot.ref.getDownloadURL();
+
+    // Create a timeout promise (15 seconds)
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error("Upload timed out (15s limit). This is likely caused by blocked connections to Google APIs (firebasestorage.googleapis.com) or invalid Firebase Storage permissions/bucket configuration. Please check F12 Console for details.")), 15000);
+    });
+
+    const uploadPromise = storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL());
+
+    // Race upload execution against the timeout
+    return Promise.race([uploadPromise, timeoutPromise]);
   }
 
   // Bind Cover Image uploads (Multiple)

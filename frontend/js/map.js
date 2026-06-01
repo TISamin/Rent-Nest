@@ -24,6 +24,9 @@ function initPostListingMap(containerId, defaultLat = 23.8103, defaultLng = 90.4
     reverseGeocode(e.latlng.lat, e.latlng.lng);
   });
 
+  // Set up autocomplete geocoding search
+  setupMapAutocomplete('map-search-input', 'map-search-results');
+
   // Try picking up current position automatically on start
   detectUserLocation();
 }
@@ -119,7 +122,81 @@ async function searchLocationText() {
   }
 }
 
+/**
+ * Autocomplete address input helper querying Nominatim OpenStreetMap API
+ */
+function setupMapAutocomplete(searchInputId, resultsDivId) {
+  const searchInput = document.getElementById(searchInputId);
+  const resultsDiv = document.getElementById(resultsDivId);
+  if (!searchInput || !resultsDiv) return;
+
+  let debounceTimer = null;
+
+  searchInput.addEventListener('input', () => {
+    clearTimeout(debounceTimer);
+    const query = searchInput.value.trim();
+
+    if (query.length < 3) {
+      resultsDiv.innerHTML = '';
+      resultsDiv.classList.add('hidden');
+      return;
+    }
+
+    debounceTimer = setTimeout(async () => {
+      try {
+        const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=5&addressdetails=1`;
+        const response = await fetch(url, {
+          headers: { 'Accept-Language': 'en' }
+        });
+        const data = await response.json();
+
+        resultsDiv.innerHTML = '';
+        if (data && data.length > 0) {
+          resultsDiv.classList.remove('hidden');
+          data.forEach(item => {
+            const row = document.createElement('div');
+            row.className = 'px-4 py-2.5 hover:bg-white/10 cursor-pointer text-sm border-b border-white/5 last:border-b-0 text-gray-200 transition-colors duration-150';
+            row.innerText = item.display_name;
+            row.addEventListener('click', () => {
+              // Populate search input
+              searchInput.value = item.display_name;
+              resultsDiv.innerHTML = '';
+              resultsDiv.classList.add('hidden');
+
+              const lat = parseFloat(item.lat);
+              const lng = parseFloat(item.lon);
+
+              // Update Map and Marker position
+              placeMarker(lat, lng);
+
+              // Fill the detailed address field
+              const detailLoc = document.getElementById('listing-location-text');
+              if (detailLoc) {
+                detailLoc.value = item.display_name;
+              }
+            });
+            resultsDiv.appendChild(row);
+          });
+        } else {
+          resultsDiv.classList.add('hidden');
+        }
+      } catch (err) {
+        console.error("Nominatim Autocomplete Error:", err);
+      }
+    }, 400); // 400ms debounce
+  });
+
+  // Close suggestions box if clicking outside
+  document.addEventListener('click', (e) => {
+    if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+      resultsDiv.innerHTML = '';
+      resultsDiv.classList.add('hidden');
+    }
+  });
+}
+
 // Global Exports
 window.initPostListingMap = initPostListingMap;
 window.detectUserLocation = detectUserLocation;
 window.searchLocationText = searchLocationText;
+window.setupMapAutocomplete = setupMapAutocomplete;

@@ -27,12 +27,22 @@ document.addEventListener('DOMContentLoaded', () => {
         saveBtn.innerText = 'Uploading photo...';
         showToast("Uploading profile photo...", "info");
 
+        if (typeof storage === 'undefined') {
+          throw new Error("Firebase Storage is not initialized.");
+        }
+
         const userJson = localStorage.getItem('rentnest_user');
         const user = userJson ? JSON.parse(userJson) : { id: 'anonymous' };
         const storageRef = storage.ref(`users/${user.id}/${Date.now()}_${file.name}`);
         
-        const snapshot = await storageRef.put(file);
-        const downloadUrl = await snapshot.ref.getDownloadURL();
+        // Timeout promise
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("Upload timed out (15s limit). Check your internet connection or Firebase permissions.")), 15000);
+        });
+
+        const uploadPromise = storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL());
+        
+        const downloadUrl = await Promise.race([uploadPromise, timeoutPromise]);
         
         document.getElementById('photo-url-hidden').value = downloadUrl;
         showToast("Photo uploaded successfully!", "success");
