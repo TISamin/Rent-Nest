@@ -29,11 +29,7 @@ jwt:
   secret: ${JWT_SECRET:rentnest-dev-secret-key-change-in-production-min-256-bits-long!!}
   expiration: 86400000  # 24 hours in milliseconds
 
-# ========================
-# Firebase Configuration
-# ========================
-firebase:
-  config-path: ${FIREBASE_CONFIG_PATH:firebase-service-account.json}
+
 
 # ========================
 # CORS Configuration
