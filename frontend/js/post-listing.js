@@ -40,23 +40,32 @@ document.addEventListener('DOMContentLoaded', () => {
     renderMemberCards();
   });
 
-  // Helper to upload files directly to Firebase Storage with a timeout
+  // Helper to upload files directly to Cloudinary with a timeout
   async function uploadFileToFirebase(file, pathPrefix) {
-    const userJson = localStorage.getItem('rentnest_user');
-    const user = userJson ? JSON.parse(userJson) : { id: 'anonymous' };
+    const cloudName = "du711ught";
+    const uploadPreset = "bwuqyeyc";
 
-    if (typeof storage === 'undefined') {
-      throw new Error("Firebase Storage is not initialized. Please verify your internet connection or check the browser console for script loading errors.");
-    }
-
-    const storageRef = storage.ref(`${pathPrefix}/${user.id}/${Date.now()}_${file.name}`);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', uploadPreset);
 
     // Create a timeout promise (15 seconds)
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("Upload timed out (15s limit). This is likely caused by blocked connections to Google APIs (firebasestorage.googleapis.com) or invalid Firebase Storage permissions/bucket configuration. Please check F12 Console for details.")), 15000);
+      setTimeout(() => reject(new Error("Upload timed out (15s limit). Please check your internet connection.")), 15000);
     });
 
-    const uploadPromise = storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL());
+    const uploadPromise = fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+      method: 'POST',
+      body: formData
+    })
+    .then(async res => {
+      if (!res.ok) {
+        const errText = await res.text();
+        throw new Error(errText || "Failed to upload to Cloudinary");
+      }
+      const data = await res.json();
+      return data.secure_url;
+    });
 
     // Race upload execution against the timeout
     return Promise.race([uploadPromise, timeoutPromise]);

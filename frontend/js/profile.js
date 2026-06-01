@@ -21,26 +21,36 @@ document.addEventListener('DOMContentLoaded', () => {
       };
       reader.readAsDataURL(file);
 
-      // Upload to Firebase Storage
+      // Upload to Cloudinary
       try {
         saveBtn.disabled = true;
         saveBtn.innerText = 'Uploading photo...';
         showToast("Uploading profile photo...", "info");
 
-        if (typeof storage === 'undefined') {
-          throw new Error("Firebase Storage is not initialized.");
-        }
+        const cloudName = "du711ught";
+        const uploadPreset = "bwuqyeyc";
 
-        const userJson = localStorage.getItem('rentnest_user');
-        const user = userJson ? JSON.parse(userJson) : { id: 'anonymous' };
-        const storageRef = storage.ref(`users/${user.id}/${Date.now()}_${file.name}`);
-        
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', uploadPreset);
+
         // Timeout promise
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error("Upload timed out (15s limit). Check your internet connection or Firebase permissions.")), 15000);
+          setTimeout(() => reject(new Error("Upload timed out (15s limit). Check your internet connection.")), 15000);
         });
 
-        const uploadPromise = storageRef.put(file).then(snapshot => snapshot.ref.getDownloadURL());
+        const uploadPromise = fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+          method: 'POST',
+          body: formData
+        })
+        .then(async res => {
+          if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText || "Failed to upload to Cloudinary");
+          }
+          const data = await res.json();
+          return data.secure_url;
+        });
         
         const downloadUrl = await Promise.race([uploadPromise, timeoutPromise]);
         
