@@ -1,0 +1,281 @@
+/* browse.css - Styles for browse rental, roommate finder, marketplace, and single listing detail view */
+
+/* Category Tabs & Header controls */
+.browse-header-panel {
+  margin: 100px auto 30px auto;
+  padding: 0 20px;
+}
+
+.browse-search-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  margin-bottom: 30px;
+}
+
+@media (min-width: 768px) {
+  .browse-search-grid {
+    flex-direction: row;
+    align-items: center;
+  }
+  .browse-search-grid .form-group {
+    margin-bottom: 0;
+    flex: 1;
+  }
+}
+
+.category-tabs-container {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 30px;
+}
+
+.tab-btn {
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  padding: 10px 20px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-base);
+  font-weight: 500;
+}
+
+.tab-btn:hover {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+}
+
+.tab-btn.active {
+  background: var(--accent-gradient);
+  color: var(--bg-primary);
+  border-color: transparent;
+  font-weight: 600;
+  box-shadow: var(--shadow-glow);
+}
+
+/* Listings Grid */
+.listings-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 25px;
+  padding: 0 20px;
+  margin-bottom: 50px;
+}
+
+@media (min-width: 768px) {
+  .listings-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .listings-cards-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Premium Listing Card */
+.listing-item-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card-image-wrapper {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.card-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.listing-item-card:hover .card-image-wrapper img {
+  transform: scale(1.05);
+}
+
+.card-price-tag {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(10, 14, 23, 0.85);
+  backdrop-filter: blur(5px);
+  border: 1px solid var(--glass-border);
+  color: var(--accent-primary);
+  padding: 5px 12px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.card-category-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: var(--accent-gradient);
+  color: var(--bg-primary);
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.card-body-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.card-title-text {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.card-location-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 12px;
+}
+
+.card-description-text {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 15px;
+  flex-grow: 1;
+}
+
+.card-footer-info {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.card-author-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.card-author-profile img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--glass-border);
+}
+
+.card-author-name {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+/* Detail View Layout */
+.detail-layout-container {
+  margin: 100px auto 40px auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 30px;
+}
+
+@media (min-width: 1024px) {
+  .detail-layout-container {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+.detail-main-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.detail-cover-image {
+  width: 100%;
+  max-height: 450px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+}
+
+.detail-sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.detail-map-box {
+  height: 250px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  overflow: hidden;
+}
+
+/* Roommate Spec Card Grids */
+.roommate-stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin: 15px 0;
+}
+
+.roommate-stat-badge {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  padding: 12px;
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.roommate-stat-num {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent-primary);
+}
+
+.roommate-stat-lbl {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.member-avatar-list {
+  display: flex;
+  gap: -8px;
+  margin: 10px 0;
+}
+
+.member-avatar-list img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-primary);
+  object-fit: cover;
+}

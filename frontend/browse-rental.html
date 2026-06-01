@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Browse Residential Rentals — RentNest</title>
+  <!-- Outfit & Inter Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/browse.css">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="container navbar-container">
+      <a href="index.html" class="navbar-logo">
+        <span class="logo-icon">🏠</span>
+        <span class="logo-text">RentNest</span>
+      </a>
+
+      <nav class="nav-links" id="nav-links">
+        <a href="browse-rental.html" class="nav-item active">Browse Rentals</a>
+        <a href="marketplace.html" class="nav-item">Marketplace</a>
+        <a href="roommate-finder.html" class="nav-item">Find Roommates</a>
+        <a href="post-listing.html" class="nav-item">Post a Listing</a>
+      </nav>
+
+      <div class="nav-actions">
+        <a href="login.html" id="auth-btn" class="btn btn-primary">Login</a>
+        <div id="user-profile-menu" class="user-menu hidden">
+          <a href="profile.html" class="user-avatar-btn">
+            <img id="navbar-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="User profile" class="avatar-sm">
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Filter & Header Panel -->
+  <main class="browse-header-panel">
+    <div class="auth-header">
+      <h2 class="auth-title">Explore Residential <span class="gradient-text">Rentals</span></h2>
+      <p class="auth-subtitle">Browse flat rooms, private apartments, premium hotels, and local convention halls</p>
+    </div>
+
+    <!-- Search Controls -->
+    <form class="browse-search-grid" id="search-filter-form">
+      <div class="form-group">
+        <label for="search-location" class="form-label">City, Town or Location</label>
+        <input type="text" id="search-location" class="form-input" placeholder="e.g. Dhanmondi, Dhaka...">
+      </div>
+      <button type="submit" class="btn btn-primary mt-1">Apply Filters</button>
+    </form>
+
+    <!-- Category Tabs -->
+    <div class="category-tabs-container">
+      <button class="tab-btn active" data-category="">🏠 All Stays</button>
+      <button class="tab-btn" data-category="FLAT">🏢 Flats & Rooms</button>
+      <button class="tab-btn" data-category="HOTEL">🏨 Premium Hotels</button>
+      <button class="tab-btn" data-category="HOUSE">🏡 Houses & Villas</button>
+      <button class="tab-btn" data-category="CONVENTION_HALL">🏛️ Convention Halls</button>
+    </div>
+
+    <!-- Dynamic listings Grid -->
+    <div class="listings-cards-grid" id="listings-grid">
+      <!-- Loading Skeleton initially -->
+      <div class="card glass-panel skeleton-card">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-text"></div>
+      </div>
+      <div class="card glass-panel skeleton-card">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-text"></div>
+      </div>
+      <div class="card glass-panel skeleton-card">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-title"></div>
+        <div class="skeleton-text"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer mt-3">
+    <div class="container text-center">
+      <p>&copy; 2026 RentNest. Designed with visual excellence.</p>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/browse-rental.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Manage Auth State in Navbar
+      if (isAuthenticated()) {
+        document.getElementById('auth-btn').classList.add('hidden');
+        document.getElementById('user-profile-menu').classList.remove('hidden');
+        
+        const localUser = localStorage.getItem('rentnest_user');
+        if (localUser) {
+          const userObj = JSON.parse(localUser);
+          if (userObj.profilePhotoUrl) {
+            document.getElementById('navbar-avatar').src = userObj.profilePhotoUrl;
+          }
+        }
+      }
+    });
+  </script>
+</body>
+</html>
