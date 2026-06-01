@@ -35,6 +35,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Check for preselected category in URL query parameters
+  const queryParams = new URLSearchParams(window.location.search);
+  const preselectedCat = queryParams.get('category');
+  if (preselectedCat) {
+    categorySelect.value = preselectedCat.toUpperCase();
+    categorySelect.dispatchEvent(new Event('change'));
+  }
+
   // Re-render roommate member cards on count modification
   currentMembersInput.addEventListener('input', () => {
     renderMemberCards();
