@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login | RentNest</title>
-  <meta name="description" content="Sign in to RentNest with your email and password to access rentals, services, and roommates.">
+  <title>Sign Up | RentNest</title>
+  <meta name="description" content="Register a new RentNest account via email verification.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -19,6 +19,8 @@
     }
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- EmailJS CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
   <style>
     body { font-family: 'Inter', system-ui, sans-serif; }
     .font-heading { font-family: 'Outfit', 'Inter', sans-serif; }
@@ -30,6 +32,14 @@
     @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
     .hero-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.2; }
+    /* OTP digit boxes */
+    .otp-input {
+      width: 52px; height: 58px; text-align: center; font-size: 1.5rem; font-weight: 700;
+      background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px; color: white; outline: none; transition: all 0.2s;
+    }
+    .otp-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+    .step-hidden { display: none; }
     .btn-loading { pointer-events: none; opacity: 0.7; }
   </style>
 </head>
@@ -71,45 +81,78 @@
     </div>
   </nav>
 
-  <!-- Login Content -->
+  <!-- Signup Content -->
   <main class="relative min-h-screen flex items-center justify-center px-4 pt-20 pb-12 overflow-hidden">
     <!-- Background orbs -->
     <div class="hero-orb w-80 h-80 bg-emerald-500 -top-20 -left-40"></div>
     <div class="hero-orb w-64 h-64 bg-cyan-500 -bottom-20 -right-32"></div>
 
     <div class="relative z-10 w-full max-w-md">
+      <!-- Step Indicator -->
+      <div class="flex items-center justify-center mb-8 gap-3">
+        <div id="step1Indicator" class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm">1</div>
+          <span class="text-sm text-emerald-400 font-medium hidden sm:inline">Register</span>
+        </div>
+        <div class="w-12 h-0.5 bg-gray-700" id="stepConnector"></div>
+        <div id="step2Indicator" class="flex items-center gap-2 opacity-40">
+          <div class="w-8 h-8 rounded-full border-2 border-gray-600 flex items-center justify-center text-gray-400 font-bold text-sm">2</div>
+          <span class="text-sm text-gray-400 font-medium hidden sm:inline">Verify</span>
+        </div>
+      </div>
+
       <!-- Glass Card -->
       <div class="glass rounded-2xl p-8 sm:p-10 animate-fade-in-up">
         <div class="text-center mb-8">
-          <div class="text-4xl mb-3">🔐</div>
-          <h1 class="text-2xl font-bold font-heading">Welcome Back</h1>
-          <p class="text-gray-400 text-sm mt-1">Sign in to your RentNest account</p>
+          <div class="text-4xl mb-3">✨</div>
+          <h1 class="text-2xl font-bold font-heading" id="authTitle">Create Account</h1>
+          <p class="text-gray-400 text-sm mt-1" id="authSubtitle">Enter your email to verify and register</p>
         </div>
 
-        <form id="loginForm" onsubmit="handleLoginSubmit(event)" class="space-y-5">
-          <div>
+        <!-- Step 1: Email Input -->
+        <div id="step1">
+          <div class="mb-5">
             <label for="emailInput" class="block text-sm font-medium text-gray-300 mb-2">Email Address</label>
-            <input type="email" id="emailInput" placeholder="you@example.com" required
+            <input type="email" id="emailInput" placeholder="you@example.com"
               class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200">
           </div>
-          <div>
-            <div class="flex justify-between items-center mb-2">
-              <label for="passwordInput" class="block text-sm font-medium text-gray-300">Password</label>
-              <a href="forgot-password.html" class="text-xs text-emerald-400 hover:underline">Forgot Password?</a>
-            </div>
-            <input type="password" id="passwordInput" placeholder="••••••••" required
-              class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all duration-200">
-          </div>
-
-          <button type="submit" id="loginSubmitBtn"
-            class="w-full py-3 mt-2 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02]">
-            Login
+          <button id="sendOtpBtn" onclick="handleSendOtp()"
+            class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02]">
+            Send Registration Code
           </button>
-        </form>
+        </div>
+
+        <!-- Step 2: OTP Input -->
+        <div id="step2" class="step-hidden">
+          <p class="text-center text-gray-400 text-sm mb-6">
+            We sent a 6-digit code to <span id="sentEmailDisplay" class="text-emerald-400 font-medium"></span>
+          </p>
+          <div class="flex justify-center gap-3 mb-6" id="otpContainer">
+            <input type="text" maxlength="1" class="otp-input" data-index="0" inputmode="numeric" autocomplete="one-time-code">
+            <input type="text" maxlength="1" class="otp-input" data-index="1" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-input" data-index="2" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-input" data-index="3" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-input" data-index="4" inputmode="numeric">
+            <input type="text" maxlength="1" class="otp-input" data-index="5" inputmode="numeric">
+          </div>
+          <button id="verifyOtpBtn" onclick="handleVerifyOtp()"
+            class="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-semibold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02] mb-4">
+            Verify &amp; Register
+          </button>
+          <div class="text-center">
+            <button onclick="handleResendOtp()" class="text-sm text-gray-400 hover:text-emerald-400 transition-colors underline underline-offset-4">
+              Resend Code
+            </button>
+            <span class="text-gray-600 mx-2">·</span>
+            <button onclick="goBackToEmail()" class="text-sm text-gray-400 hover:text-cyan-400 transition-colors underline underline-offset-4">
+              Change Email
+            </button>
+          </div>
+        </div>
 
         <div class="mt-6 text-center text-sm text-gray-400">
-          Don't have an account? 
-          <a href="signup.html" class="text-emerald-400 font-medium hover:underline">Sign Up</a>
+          Already have an account? 
+          <a href="login.html" class="text-cyan-400 font-medium hover:underline">Login</a>
         </div>
       </div>
 
@@ -161,7 +204,7 @@
   <script src="js/api.js"></script>
   <script src="js/auth.js"></script>
   <script>
-    // Nav auth toggle
+    // Mobile navigation toggle
     document.getElementById('mobileMenuBtn')?.addEventListener('click', () => {
       document.getElementById('mobileMenu')?.classList.toggle('hidden');
     });
@@ -188,24 +231,96 @@
       window.location.href = 'index.html';
     }
 
-    async function handleLoginSubmit(event) {
-      event.preventDefault();
-      const email = document.getElementById('emailInput').value.trim();
-      const password = document.getElementById('passwordInput').value;
+    // OTP auto focus controls
+    const otpInputs = document.querySelectorAll('.otp-input');
+    otpInputs.forEach((input, i) => {
+      input.addEventListener('input', (e) => {
+        const val = e.target.value.replace(/\D/g, '');
+        e.target.value = val;
+        if (val && i < otpInputs.length - 1) {
+          otpInputs[i + 1].focus();
+        }
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && i > 0) {
+          otpInputs[i - 1].focus();
+        }
+      });
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+        pasted.split('').forEach((ch, j) => {
+          if (otpInputs[j]) otpInputs[j].value = ch;
+        });
+        if (pasted.length > 0) otpInputs[Math.min(pasted.length, 5)].focus();
+      });
+    });
 
-      if (!email || !password) {
-        showToast('Please enter both email and password.', 'warning');
+    document.getElementById('emailInput')?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleSendOtp();
+    });
+
+    let storedEmail = '';
+
+    async function handleSendOtp() {
+      const email = document.getElementById('emailInput').value.trim();
+      if (!email || !email.includes('@')) {
+        showToast('Please enter a valid email address.', 'warning');
         return;
       }
-
-      const btn = document.getElementById('loginSubmitBtn');
-      btn.textContent = 'Logging in...';
+      const btn = document.getElementById('sendOtpBtn');
+      btn.textContent = 'Sending...';
       btn.classList.add('btn-loading');
 
-      await loginWithPassword(email, password);
-
-      btn.textContent = 'Login';
+      const success = await requestSignupOtp(email);
+      if (success) {
+        storedEmail = email;
+        document.getElementById('sentEmailDisplay').textContent = email;
+        document.getElementById('step1').classList.add('step-hidden');
+        document.getElementById('step2').classList.remove('step-hidden');
+        document.getElementById('authTitle').textContent = 'Verify Registration';
+        document.getElementById('authSubtitle').textContent = 'Enter the 6-digit code we sent you';
+        document.getElementById('step1Indicator').classList.add('opacity-60');
+        document.getElementById('step2Indicator').classList.remove('opacity-40');
+        document.getElementById('step2Indicator').querySelector('div').classList.add('bg-gradient-to-r', 'from-emerald-500', 'to-cyan-500', 'text-white');
+        document.getElementById('step2Indicator').querySelector('div').classList.remove('border-2', 'border-gray-600', 'text-gray-400');
+        document.getElementById('stepConnector').classList.add('bg-emerald-500');
+        document.getElementById('stepConnector').classList.remove('bg-gray-700');
+        otpInputs[0].focus();
+      }
+      btn.textContent = 'Send Registration Code';
       btn.classList.remove('btn-loading');
+    }
+
+    async function handleVerifyOtp() {
+      const otp = Array.from(otpInputs).map(i => i.value).join('');
+      if (otp.length !== 6) {
+        showToast('Please enter all 6 digits.', 'warning');
+        return;
+      }
+      const btn = document.getElementById('verifyOtpBtn');
+      btn.textContent = 'Verifying...';
+      btn.classList.add('btn-loading');
+      await verifySignupOtp(storedEmail, otp);
+      btn.textContent = 'Verify & Register';
+      btn.classList.remove('btn-loading');
+    }
+
+    async function handleResendOtp() {
+      if (!storedEmail) return;
+      otpInputs.forEach(i => i.value = '');
+      await requestSignupOtp(storedEmail);
+      otpInputs[0].focus();
+    }
+
+    function goBackToEmail() {
+      document.getElementById('step2').classList.add('step-hidden');
+      document.getElementById('step1').classList.remove('step-hidden');
+      document.getElementById('authTitle').textContent = 'Create Account';
+      document.getElementById('authSubtitle').textContent = 'Enter your email to verify and register';
+      document.getElementById('step1Indicator').classList.remove('opacity-60');
+      document.getElementById('step2Indicator').classList.add('opacity-40');
+      otpInputs.forEach(i => i.value = '');
     }
   </script>
 </body>

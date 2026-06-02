@@ -38,6 +38,15 @@ public class User {
     @Column(name = "profile_photo_url", columnDefinition = "TEXT")
     private String profilePhotoUrl;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    @Column(name = "password_hash")
+    private String passwordHash;
+
+    @Transient
+    public boolean isPasswordSet() {
+        return passwordHash != null && !passwordHash.isBlank();
+    }
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

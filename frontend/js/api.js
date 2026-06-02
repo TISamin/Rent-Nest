@@ -107,3 +107,26 @@ function showToast(message, type = 'info') {
   toast.querySelector('button').addEventListener('click', () => toast.remove());
   setTimeout(() => { if (toast.parentNode) { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); } }, 4000);
 }
+
+// Redirect logged-in users who have not set their password to set-password.html
+document.addEventListener('DOMContentLoaded', () => {
+  const currentPath = window.location.pathname;
+  const isAuthPage = currentPath.endsWith('login.html') || 
+                     currentPath.endsWith('signup.html') || 
+                     currentPath.endsWith('forgot-password.html') || 
+                     currentPath.endsWith('set-password.html');
+                     
+  if (!isAuthPage && isAuthenticated()) {
+    const localUser = localStorage.getItem('rentnest_user');
+    if (localUser) {
+      try {
+        const userObj = JSON.parse(localUser);
+        if (userObj && !userObj.passwordSet) {
+          window.location.href = 'set-password.html';
+        }
+      } catch (e) {
+        console.error("Error checking password config:", e);
+      }
+    }
+  }
+});
