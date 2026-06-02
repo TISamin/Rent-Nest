@@ -121,8 +121,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (localUser) {
       try {
         const userObj = JSON.parse(localUser);
-        if (userObj && !userObj.passwordSet) {
-          window.location.href = 'set-password.html';
+        if (userObj) {
+          const hasPassword = userObj.passwordSet === true || userObj.isPasswordSet === true;
+          if (!hasPassword) {
+            window.location.href = 'set-password.html';
+          }
         }
       } catch (e) {
         console.error("Error checking password config:", e);

@@ -27,7 +27,8 @@ async function loginWithPassword(email, password) {
 
     // Redirect based on onboarding
     const user = res.data.user;
-    if (!user.passwordSet) {
+    const hasPassword = user.passwordSet === true || user.isPasswordSet === true;
+    if (!hasPassword) {
       setTimeout(() => window.location.href = 'set-password.html', 1000);
     } else if (!user.name) {
       showToast("Please complete your profile to continue.", "info");

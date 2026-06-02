@@ -43,6 +43,7 @@ public class User {
     private String passwordHash;
 
     @Transient
+    @com.fasterxml.jackson.annotation.JsonProperty("passwordSet")
     public boolean isPasswordSet() {
         return passwordHash != null && !passwordHash.isBlank();
     }
