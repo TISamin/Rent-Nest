@@ -64,10 +64,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const priceText = document.getElementById('detail-price-text');
         priceText.innerText = item.price ? `${item.price} BDT` : 'Contact / Negotiable';
         
+        // Render listing date
+        const listingDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+        const dateEl = document.getElementById('detail-listing-date');
+        if (dateEl) {
+          dateEl.innerText = listingDate ? `🗓️ Posted on: ${listingDate}` : '';
+        }
+
         // Render Author details
         document.getElementById('detail-owner-name').innerText = item.userName || 'Anonymous Owner';
-        if (item.userPhoto) {
-          document.getElementById('detail-owner-avatar').src = item.userPhoto;
+        if (item.userPhotoUrl) {
+          document.getElementById('detail-owner-avatar').src = item.userPhotoUrl;
         }
 
         // Contact Button setup
@@ -80,6 +87,55 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             showToast("No contact phone provided for this listing.", "warning");
           });
+        }
+
+        // Show delete button if the logged-in user is the owner
+        const localUser = localStorage.getItem('rentnest_user');
+        if (localUser && isAuthenticated()) {
+          try {
+            const userObj = JSON.parse(localUser);
+            if (userObj && userObj.id === item.userId) {
+              const deleteBtn = document.getElementById('detail-delete-btn');
+              if (deleteBtn) {
+                deleteBtn.classList.remove('hidden');
+                deleteBtn.addEventListener('click', async () => {
+                  if (confirm("Are you sure you want to delete this listing? This action cannot be undone.")) {
+                    deleteBtn.disabled = true;
+                    deleteBtn.innerText = "Deleting...";
+                    try {
+                      const delRes = await apiDelete(`/listings/${item.id}`);
+                      if (delRes.success) {
+                        showToast("Listing deleted successfully.", "success");
+                        // Redirect back depending on the category
+                        let targetPage = 'browse-rental.html';
+                        if (item.category === 'MARKETPLACE') {
+                          targetPage = 'marketplace.html';
+                        } else if (item.category === 'ROOMMATE_FINDER') {
+                          targetPage = 'roommate-finder.html';
+                        } else if (['SHIFTING_SERVICE', 'EVENT_PLANNING', 'DECORATION_SERVICE', 'MAINTENANCE_SERVICE', 'CLEANING_SERVICE', 'CATERING_SERVICE'].includes(item.category)) {
+                          targetPage = 'services.html';
+                        }
+                        setTimeout(() => {
+                          window.location.href = targetPage;
+                        }, 1500);
+                      } else {
+                        showToast(delRes.message || "Failed to delete listing.", "error");
+                        deleteBtn.disabled = false;
+                        deleteBtn.innerHTML = "🗑️ Delete Listing";
+                      }
+                    } catch (err) {
+                      console.error("Delete request failed:", err);
+                      showToast("Error deleting listing.", "error");
+                      deleteBtn.disabled = false;
+                      deleteBtn.innerHTML = "🗑️ Delete Listing";
+                    }
+                  }
+                });
+              }
+            }
+          } catch (e) {
+            console.error("Failed to parse local user or setup delete button", e);
+          }
         }
 
         // Setup Leaflet map coordinate highlights

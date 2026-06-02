@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
         res.data.forEach(item => {
           const images = item.imageUrl ? item.imageUrl.split(',') : [];
           const mainImage = images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1521791136368-1a8b2752f495?w=800';
+          const listingDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
           const card = document.createElement('div');
           card.className = 'card glass-panel listing-item-card animate-fade-in';
@@ -81,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-body-content">
               <h3 class="card-title-text font-heading">${item.title}</h3>
               <div class="card-location-text">📍 ${item.locationText || 'Location Specified on Map'}</div>
+              ${listingDate ? `<div class="text-xs text-gray-500 mb-2">🗓️ ${listingDate}</div>` : ''}
               <p class="card-description-text">${item.description ? item.description.substring(0, 100) + '...' : 'No description provided.'}</p>
               
               <div class="card-footer-info">

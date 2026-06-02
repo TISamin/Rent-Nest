@@ -47,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
           
           const images = item.imageUrl ? item.imageUrl.split(',') : [];
           const mainImage = images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=800';
+          const listingDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
           const card = document.createElement('div');
           card.className = 'card glass-panel listing-item-card roommate-finder-card animate-fade-in';
@@ -59,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-body-content">
               <h3 class="card-title-text">${item.title}</h3>
               <div class="card-location-text">📍 ${item.locationText || 'Location Specified on Map'}</div>
+              ${listingDate ? `<div class="text-xs text-gray-500 mb-2">🗓️ ${listingDate}</div>` : ''}
               
               <!-- Roommate Wanted Status Row -->
               <div class="roommate-stats-row">

@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         res.data.forEach(item => {
           const images = item.imageUrl ? item.imageUrl.split(',') : [];
           const mainImage = images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1505691938895-1758d7feb511?w=800';
+          const listingDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
 
           const card = document.createElement('div');
           card.className = 'card glass-panel listing-item-card animate-fade-in';
@@ -54,11 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="card-body-content">
               <h3 class="card-title-text">${item.title}</h3>
               <div class="card-location-text">📍 ${item.locationText || 'Location Specified on Map'}</div>
+              ${listingDate ? `<div class="text-xs text-gray-500 mb-2">🗓️ ${listingDate}</div>` : ''}
               <p class="card-description-text">${item.description ? item.description.substring(0, 100) + '...' : 'No description provided.'}</p>
               
               <div class="card-footer-info">
                 <div class="card-author-profile">
-                  <img src="${item.userPhoto || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'}" alt="Seller Profile">
+                  <img src="${item.userPhotoUrl || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'}" alt="Seller Profile">
                   <span class="card-author-name">${item.userName || 'Anonymous'}</span>
                 </div>
                 <a href="listing-detail.html?id=${item.id}" class="btn btn-ghost btn-sm">Details</a>

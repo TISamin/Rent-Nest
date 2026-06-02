@@ -21,7 +21,16 @@ public class SearchService {
         if (category != null) {
             listings = listingRepository.findByCategoryAndIsActiveTrueOrderByCreatedAtDesc(category);
         } else {
-            listings = listingRepository.findByIsActiveTrueOrderByCreatedAtDesc();
+            // "All" tab: only rental categories, not services/marketplace/roommates
+            List<ListingCategory> rentalCategories = java.util.List.of(
+                ListingCategory.FLAT,
+                ListingCategory.HOTEL,
+                ListingCategory.HOUSE,
+                ListingCategory.CONVENTION_HALL
+            );
+            listings = listingRepository.findByIsActiveTrueOrderByCreatedAtDesc().stream()
+                    .filter(l -> rentalCategories.contains(l.getCategory()))
+                    .collect(Collectors.toList());
         }
 
         if (location != null && !location.trim().isEmpty()) {
