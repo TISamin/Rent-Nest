@@ -110,11 +110,11 @@ function showToast(message, type = 'info') {
 
 // Redirect logged-in users who have not set their password to set-password.html
 document.addEventListener('DOMContentLoaded', () => {
-  const currentPath = window.location.pathname;
-  const isAuthPage = currentPath.endsWith('login.html') || 
-                     currentPath.endsWith('signup.html') || 
-                     currentPath.endsWith('forgot-password.html') || 
-                     currentPath.endsWith('set-password.html');
+  const path = window.location.pathname.toLowerCase();
+  const isAuthPage = path.includes('login') || 
+                     path.includes('signup') || 
+                     path.includes('forgot-password') || 
+                     path.includes('set-password');
                      
   if (!isAuthPage && isAuthenticated()) {
     const localUser = localStorage.getItem('rentnest_user');
