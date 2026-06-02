@@ -15,8 +15,8 @@ RentNest is a comprehensive platform designed to streamline the process of findi
 
 This project was developed collaboratively by our dedicated team:
 
-- **Tahmid Islam Samin** (Lead Developer & Full-Stack Architect)
-  - Spearheaded the project's architecture and major development efforts across both frontend and backend.
+- **Tahmid Islam Samin** (Lead Full-Stack Developer)
+  - Coordinated the overall project architecture, driving the integration between frontend and backend systems while contributing to core development and Guided the project lifecycle.
   - Email: [u2304100@student.cuet.ac.bd](mailto:u2304100@student.cuet.ac.bd)
 
 - **Sayed Mohammed Asim** (Backend Developer & Database Administrator)
