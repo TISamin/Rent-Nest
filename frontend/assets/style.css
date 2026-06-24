@@ -1,0 +1,145 @@
+/* RentNest Modern Airbnb-Inspired Styling */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  --primary: #FF385C;
+  --primary-dark: #E31C5F;
+  --surface: #FFFFFF;
+  --background: #F7F7F7;
+  --text-primary: #222222;
+  --text-secondary: #717171;
+  --border: #DDDDDD;
+  --radius: 12px;
+  --shadow-card: 0 2px 16px rgba(0,0,0,0.08);
+  --shadow-hover: 0 6px 24px rgba(0,0,0,0.14);
+}
+
+body {
+  font-family: 'Inter', sans-serif !important;
+  background-color: var(--background);
+  color: var(--text-primary);
+}
+
+/* Scroll Progress Bar at the top of the screen */
+#top-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background-color: var(--primary);
+  z-index: 10000;
+  width: 0%;
+  transition: width 0.4s ease, opacity 0.4s ease;
+  pointer-events: none;
+}
+
+/* Parallax scroll effect for landing page hero */
+.parallax-bg {
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+/* Skeleton Loading Pulse Animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+.skeleton-pulse {
+  animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  background-color: #EAEAEA;
+}
+
+/* Shake Animation for OTP error validation */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
+  20%, 40%, 60%, 80% { transform: translateX(6px); }
+}
+.shake-element {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* Toast Container & Toast styles */
+.toast-container {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 380px;
+  width: 100%;
+}
+.custom-toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: #FFFFFF;
+  border: 1px solid var(--border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateX(120%);
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s ease;
+  opacity: 0;
+}
+.custom-toast.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Floating Label Animation styling */
+.floating-label-group {
+  position: relative;
+}
+.floating-label-group input:placeholder-shown ~ label {
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+.floating-label-group input:focus ~ label,
+.floating-label-group input:not(:placeholder-shown) ~ label {
+  top: 8px;
+  transform: translateY(0);
+  font-size: 0.75rem;
+  color: var(--primary);
+}
+.floating-label-group label {
+  position: absolute;
+  left: 12px;
+  transition: all 0.2s ease-out;
+  pointer-events: none;
+  background-color: transparent;
+}
+
+/* Image gallery custom hover effect */
+.gallery-thumbnail {
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+}
+.gallery-thumbnail img {
+  transition: transform 0.3s ease;
+}
+.gallery-thumbnail:hover img {
+  transform: scale(1.04);
+}
+
+/* Kanban board card hover drag indicator style */
+.kanban-card {
+  cursor: grab;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.kanban-card:active {
+  cursor: grabbing;
+}

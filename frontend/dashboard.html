@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landlord Dashboard | RentNest</title>
+  <meta name="description" content="Manage your rental properties, leases, collections, and maintenance requests on RentNest.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              DEFAULT: '#FF385C',
+              dark: '#E31C5F',
+            },
+            surface: '#FFFFFF',
+            background: '#F7F7F7',
+            textPrimary: '#222222',
+            textSecondary: '#717171',
+            border: '#DDDDDD',
+          },
+          borderRadius: {
+            custom: '12px',
+          },
+          boxShadow: {
+            card: '0 2px 16px rgba(0,0,0,0.08)',
+            hover: '0 6px 24px rgba(0,0,0,0.14)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Global Custom Styles -->
+  <link rel="stylesheet" href="assets/style.css">
+
+  <!-- React & Recharts CDN for Monthly Rent Collections Chart -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+
+  <style>
+    /* Custom style for active dragover column */
+    .kanban-col-active {
+      background-color: rgba(255, 56, 92, 0.05);
+      border-color: var(--primary) !important;
+    }
+  </style>
+</head>
+<body class="bg-[#F7F7F7] text-[#222222] min-h-screen flex flex-col justify-between">
+
+  <!-- Shared Navbar Injected Dynamically -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 transition-all duration-300"></nav>
+
+  <!-- Main Dashboard Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900">Landlord Dashboard</h1>
+      <p class="text-gray-500 text-sm mt-1">Real-time overview of your leases, collections, and property operations.</p>
+    </div>
+
+    <!-- Stat Cards Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <!-- Card 1 -->
+      <div class="bg-white p-6 rounded-2xl border-l-4 border-primary shadow-card flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Earnings</p>
+          <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-earnings">$12,450</h3>
+          <span class="text-xs text-emerald-500 font-medium flex items-center mt-1">
+            <span>↑ 8.2%</span> <span class="text-gray-400 ml-1">vs last month</span>
+          </span>
+        </div>
+        <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-primary text-xl">💵</div>
+      </div>
+      <!-- Card 2 -->
+      <div class="bg-white p-6 rounded-2xl border-l-4 border-blue-500 shadow-card flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Active Tenants</p>
+          <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-tenants">18</h3>
+          <span class="text-xs text-gray-400 font-medium flex items-center mt-1">
+            <span>92% Occupancy Rate</span>
+          </span>
+        </div>
+        <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-xl">👥</div>
+      </div>
+      <!-- Card 3 -->
+      <div class="bg-white p-6 rounded-2xl border-l-4 border-amber-500 shadow-card flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Maintenance Requests</p>
+          <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-maintenance">3</h3>
+          <span class="text-xs text-amber-500 font-medium flex items-center mt-1">
+            <span>2 high priority</span>
+          </span>
+        </div>
+        <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-xl">🛠️</div>
+      </div>
+      <!-- Card 4 -->
+      <div class="bg-white p-6 rounded-2xl border-l-4 border-emerald-500 shadow-card flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Occupancy Rate</p>
+          <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-occupancy">94.8%</h3>
+          <span class="text-xs text-emerald-500 font-medium flex items-center mt-1">
+            <span>+1.5%</span> <span class="text-gray-400 ml-1">this week</span>
+          </span>
+        </div>
+        <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-xl">📈</div>
+      </div>
+    </div>
+
+    <!-- Chart & Activity Row -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+      <!-- Monthly Rent Collection Chart -->
+      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-card lg:col-span-2">
+        <div class="flex items-center justify-between mb-6">
+          <h3 class="font-bold text-gray-900 text-lg">Monthly Rent Collections</h3>
+          <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full font-medium">Year 2026</span>
+        </div>
+        <div id="rent-chart-root" class="h-72 w-full">
+          <!-- Rendered by React & Recharts CDN -->
+        </div>
+      </div>
+
+      <!-- Quick Actions / Quick stats -->
+      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-card flex flex-col justify-between">
+        <div>
+          <h3 class="font-bold text-gray-900 text-lg mb-4">Quick Management Actions</h3>
+          <div class="space-y-3">
+            <a href="post-listing.html" class="flex items-center space-x-3 p-3.5 rounded-xl border border-gray-100 hover:border-primary/20 hover:bg-rose-50/20 transition-all group">
+              <span class="text-xl">➕</span>
+              <div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition-colors">Post New Listing</p>
+                <p class="text-xs text-gray-400">Add an apartment, flat, or room</p>
+              </div>
+            </a>
+            <button onclick="showToast('Feature coming soon: Export reports', 'info')" class="w-full text-left flex items-center space-x-3 p-3.5 rounded-xl border border-gray-100 hover:border-blue-500/20 hover:bg-blue-50/20 transition-all group">
+              <span class="text-xl">📊</span>
+              <div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-blue-500 transition-colors">Export Financials</p>
+                <p class="text-xs text-gray-400">Get CSV report of collections</p>
+              </div>
+            </button>
+            <button onclick="showToast('Feature coming soon: Tenant messaging', 'info')" class="w-full text-left flex items-center space-x-3 p-3.5 rounded-xl border border-gray-100 hover:border-emerald-500/20 hover:bg-emerald-50/20 transition-all group">
+              <span class="text-xl">💬</span>
+              <div>
+                <p class="text-sm font-semibold text-gray-800 group-hover:text-emerald-500 transition-colors">Message Tenants</p>
+                <p class="text-xs text-gray-400">Send bulk notification broadcast</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-6 pt-6 border-t border-gray-100">
+          <p class="text-xs text-gray-400 text-center">Connected with RentNest Smart Gateway</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Leases Table Section -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden mb-8">
+      <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h3 class="font-bold text-gray-900 text-lg">Active Leases</h3>
+          <p class="text-xs text-gray-400 mt-0.5">Click column headers to sort leases</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <input type="text" id="lease-search" placeholder="Search tenant..." class="px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-primary">
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              <th class="p-4 cursor-pointer hover:bg-gray-100 select-none" onclick="sortLeases('tenant')">Tenant Name <span id="sort-icon-tenant" class="ml-1 text-gray-400"></span></th>
+              <th class="p-4 cursor-pointer hover:bg-gray-100 select-none" onclick="sortLeases('property')">Property <span id="sort-icon-property" class="ml-1 text-gray-400"></span></th>
+              <th class="p-4">Start Date</th>
+              <th class="p-4">End Date</th>
+              <th class="p-4 cursor-pointer hover:bg-gray-100 select-none" onclick="sortLeases('rent')">Rent <span id="sort-icon-rent" class="ml-1 text-gray-400"></span></th>
+              <th class="p-4 cursor-pointer hover:bg-gray-100 select-none" onclick="sortLeases('status')">Status <span id="sort-icon-status" class="ml-1 text-gray-400"></span></th>
+            </tr>
+          </thead>
+          <tbody id="lease-table-body" class="text-sm divide-y divide-gray-100">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Maintenance Kanban Board Section -->
+    <div class="mb-8">
+      <div class="mb-6">
+        <h3 class="font-bold text-gray-900 text-lg">Maintenance Requests Kanban</h3>
+        <p class="text-xs text-gray-400 mt-0.5">Drag and drop request cards between columns to change status.</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Open Column -->
+        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex flex-col min-h-[400px]">
+          <div class="flex items-center justify-between mb-4 px-2">
+            <span class="font-bold text-gray-700">Open Requests</span>
+            <span class="px-2.5 py-0.5 bg-rose-100 text-primary text-xs font-bold rounded-full" id="count-open">0</span>
+          </div>
+          <div id="col-open" class="flex-1 space-y-4 p-1 rounded-xl transition-all border border-dashed border-transparent"
+               ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'open')">
+            <!-- Kanban cards -->
+          </div>
+        </div>
+
+        <!-- In Progress Column -->
+        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex flex-col min-h-[400px]">
+          <div class="flex items-center justify-between mb-4 px-2">
+            <span class="font-bold text-gray-700">In Progress</span>
+            <span class="px-2.5 py-0.5 bg-amber-100 text-amber-600 text-xs font-bold rounded-full" id="count-progress">0</span>
+          </div>
+          <div id="col-progress" class="flex-1 space-y-4 p-1 rounded-xl transition-all border border-dashed border-transparent"
+               ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'progress')">
+            <!-- Kanban cards -->
+          </div>
+        </div>
+
+        <!-- Resolved Column -->
+        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex flex-col min-h-[400px]">
+          <div class="flex items-center justify-between mb-4 px-2">
+            <span class="font-bold text-gray-700">Resolved</span>
+            <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-600 text-xs font-bold rounded-full" id="count-resolved">0</span>
+          </div>
+          <div id="col-resolved" class="flex-1 space-y-4 p-1 rounded-xl transition-all border border-dashed border-transparent"
+               ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'resolved')">
+            <!-- Kanban cards -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 py-8 text-center text-sm text-gray-500">
+    <div class="max-w-7xl mx-auto px-4">
+      <p>&copy; 2026 RentNest. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Base JS scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/ui-common.js"></script>
+  <script src="js/dashboard.js"></script>
+
+</body>
+</html>

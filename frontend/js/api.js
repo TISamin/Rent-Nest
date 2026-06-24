@@ -82,7 +82,7 @@ function logout() {
 }
 
 /**
- * Display premium dynamic toast notifications with Tailwind styling.
+ * Display premium dynamic toast notifications with Tailwind and style.css class styling.
  * @param {string} message 
  * @param {'success'|'error'|'info'|'warning'} type 
  */
@@ -91,22 +91,36 @@ function showToast(message, type = 'info') {
   if (!container) {
     container = document.createElement('div');
     container.className = 'toast-container';
-    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;';
     document.body.appendChild(container);
   }
-  const colors = {
-    success: 'border-emerald-500 bg-emerald-500/10 text-emerald-300',
-    error: 'border-red-500 bg-red-500/10 text-red-300',
-    info: 'border-cyan-500 bg-cyan-500/10 text-cyan-300',
-    warning: 'border-yellow-500 bg-yellow-500/10 text-yellow-300'
+
+  const icons = {
+    success: '<svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+    error: '<svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+    info: '<svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>',
+    warning: '<svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>'
   };
+
   const toast = document.createElement('div');
-  toast.className = `px-5 py-3 rounded-lg border backdrop-blur-xl shadow-lg flex items-center gap-3 animate-fade-in-up ${colors[type] || colors.info}`;
-  toast.innerHTML = `<span class="flex-1">${message}</span><button class="opacity-60 hover:opacity-100 text-lg">&times;</button>`;
+  toast.className = 'custom-toast';
+  toast.innerHTML = `
+    ${icons[type] || icons.info}
+    <span class="text-sm font-medium text-gray-800 flex-1">${message}</span>
+    <button class="text-gray-400 hover:text-gray-600 focus:outline-none text-lg">&times;</button>
+  `;
   container.appendChild(toast);
-  toast.querySelector('button').addEventListener('click', () => toast.remove());
-  setTimeout(() => { if (toast.parentNode) { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); } }, 4000);
+  
+  setTimeout(() => toast.classList.add('show'), 10);
+
+  const dismiss = () => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  };
+
+  toast.querySelector('button').addEventListener('click', dismiss);
+  setTimeout(dismiss, 3000);
 }
+
 
 // Redirect logged-in users who have not set their password to set-password.html
 document.addEventListener('DOMContentLoaded', () => {

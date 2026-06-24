@@ -7,198 +7,186 @@
   <meta name="description" content="Create and publish your rental listing, marketplace item, or roommate request on RentNest.">
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
-    tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','system-ui','sans-serif'], heading: ['Outfit','Inter','sans-serif'] } } } }
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#FF385C', dark: '#E31C5F' },
+          },
+          boxShadow: {
+            card: '0 2px 16px rgba(0,0,0,0.08)',
+            hover: '0 6px 24px rgba(0,0,0,0.14)',
+          }
+        }
+      }
+    }
   </script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-  <!-- Leaflet -->
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- Leaflet Map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .font-heading { font-family: 'Outfit', 'Inter', sans-serif; }
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: #0a0e17; }
-    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
-    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
-    .gradient-text { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
-    .animate-fade-in { animation: fadeInUp 0.4s ease-out forwards; }
-    #leaflet-post-map { height: 300px; border-radius: 12px; z-index: 1; }
-    /* Dropzone styles */
+    #leaflet-post-map { height: 300px; border-radius: 12px; z-index: 1; border: 1px solid #DDDDDD; }
     .image-upload-dropzone {
-      border: 2px dashed rgba(255,255,255,0.15); border-radius: 12px; padding: 40px 20px;
-      text-align: center; cursor: pointer; transition: all 0.3s;
-      background: rgba(255,255,255,0.02);
+      border: 2px dashed #DDDDDD; border-radius: 12px; padding: 36px 20px;
+      text-align: center; cursor: pointer; transition: all 0.25s;
+      background: #F9F9F9;
     }
-    .image-upload-dropzone:hover { border-color: #10b981; background: rgba(16,185,129,0.05); }
-    .upload-icon { font-size: 2rem; display: block; margin-bottom: 8px; }
-    .upload-text { color: #64748b; font-size: 0.85rem; }
-    .preview-thumbnail-container { position: relative; display: inline-block; }
-    .preview-thumbnail { width: 100%; max-height: 200px; object-fit: cover; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); }
+    .image-upload-dropzone:hover { border-color: #FF385C; background: #FFF1F3; }
+    .preview-thumbnail-container { position: relative; display: inline-block; width: 100%; }
+    .preview-thumbnail { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; border: 1px solid #DDDDDD; }
     .remove-preview-btn {
       position: absolute; top: 8px; right: 8px; background: rgba(239,68,68,0.9); color: #fff;
-      border: none; border-radius: 50%; width: 28px; height: 28px; cursor: pointer; font-size: 1rem;
-      display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+      border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; font-size: 0.9rem;
+      transition: all 0.2s;
     }
     .remove-preview-btn:hover { background: #ef4444; transform: scale(1.1); }
-    .member-form-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 20px; margin-bottom: 12px; }
-    .member-header { font-weight: 600; color: #8b5cf6; font-size: 0.9rem; margin-bottom: 12px; }
-    .form-label { display: block; font-size: 0.85rem; font-weight: 500; color: #94a3b8; margin-bottom: 6px; }
+    .member-form-card { background: #FFF8F9; border: 1px solid rgba(255,56,92,0.15); border-radius: 12px; padding: 20px; margin-bottom: 12px; }
+    .member-header { font-weight: 600; color: #FF385C; font-size: 0.9rem; margin-bottom: 12px; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 6px; }
     .form-input {
-      width: 100%; padding: 10px 14px; border-radius: 12px;
-      background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-      color: #f1f5f9; font-size: 0.9rem; outline: none; transition: all 0.2s;
+      width: 100%; padding: 10px 14px; border-radius: 10px;
+      background: #FFFFFF; border: 1px solid #DDDDDD;
+      color: #222222; font-size: 0.9rem; outline: none; transition: all 0.2s;
     }
-    .form-input:focus { border-color: #10b981; box-shadow: 0 0 0 3px rgba(16,185,129,0.15); }
-    .form-help-text { font-size: 0.75rem; color: #64748b; margin-top: 4px; }
+    .form-input:focus { border-color: #FF385C; box-shadow: 0 0 0 3px rgba(255,56,92,0.12); }
+    .form-help-text { font-size: 0.75rem; color: #717171; margin-top: 4px; }
     .hidden { display: none !important; }
+    #map-search-results { background: #FFFFFF; border: 1px solid #DDDDDD; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+    #map-search-results div { padding: 10px 14px; cursor: pointer; font-size: 0.9rem; color: #222222; border-bottom: 1px solid #F5F5F5; transition: background 0.15s; }
+    #map-search-results div:hover { background: #FFF1F3; color: #FF385C; }
   </style>
 </head>
-<body class="bg-[#0a0e17] text-gray-100 min-h-screen">
+<body class="bg-[#F7F7F7] text-[#222222] min-h-screen flex flex-col">
 
-  <!-- Navbar -->
-  <nav class="fixed top-0 w-full z-50 bg-gray-900/80 backdrop-blur-xl border-b border-white/10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16">
-        <a href="index.html" class="flex items-center space-x-2"><span class="text-2xl">🏠</span><span class="text-xl font-bold font-heading bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">RentNest</span></a>
-        <div class="hidden md:flex items-center space-x-8">
-          <a href="browse-rental.html" class="text-gray-300 hover:text-white transition-colors">Rentals</a>
-          <a href="services.html" class="text-gray-300 hover:text-white transition-colors">Services</a>
-          <a href="marketplace.html" class="text-gray-300 hover:text-white transition-colors">Marketplace</a>
-          <a href="roommate-finder.html" class="text-gray-300 hover:text-white transition-colors">Roommates</a>
-          <a href="post-listing.html" class="text-white font-medium">Post Ad</a>
-        </div>
-        <div class="flex items-center space-x-4">
-          <a href="login.html" id="loginBtn" class="px-5 py-2 rounded-lg bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-medium hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-105">Login</a>
-          <a href="profile.html" id="profileBtn" class="hidden px-5 py-2 rounded-lg border border-white/20 text-white hover:bg-white/10 transition-all duration-300">Profile</a>
-          <button id="logoutBtn" class="hidden px-4 py-2 rounded-lg text-gray-400 hover:text-red-400 hover:bg-red-500/10 transition-all duration-300 text-sm">Logout</button>
-          <button id="mobileMenuBtn" class="md:hidden text-white"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-        </div>
-      </div>
-    </div>
-    <div id="mobileMenu" class="hidden md:hidden bg-gray-900/95 backdrop-blur-xl border-b border-white/10">
-      <div class="px-4 py-3 space-y-2"><a href="browse-rental.html" class="block py-2 text-gray-300">Rentals</a><a href="services.html" class="block py-2 text-gray-300">Services</a><a href="marketplace.html" class="block py-2 text-gray-300">Marketplace</a><a href="roommate-finder.html" class="block py-2 text-gray-300">Roommates</a><a href="post-listing.html" class="block py-2 text-white font-medium">Post Ad</a></div>
-    </div>
-  </nav>
+  <!-- Navbar (injected by ui-common.js) -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 transition-all duration-300"></nav>
 
-  <main class="max-w-3xl mx-auto px-4 pt-24 pb-12">
-    <div class="text-center mb-10 animate-fade-in-up">
-      <h1 class="text-3xl sm:text-4xl font-bold font-heading mb-2">Post a <span class="gradient-text">Listing</span></h1>
-      <p class="text-gray-400">Create your listing and reach thousands of potential tenants and buyers.</p>
+  <!-- Page Header -->
+  <div class="bg-white border-b border-gray-200">
+    <div class="max-w-3xl mx-auto px-6 py-8 text-center">
+      <h1 class="text-3xl font-bold tracking-tight text-gray-900">Post a Listing</h1>
+      <p class="text-gray-500 mt-1">Reach thousands of potential tenants, buyers, and roommates.</p>
     </div>
+  </div>
 
-    <form id="post-listing-form" class="space-y-8 animate-fade-in-up" style="animation-delay:0.1s;">
+  <main class="max-w-3xl mx-auto w-full px-4 sm:px-6 py-8 flex-1">
+    <form id="post-listing-form" class="space-y-6">
 
       <!-- Category -->
-      <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-semibold mb-4">📋 Category</h2>
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">1</span>
+          Category
+        </h2>
         <select id="listing-category" required
-          class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all appearance-none cursor-pointer">
-          <option value="" disabled selected class="bg-gray-900">Select a category...</option>
-          <option value="FLAT" class="bg-gray-900">🏢 Flat</option>
-          <option value="HOTEL" class="bg-gray-900">🏨 Hotel</option>
-          <option value="HOUSE" class="bg-gray-900">🏡 House</option>
-          <option value="CONVENTION_HALL" class="bg-gray-900">🏛️ Convention Hall</option>
-          <option value="SHIFTING_SERVICE" class="bg-gray-900">🚚 Shifting Service</option>
-          <option value="MARKETPLACE" class="bg-gray-900">🛒 Marketplace Item</option>
-          <option value="EVENT_PLANNING" class="bg-gray-900">🎉 Event Planning</option>
-          <option value="DECORATION_SERVICE" class="bg-gray-900">🎨 Decoration Service</option>
-          <option value="MAINTENANCE_SERVICE" class="bg-gray-900">🔧 Maintenance Service</option>
-          <option value="CLEANING_SERVICE" class="bg-gray-900">🧹 Cleaning Service</option>
-          <option value="CATERING_SERVICE" class="bg-gray-900">🍽️ Catering Service</option>
-          <option value="ROOMMATE_FINDER" class="bg-gray-900">🤝 Roommate Finder</option>
+          class="w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all cursor-pointer appearance-none">
+          <option value="" disabled selected>Select a category...</option>
+          <option value="FLAT">🏢 Flat</option>
+          <option value="HOTEL">🏨 Hotel</option>
+          <option value="HOUSE">🏡 House</option>
+          <option value="CONVENTION_HALL">🏛️ Convention Hall</option>
+          <option value="SHIFTING_SERVICE">🚚 Shifting Service</option>
+          <option value="MARKETPLACE">🛒 Marketplace Item</option>
+          <option value="EVENT_PLANNING">🎉 Event Planning</option>
+          <option value="DECORATION_SERVICE">🎨 Decoration Service</option>
+          <option value="MAINTENANCE_SERVICE">🔧 Maintenance Service</option>
+          <option value="CLEANING_SERVICE">🧹 Cleaning Service</option>
+          <option value="CATERING_SERVICE">🍽️ Catering Service</option>
+          <option value="ROOMMATE_FINDER">🤝 Roommate Finder</option>
         </select>
       </div>
 
       <!-- Basic Info -->
-      <div class="glass rounded-2xl p-6 space-y-5">
-        <h2 class="text-lg font-semibold">✏️ Details</h2>
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-5">
+        <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">2</span>
+          Details
+        </h2>
         <div>
-          <label for="listing-title" class="block text-sm font-medium text-gray-300 mb-2">Title <span class="text-red-400">*</span></label>
+          <label for="listing-title" class="block text-sm font-medium text-gray-700 mb-2">Title <span class="text-red-500">*</span></label>
           <input type="text" id="listing-title" required placeholder="e.g. Spacious 2-bedroom flat in Dhanmondi"
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all">
         </div>
         <div>
-          <label for="listing-description" class="block text-sm font-medium text-gray-300 mb-2">Description</label>
+          <label for="listing-description" class="block text-sm font-medium text-gray-700 mb-2">Description</label>
           <textarea id="listing-description" rows="4" placeholder="Describe your listing in detail..."
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all resize-none"></textarea>
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all resize-none"></textarea>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label for="listing-price" class="block text-sm font-medium text-gray-300 mb-2">Price (BDT) <span class="text-gray-500 text-xs font-normal">(Optional)</span></label>
-            <input type="number" id="listing-price" placeholder="e.g. 15000 (leave blank for negotiable)" min="0" step="0.01"
-              class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+            <label for="listing-price" class="block text-sm font-medium text-gray-700 mb-2">Price (BDT) <span class="text-gray-400 text-xs font-normal">(optional)</span></label>
+            <input type="number" id="listing-price" placeholder="Leave blank for negotiable" min="0" step="0.01"
+              class="w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all">
           </div>
           <div>
-            <label for="listing-contact-phone" class="block text-sm font-medium text-gray-300 mb-2">Contact Phone</label>
+            <label for="listing-contact-phone" class="block text-sm font-medium text-gray-700 mb-2">Contact Phone</label>
             <input type="tel" id="listing-contact-phone" placeholder="+880..."
-              class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+              class="w-full px-4 py-3 rounded-xl border border-gray-300 text-gray-800 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all">
           </div>
         </div>
       </div>
 
       <!-- Photos Upload -->
-      <div class="glass rounded-2xl p-6">
-        <h2 class="text-lg font-semibold mb-2">📸 Listing Photos <span class="text-red-400">*</span></h2>
-        <p class="text-xs text-gray-400 mb-4">Upload one or more photos. The first photo will be used as the main cover image.</p>
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+        <h2 class="text-base font-bold text-gray-900 flex items-center gap-2 mb-1">
+          <span class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
+          Photos <span class="text-red-500">*</span>
+        </h2>
+        <p class="text-xs text-gray-500 mb-4 ml-8">Upload one or more photos. The first photo will be used as the cover image.</p>
         <div id="cover-photo-dropzone" class="image-upload-dropzone">
-          <span class="upload-icon">📷</span>
-          <span class="upload-text">Click or drag images here to upload (multiple allowed)</span>
+          <svg class="w-10 h-10 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <p class="text-gray-500 text-sm font-medium">Click or drag images to upload</p>
+          <p class="text-gray-400 text-xs mt-1">Multiple photos allowed (JPG, PNG, WEBP)</p>
         </div>
         <input type="file" id="cover-photo-input" accept="image/*" multiple class="hidden">
         <input type="hidden" id="cover-photo-url-hidden">
-        
-        <!-- Grid for multi-photo previews -->
-        <div id="photos-preview-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6">
-          <!-- Populated dynamically via JavaScript -->
-        </div>
+        <div id="photos-preview-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-5"></div>
       </div>
 
       <!-- Location -->
-      <div class="glass rounded-2xl p-6 space-y-4">
-        <h2 class="text-lg font-semibold font-heading">📍 Location</h2>
-        
-        <!-- Search Box with Autocomplete -->
+      <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-4">
+        <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">4</span>
+          Location
+        </h2>
         <div class="relative">
-          <label for="map-search-input" class="block text-sm font-medium text-gray-300 mb-2">Search Location on Map</label>
-          <div class="relative">
+          <label for="map-search-input" class="block text-sm font-medium text-gray-700 mb-2">Search Location on Map</label>
+          <div class="relative flex items-center">
+            <svg class="w-4 h-4 text-gray-400 absolute left-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
             <input type="text" id="map-search-input" placeholder="Search a place (e.g. Dhanmondi, Dhaka)..."
-              class="w-full px-4 py-3 pr-10 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
-            <span class="absolute right-3 top-3.5 text-gray-400">🔍</span>
+              class="w-full pl-9 pr-4 py-2.5 rounded-xl border border-gray-300 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all">
           </div>
-          <!-- Dropdown Suggestions -->
-          <div id="map-search-results" class="hidden absolute left-0 right-0 mt-1 rounded-xl bg-gray-900/95 backdrop-blur-xl border border-white/10 shadow-2xl z-[1000] max-h-60 overflow-y-auto">
-            <!-- Populated via Geocoding API in JS -->
-          </div>
+          <div id="map-search-results" class="hidden absolute left-0 right-0 mt-1 z-[1000] max-h-60 overflow-y-auto rounded-xl"></div>
         </div>
-
         <div>
-          <label for="listing-location-text" class="block text-sm font-medium text-gray-300 mb-2">Address / Area (Detailed Description)</label>
+          <label for="listing-location-text" class="block text-sm font-medium text-gray-700 mb-2">Address / Area (Full Description)</label>
           <input type="text" id="listing-location-text" placeholder="e.g. House 12, Road 27, Dhanmondi, Dhaka"
-            class="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 transition-all">
+            class="w-full px-4 py-3 rounded-xl border border-gray-300 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all">
         </div>
-        <p class="text-sm text-gray-500">Or click directly on the map to set exact coordinates:</p>
+        <p class="text-xs text-gray-500">Or click directly on the map to set exact coordinates:</p>
         <div id="leaflet-post-map"></div>
         <input type="hidden" id="listing-latitude">
         <input type="hidden" id="listing-longitude">
       </div>
 
       <!-- Roommate Fields (hidden by default) -->
-      <div id="roommate-fields-section" class="hidden glass rounded-2xl p-6 space-y-5">
-        <h2 class="text-lg font-semibold">🤝 Roommate Details</h2>
+      <div id="roommate-fields-section" class="hidden bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-5">
+        <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+          <span class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">5</span>
+          Roommate Details
+        </h2>
 
         <!-- Owner Photo -->
         <div>
           <label class="form-label">Your Photo</label>
-          <div id="owner-photo-dropzone" class="image-upload-dropzone">
-            <span class="upload-icon">👤</span>
-            <span class="upload-text">Upload your photo</span>
+          <div id="owner-photo-dropzone" class="image-upload-dropzone py-8">
+            <svg class="w-8 h-8 text-gray-300 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+            <p class="text-gray-500 text-sm">Upload your photo</p>
           </div>
           <input type="file" id="owner-photo-input" accept="image/*" class="hidden">
           <input type="hidden" id="owner-photo-url-hidden">
-          <div id="owner-photo-preview-container" class="hidden mt-4">
+          <div id="owner-photo-preview-container" class="hidden mt-4 relative">
             <img id="owner-photo-preview" src="" alt="Owner preview" class="preview-thumbnail">
             <button type="button" id="remove-owner-photo-btn" class="remove-preview-btn">&times;</button>
           </div>
@@ -210,9 +198,9 @@
             <input type="number" id="total-roommates-wanted" min="1" value="1" class="form-input">
           </div>
           <div>
-            <label for="roommates-already-have" class="form-label">Roommates You Already Have</label>
+            <label for="roommates-already-have" class="form-label">Roommates Already Have</label>
             <input type="number" id="roommates-already-have" min="0" value="0" class="form-input">
-            <p class="form-help-text">Member input cards will appear below</p>
+            <p class="form-help-text">Member cards will appear below</p>
           </div>
         </div>
 
@@ -220,40 +208,30 @@
         <div id="members-list-cards"></div>
       </div>
 
-      <!-- Hidden navbar avatar (referenced by JS but not visible in this design) -->
+      <!-- Hidden navbar avatar (referenced by JS) -->
       <img id="navbar-avatar" src="" alt="" class="hidden">
 
       <!-- Submit -->
       <button type="submit" id="submit-listing-btn"
-        class="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-500 to-cyan-500 text-white font-bold text-lg hover:shadow-xl hover:shadow-emerald-500/25 transition-all duration-300 hover:scale-[1.02]">
-        🚀 Publish Listing
+        class="w-full py-4 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold text-base shadow-sm transition-all duration-200 active:scale-[0.98] flex items-center justify-center gap-2">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+        Publish Listing
       </button>
     </form>
   </main>
 
   <!-- Footer -->
-  <footer class="bg-gray-900/50 border-t border-white/10 mt-20">
-    <div class="max-w-7xl mx-auto px-4 py-12">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div><div class="flex items-center space-x-2 mb-4"><span class="text-2xl">🏠</span><span class="text-xl font-bold font-heading bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">RentNest</span></div><p class="text-gray-400 text-sm">Your one-stop platform for rentals, services, and roommate connections.</p></div>
-        <div><h4 class="text-white font-semibold mb-3">Browse</h4><div class="space-y-2"><a href="browse-rental.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Rentals</a><a href="services.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Services</a><a href="marketplace.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Marketplace</a><a href="roommate-finder.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Roommates</a></div></div>
-        <div><h4 class="text-white font-semibold mb-3">Account</h4><div class="space-y-2"><a href="login.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Login</a><a href="profile.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Profile</a><a href="post-listing.html" class="block text-gray-400 hover:text-emerald-400 text-sm transition">Post a Listing</a></div></div>
-        <div><h4 class="text-white font-semibold mb-3">Contact</h4><p class="text-gray-400 text-sm">support@rentnest.com</p></div>
-      </div>
-      <div class="border-t border-white/10 mt-8 pt-8 text-center text-gray-500 text-sm">&copy; 2025 RentNest. All rights reserved.</div>
+  <footer class="bg-white border-t border-gray-200 py-8 text-center text-sm text-gray-500 w-full mt-8">
+    <div class="max-w-7xl mx-auto px-4">
+      <p>&copy; 2026 RentNest. All rights reserved.</p>
     </div>
   </footer>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/api.js"></script>
+  <script src="js/ui-common.js"></script>
   <script src="js/map.js"></script>
   <script src="js/post-listing.js"></script>
-  <script>
-    document.getElementById('mobileMenuBtn')?.addEventListener('click', () => { document.getElementById('mobileMenu')?.classList.toggle('hidden'); });
-    function updateNavAuth() { const t = localStorage.getItem('rentnest_token'); const l = document.getElementById('loginBtn'); const p = document.getElementById('profileBtn'); const o = document.getElementById('logoutBtn'); if(t){l?.classList.add('hidden');p?.classList.remove('hidden');o?.classList.remove('hidden');}else{l?.classList.remove('hidden');p?.classList.add('hidden');o?.classList.add('hidden');} }
-    updateNavAuth();
-    document.getElementById('logoutBtn')?.addEventListener('click', () => { logout(); });
-  </script>
 </body>
 </html>
