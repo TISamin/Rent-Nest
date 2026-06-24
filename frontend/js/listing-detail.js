@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('breadcrumb-title').innerText = item.title;
 
         // Render Cover Image & Gallery
-        galleryImages = item.imageUrl ? item.imageUrl.split(',') : [];
+        galleryImages = item.imageUrl ? item.imageUrl.split(',').map(url => formatImageUrl(url)) : [];
         if (galleryImages.length === 0) {
           galleryImages = ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800'];
         }

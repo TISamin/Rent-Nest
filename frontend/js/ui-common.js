@@ -104,6 +104,7 @@ function injectCommonNavbar() {
   const isRent = path.includes('browse-rental') || path.includes('listing-detail');
   const isRoommates = path.includes('roommate-finder');
   const isServices = path.includes('services');
+  const isMarketplace = path.includes('marketplace');
   const isDashboard = path.includes('dashboard');
 
   const navHtml = `
@@ -117,10 +118,11 @@ function injectCommonNavbar() {
       </a>
 
       <!-- Center: Links (Desktop) -->
-      <div class="hidden md:flex items-center space-x-8 text-sm font-semibold text-text-primary">
+      <div class="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm font-semibold text-text-primary">
         <a href="browse-rental.html" class="${isRent ? 'text-primary' : 'text-gray-600 hover:text-text-primary'} transition-colors">Rent</a>
         <a href="roommate-finder.html" class="${isRoommates ? 'text-primary' : 'text-gray-600 hover:text-text-primary'} transition-colors">Roommates</a>
         <a href="services.html" class="${isServices ? 'text-primary' : 'text-gray-600 hover:text-text-primary'} transition-colors">Services</a>
+        <a href="marketplace.html" class="${isMarketplace ? 'text-primary' : 'text-gray-600 hover:text-text-primary'} transition-colors">Marketplace</a>
         <a href="dashboard.html" class="${isDashboard ? 'text-primary' : 'text-gray-600 hover:text-text-primary'} transition-colors">Dashboard</a>
       </div>
 
@@ -165,10 +167,11 @@ function injectCommonNavbar() {
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
           </button>
         </div>
-        <div class="flex-1 px-6 py-6 space-y-6 text-lg font-semibold text-gray-800">
+        <div class="flex-1 px-6 py-6 space-y-5 text-lg font-semibold text-gray-800">
           <a href="browse-rental.html" class="block hover:text-primary transition-colors">Rent</a>
           <a href="roommate-finder.html" class="block hover:text-primary transition-colors">Roommates</a>
           <a href="services.html" class="block hover:text-primary transition-colors">Services</a>
+          <a href="marketplace.html" class="block hover:text-primary transition-colors">Marketplace</a>
           <a href="dashboard.html" class="block hover:text-primary transition-colors">Dashboard</a>
           <a href="profile.html" class="block hover:text-primary transition-colors border-t pt-4 border-gray-100">My Profile</a>
           <a href="post-listing.html" class="block hover:text-primary transition-colors">Post Ad</a>
@@ -232,7 +235,7 @@ function injectCommonNavbar() {
   }
 }
 
-// Inject Mobile Bottom Navigation Bar (5 icons for Rent, Roommates, Add, Services, Dashboard)
+// Inject Mobile Bottom Navigation Bar
 function injectMobileBottomNav() {
   const existingBottomNav = document.getElementById('mobileBottomNav');
   if (existingBottomNav) existingBottomNav.remove();
@@ -242,34 +245,39 @@ function injectMobileBottomNav() {
   const isRoommates = path.includes('roommate-finder');
   const isAdd = path.includes('post-listing');
   const isServices = path.includes('services');
+  const isMarketplace = path.includes('marketplace');
   const isDashboard = path.includes('dashboard');
 
   const bottomNav = document.createElement('div');
   bottomNav.id = 'mobileBottomNav';
-  bottomNav.className = 'md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 flex items-center justify-around py-2 px-4 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]';
+  bottomNav.className = 'md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 flex items-center justify-around py-2 px-2 shadow-[0_-2px_10px_rgba(0,0,0,0.05)]';
   
   bottomNav.innerHTML = `
-    <a href="browse-rental.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] ${isRent ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
-      <span class="text-[10px] mt-0.5">Rent</span>
+    <a href="browse-rental.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[40px] ${isRent ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
+      <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+      <span class="text-[9px] mt-0.5">Rent</span>
     </a>
-    <a href="roommate-finder.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] ${isRoommates ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-      <span class="text-[10px] mt-0.5">Roommates</span>
+    <a href="roommate-finder.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[40px] ${isRoommates ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
+      <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+      <span class="text-[9px] mt-0.5">Roommates</span>
     </a>
-    <a href="post-listing.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] ${isAdd ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
-      <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-md">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+    <a href="post-listing.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[40px] ${isAdd ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
+      <div class="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center shadow-md">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
       </div>
-      <span class="text-[10px] mt-0.5">Add</span>
+      <span class="text-[9px] mt-0.5">Add</span>
     </a>
-    <a href="services.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] ${isServices ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 9.172V5L8 4z"></path></svg>
-      <span class="text-[10px] mt-0.5">Services</span>
+    <a href="services.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[40px] ${isServices ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
+      <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 9.172V5L8 4z"></path></svg>
+      <span class="text-[9px] mt-0.5">Services</span>
     </a>
-    <a href="dashboard.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[44px] ${isDashboard ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
-      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2zm9 0v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
-      <span class="text-[10px] mt-0.5">Dashboard</span>
+    <a href="marketplace.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[40px] ${isMarketplace ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
+      <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+      <span class="text-[9px] mt-0.5">Market</span>
+    </a>
+    <a href="dashboard.html" class="flex flex-col items-center justify-center min-h-[44px] min-w-[40px] ${isDashboard ? 'text-primary' : 'text-gray-500 hover:text-text-primary'}">
+      <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2zm9 0v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4a2 2 0 002 2h2a2 2 0 002-2z"></path></svg>
+      <span class="text-[9px] mt-0.5">Dash</span>
     </a>
   `;
   document.body.appendChild(bottomNav);
@@ -305,3 +313,15 @@ function handleLogout() {
     window.location.href = 'index.html';
   }, 1000);
 }
+
+// Global Image URL Resolver Utility to prevent relative loading failures
+window.formatImageUrl = function(url, fallback = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800') {
+  if (!url) return fallback;
+  const trimmed = url.trim();
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://') || trimmed.startsWith('data:')) {
+    return trimmed;
+  }
+  // Strip starting slash to prevent double slash
+  const cleanUrl = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
+  return `https://rent-nest-wntm.onrender.com/${cleanUrl}`;
+};

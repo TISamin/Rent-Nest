@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         currentListings.forEach(item => {
           const images = item.imageUrl ? item.imageUrl.split(',') : [];
-          const mainImage = images.length > 0 ? images[0] : 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800';
+          const mainImage = formatImageUrl(images.length > 0 ? images[0] : '');
 
           const card = document.createElement('div');
           card.className = 'relative bg-white rounded-xl shadow-card hover:shadow-hover border border-gray-200 overflow-hidden transform hover:-translate-y-1 transition-all duration-200 group cursor-pointer flex flex-col h-full';
