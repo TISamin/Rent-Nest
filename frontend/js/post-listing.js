@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (['FLAT', 'HOUSE', 'HOTEL'].includes(cat)) {
       step2Residential.classList.remove('hidden');
+      step3PhotosBase.classList.remove('hidden');
       step3PhotosResidential.classList.remove('hidden');
       generateRoomSlots(); // Initial slots
     } else if (cat === 'CONVENTION_HALL') {

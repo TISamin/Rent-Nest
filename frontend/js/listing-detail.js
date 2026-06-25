@@ -27,10 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('breadcrumb-category').innerText = categoryLabel;
         document.getElementById('breadcrumb-title').innerText = item.title;
 
-        // Render Cover Image & Gallery
+        // Aggregate all images (Cover + Room photos)
         galleryImages = item.imageUrl ? item.imageUrl.split(',').map(url => formatImageUrl(url)) : [];
+        if (item.rooms) {
+          item.rooms.forEach(room => {
+            if (room.imageUrls && room.imageUrls.length > 0) {
+              room.imageUrls.forEach(url => galleryImages.push(formatImageUrl(url)));
+            }
+          });
+        }
+        
+        // Remove duplicates just in case
+        galleryImages = [...new Set(galleryImages)];
+
         if (galleryImages.length === 0) {
-          galleryImages = ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800'];
+          galleryImages = ['https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800']; // Only fallback if absolutely no images exist
         }
 
         const mainImage = galleryImages[0];
@@ -39,19 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const thumbnailsGrid = document.getElementById('detail-thumbnails-grid');
         if (thumbnailsGrid) {
           thumbnailsGrid.innerHTML = '';
-          // Airbnb style requires 4 thumbnails for the 2x2 right grid
-          // If less, we duplicate or fill with placeholder images
-          const placeholderImages = [
-            'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=800',
-            'https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800',
-            'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800',
-            'https://images.unsplash.com/photo-1484154218962-a197022b5858?w=800'
-          ];
-
           const gridImages = [...galleryImages.slice(1, 5)];
-          while (gridImages.length < 4) {
-            gridImages.push(placeholderImages[gridImages.length]);
-          }
 
           gridImages.forEach((imgUrl, index) => {
             const thumbCol = document.createElement('div');
