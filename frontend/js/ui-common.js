@@ -325,3 +325,17 @@ window.formatImageUrl = function(url, fallback = 'https://images.unsplash.com/ph
   const cleanUrl = trimmed.startsWith('/') ? trimmed.substring(1) : trimmed;
   return `https://rent-nest-wntm.onrender.com/${cleanUrl}`;
 };
+
+// Global Price Range Formatter
+window.formatPriceRange = function(item) {
+  const min = item.priceMin || item.price;
+  const max = item.priceMax;
+  
+  if (min && max && min !== max) {
+    return `${min} - ${max} BDT`;
+  } else if (min) {
+    return `${min} BDT`;
+  } else {
+    return 'Negotiable';
+  }
+};

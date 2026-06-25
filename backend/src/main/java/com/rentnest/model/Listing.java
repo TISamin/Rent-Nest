@@ -7,6 +7,8 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -41,8 +43,11 @@ public class Listing {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "price", precision = 12, scale = 2)
-    private BigDecimal price;
+    @Column(name = "price_min", precision = 12, scale = 2)
+    private BigDecimal priceMin;
+
+    @Column(name = "price_max", precision = 12, scale = 2)
+    private BigDecimal priceMax;
 
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
@@ -71,6 +76,34 @@ public class Listing {
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     private RoommateListing roommateListing;
+
+    @OneToOne(mappedBy = "listing", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private ResidentialDetail residentialDetail;
+
+    @OneToOne(mappedBy = "listing", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private ConventionDetail conventionDetail;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<RoomDetail> roomDetails = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<ListingAmenity> amenities = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "listing", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
+    private List<ServiceOffering> serviceOfferings = new ArrayList<>();
 
     public RoommateListing getRoommateInfo() {
         return roommateListing;

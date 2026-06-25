@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
               <div>
                 <div class="flex items-center justify-between mb-2">
                   <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider">ROOMMATES</span>
-                  <span class="text-xs font-bold text-gray-800">${item.price ? item.price + ' BDT/mo' : 'Split Rent'}</span>
+                  <span class="text-xs font-bold text-gray-800">${item.priceMin || item.price ? formatPriceRange(item) + '/mo' : 'Split Rent'}</span>
                 </div>
                 <h4 class="font-bold text-gray-900 truncate mb-1 text-sm">${item.title}</h4>
                 <p class="text-xs text-gray-400 mt-1 flex items-center gap-1">

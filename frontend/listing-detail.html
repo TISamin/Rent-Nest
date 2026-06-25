@@ -101,20 +101,67 @@
           <p id="detail-location-text" class="text-sm font-semibold text-gray-600 flex items-center gap-1.5"></p>
         </div>
 
-        <!-- Description -->
+        <!-- About this space -->
         <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
           <h2 class="text-lg font-bold text-gray-900 mb-3">About this space</h2>
           <p id="detail-description" class="text-sm text-gray-600 leading-relaxed whitespace-pre-line"></p>
         </div>
 
+        <!-- Residential Info (FLAT, HOUSE, HOTEL) -->
+        <div id="detail-residential-panel" class="hidden bg-white rounded-2xl p-6 border border-gray-200 shadow-sm space-y-4">
+          <h2 class="text-lg font-bold text-gray-900">Residential Details</h2>
+          <div class="grid grid-cols-3 gap-4 text-center">
+            <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+              <span id="detail-beds" class="block text-xl font-bold text-gray-900">0</span>
+              <span class="text-xs text-gray-500 uppercase">Bedrooms</span>
+            </div>
+            <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+              <span id="detail-baths" class="block text-xl font-bold text-gray-900">0</span>
+              <span class="text-xs text-gray-500 uppercase">Bathrooms</span>
+            </div>
+            <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+              <span id="detail-other" class="block text-xl font-bold text-gray-900">0</span>
+              <span class="text-xs text-gray-500 uppercase">Other Rooms</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Room Gallery (FLAT, HOUSE, HOTEL) -->
+        <div id="detail-rooms-panel" class="hidden bg-white rounded-2xl p-6 border border-gray-200 shadow-sm space-y-4">
+          <h2 class="text-lg font-bold text-gray-900">Room Photos</h2>
+          <div id="detail-rooms-container" class="space-y-6">
+            <!-- JS populates room galleries -->
+          </div>
+        </div>
+
+        <!-- Convention Info (CONVENTION_HALL) -->
+        <div id="detail-convention-panel" class="hidden bg-white rounded-2xl p-6 border border-gray-200 shadow-sm space-y-4">
+          <h2 class="text-lg font-bold text-gray-900">Convention Details</h2>
+          <div class="grid grid-cols-2 gap-4 text-center">
+            <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+              <span id="detail-capacity" class="block text-xl font-bold text-gray-900">-</span>
+              <span class="text-xs text-gray-500 uppercase">Max Capacity</span>
+            </div>
+            <div class="bg-gray-50 border border-gray-100 rounded-xl p-3">
+              <span id="detail-halls" class="block text-xl font-bold text-gray-900">-</span>
+              <span class="text-xs text-gray-500 uppercase">Halls</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Service Offerings -->
+        <div id="detail-offerings-panel" class="hidden bg-white rounded-2xl p-6 border border-gray-200 shadow-sm space-y-4">
+          <h2 class="text-lg font-bold text-gray-900">Service Offerings & Pricing</h2>
+          <div id="detail-offerings-container" class="space-y-3">
+            <!-- JS populates offering rows -->
+          </div>
+        </div>
+
         <!-- Amenity Tags -->
-        <div class="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
+        <div id="detail-amenities-panel" class="hidden bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
           <h2 class="text-lg font-bold text-gray-900 mb-3">Amenities</h2>
           <div class="flex flex-wrap gap-2" id="detail-amenities">
-            <span class="text-xs font-medium px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700">📶 High-speed Wi-Fi</span>
-            <span class="text-xs font-medium px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700">❄️ Air Conditioning</span>
-            <span class="text-xs font-medium px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700">🚗 Parking Available</span>
-            <span class="text-xs font-medium px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700">🚰 Water Supply</span>
+            <!-- JS populates amenities -->
           </div>
         </div>
 

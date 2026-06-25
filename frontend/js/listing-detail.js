@@ -88,13 +88,71 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Render Pricing Side-Panel details
         const priceText = document.getElementById('detail-price-text');
-        priceText.innerText = item.price ? `${item.price} BDT` : 'Contact Owner';
+        priceText.innerText = (item.priceMin || item.price) ? formatPriceRange(item) : 'Contact Owner';
         
         // Render listing date
         const listingDate = item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
         const dateEl = document.getElementById('detail-listing-date');
         if (dateEl) {
           dateEl.innerText = listingDate ? `🗓️ Posted on: ${listingDate}` : '🗓️ Posted Today';
+        }
+
+        // Render Amenities
+        if (item.amenities && item.amenities.length > 0) {
+          document.getElementById('detail-amenities-panel').classList.remove('hidden');
+          const amContainer = document.getElementById('detail-amenities');
+          amContainer.innerHTML = item.amenities.map(a => `<span class="text-xs font-medium px-3 py-1.5 rounded-lg bg-gray-100 text-gray-700">${a}</span>`).join('');
+        }
+
+        // Render Residential Info
+        if (item.residentialInfo) {
+          document.getElementById('detail-residential-panel').classList.remove('hidden');
+          document.getElementById('detail-beds').innerText = item.residentialInfo.bedroomCount || 0;
+          document.getElementById('detail-baths').innerText = item.residentialInfo.bathroomCount || 0;
+          document.getElementById('detail-other').innerText = item.residentialInfo.otherRoomsCount || 0;
+        }
+
+        // Render Rooms
+        if (item.rooms && item.rooms.length > 0) {
+          document.getElementById('detail-rooms-panel').classList.remove('hidden');
+          const roomsContainer = document.getElementById('detail-rooms-container');
+          roomsContainer.innerHTML = item.rooms.map((room, idx) => {
+            const images = room.imageUrls ? room.imageUrls.map(u => formatImageUrl(u)) : [];
+            const imageHtml = images.map(img => `<img src="${img}" class="w-32 h-24 object-cover rounded-lg flex-shrink-0 cursor-pointer" onclick="window.open('${img}', '_blank')">`).join('');
+            return `
+              <div class="border border-gray-100 rounded-xl p-4 bg-gray-50">
+                <div class="flex items-center gap-2 mb-2">
+                  <span class="bg-primary/10 text-primary text-xs font-bold px-2 py-1 rounded-full uppercase">${room.roomType}</span>
+                  <span class="text-sm font-semibold text-gray-800">${room.description || `Room ${idx + 1}`}</span>
+                </div>
+                ${images.length > 0 ? `<div class="flex gap-2 overflow-x-auto pb-2">${imageHtml}</div>` : `<p class="text-xs text-gray-400">No photos</p>`}
+              </div>
+            `;
+          }).join('');
+        }
+
+        // Render Convention Info
+        if (item.conventionInfo) {
+          document.getElementById('detail-convention-panel').classList.remove('hidden');
+          document.getElementById('detail-capacity').innerText = item.conventionInfo.capacity || '-';
+          document.getElementById('detail-halls').innerText = item.conventionInfo.hallCount || '-';
+        }
+
+        // Render Service Offerings
+        if (item.offerings && item.offerings.length > 0) {
+          document.getElementById('detail-offerings-panel').classList.remove('hidden');
+          const offContainer = document.getElementById('detail-offerings-container');
+          offContainer.innerHTML = item.offerings.map(off => `
+            <div class="flex justify-between items-start border-b border-gray-100 last:border-0 pb-3 last:pb-0">
+              <div>
+                <h4 class="font-bold text-gray-900 text-sm">${off.offeringName}</h4>
+                ${off.description ? `<p class="text-xs text-gray-500 mt-1">${off.description}</p>` : ''}
+              </div>
+              <div class="text-right">
+                <span class="font-bold text-primary text-sm">${formatPriceRange(off)}</span>
+              </div>
+            </div>
+          `).join('');
         }
 
         // Render Author details
@@ -272,8 +330,4 @@ document.addEventListener('DOMContentLoaded', () => {
       nextBtn.click();
     }
   });
-});
-r");
-    }
-  }
 });

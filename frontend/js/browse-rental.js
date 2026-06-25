@@ -6,8 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const locationInput = document.getElementById('search-location');
   const categorySelect = document.getElementById('search-category');
-  const radiusSlider = document.getElementById('radius-slider');
-  const radiusVal = document.getElementById('radius-val');
+  const radiusSlider = document.getElementById('radius-dropdown');
   const budgetMin = document.getElementById('budget-min');
   const budgetMax = document.getElementById('budget-max');
   
@@ -30,17 +29,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let mapInstance = null;
   let markersLayer = null;
 
-  // Sync radius slider label text
-  radiusSlider.addEventListener('input', (e) => {
-    radiusVal.textContent = `${e.target.value} km`;
-  });
-
   // Action to widen radius on empty state
-  widenRadiusBtn.addEventListener('click', () => {
-    radiusSlider.value = Math.min(parseInt(radiusSlider.value) + 15, 50);
-    radiusVal.textContent = `${radiusSlider.value} km`;
-    fetchListings();
-  });
+  if (widenRadiusBtn) {
+    widenRadiusBtn.addEventListener('click', () => {
+      const currentVal = parseInt(radiusSlider.value || '15');
+      let nextVal = 50;
+      if (currentVal < 15) nextVal = 15;
+      else if (currentVal < 30) nextVal = 30;
+      radiusSlider.value = nextVal.toString();
+      fetchListings();
+    });
+  }
 
   // Toggle between Grid and Map views
   mapToggleBtn.addEventListener('click', () => {
@@ -103,10 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Filter results locally for custom filters (budget range)
         let filtered = res.data;
         if (minBudget) {
-          filtered = filtered.filter(item => item.price >= parseFloat(minBudget));
+          filtered = filtered.filter(item => (item.priceMin || item.price || 0) >= parseFloat(minBudget));
         }
         if (maxBudget) {
-          filtered = filtered.filter(item => item.price <= parseFloat(maxBudget));
+          filtered = filtered.filter(item => (item.priceMax || item.priceMin || item.price || Infinity) <= parseFloat(maxBudget));
         }
 
         currentListings = filtered;
@@ -125,34 +124,27 @@ document.addEventListener('DOMContentLoaded', () => {
           const images = item.imageUrl ? item.imageUrl.split(',') : [];
           const mainImage = formatImageUrl(images.length > 0 ? images[0] : '');
 
-          const card = document.createElement('div');
-          card.className = 'relative bg-white rounded-xl shadow-card hover:shadow-hover border border-gray-200 overflow-hidden transform hover:-translate-y-1 transition-all duration-200 group cursor-pointer flex flex-col h-full';
+          const card = document.createElement('a');
+          card.href = `listing-detail.html?id=${item.id}`;
+          card.className = 'group cursor-pointer block';
           card.innerHTML = `
-            <div class="relative aspect-[4/3] overflow-hidden bg-gray-100 flex-shrink-0">
-              <img src="${mainImage}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-300 ease group-hover:scale-[1.03]" loading="lazy">
-              <button class="absolute top-3 right-3 p-1.5 rounded-full bg-white/70 backdrop-blur-sm text-gray-600 hover:text-primary transition-colors focus:outline-none z-10" onclick="toggleHeart(event, this)">
-                <svg class="w-5 h-5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
-                  <path d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            <div class="relative aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden mb-3">
+              <img src="${mainImage}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-300 ease group-hover:scale-105" loading="lazy">
+              <button class="absolute top-3 right-3 p-1.5 text-white hover:scale-110 transition-transform focus:outline-none z-10 drop-shadow-md" onclick="toggleHeart(event, this)">
+                <svg class="w-6 h-6 fill-black/30 stroke-white stroke-2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                 </svg>
               </button>
             </div>
-            <div class="p-4 flex flex-col flex-1 justify-between">
+            <div class="flex justify-between items-start">
               <div>
-                <div class="flex items-center justify-between mb-2">
-                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary uppercase tracking-wider">${item.category.replace('_', ' ')}</span>
-                  <span class="text-xs font-bold text-gray-800">${item.price ? item.price + ' BDT' : 'Negotiable'}</span>
+                <h4 class="font-semibold text-gray-900 truncate text-[15px]">${item.locationText || 'Location Specified'}</h4>
+                <p class="text-[14px] text-gray-500 mt-0.5">${item.category.replace('_', ' ')}</p>
+                <p class="text-[14px] text-gray-500">Within ${radiusValue} km</p>
+                <div class="mt-1 flex items-baseline gap-1">
+                  <span class="text-[15px] font-semibold text-gray-900">${formatPriceRange(item)}</span>
+                  <span class="text-[14px] text-gray-500">/ month</span>
                 </div>
-                <h4 class="font-bold text-gray-900 truncate mb-1 text-sm">${item.locationText || 'Location Specified'}</h4>
-                <p class="text-xs text-gray-500 line-clamp-2 min-h-[32px] mb-3">${item.description || 'No description provided.'}</p>
-              </div>
-              <div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100">
-                <div class="flex items-center gap-1.5">
-                  <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                  <span class="text-[11px] text-gray-500 font-medium">Within ${radiusValue} km</span>
-                </div>
-                <a href="listing-detail.html?id=${item.id}" class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-primary hover:bg-primary-dark text-white shadow-sm transition-all transform active:scale-95">
-                  Details
-                </a>
               </div>
             </div>
           `;
@@ -240,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <div class="w-48 text-[#222222]">
           <img src="${mainImage}" class="w-full h-24 object-cover rounded-md mb-2">
           <p class="font-bold text-sm truncate mb-0.5">${item.title}</p>
-          <p class="text-xs text-primary font-bold mb-1.5">${item.price ? item.price + ' BDT' : 'Negotiable'}</p>
+          <p class="text-xs text-primary font-bold mb-1.5">${formatPriceRange(item)}</p>
           <a href="listing-detail.html?id=${item.id}" class="block text-center bg-primary text-white py-1 rounded text-xs font-bold hover:bg-primary-dark">View Details</a>
         </div>
       `;
@@ -262,13 +254,13 @@ function toggleHeart(event, element) {
   event.preventDefault();
   event.stopPropagation();
   const svg = element.querySelector('svg');
-  if (svg.classList.contains('fill-none')) {
-    svg.classList.remove('fill-none', 'text-gray-600');
-    svg.classList.add('fill-current', 'text-primary');
+  if (svg.classList.contains('fill-black/30')) {
+    svg.classList.remove('fill-black/30', 'stroke-white');
+    svg.classList.add('fill-primary', 'stroke-primary');
     showToast("Added to saved spaces!", "success");
   } else {
-    svg.classList.remove('fill-current', 'text-primary');
-    svg.classList.add('fill-none', 'text-gray-600');
+    svg.classList.remove('fill-primary', 'stroke-primary');
+    svg.classList.add('fill-black/30', 'stroke-white');
     showToast("Removed from saved spaces.", "info");
   }
 }

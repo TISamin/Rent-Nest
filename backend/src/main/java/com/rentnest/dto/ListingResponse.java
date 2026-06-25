@@ -1,8 +1,6 @@
 package com.rentnest.dto;
 
-import com.rentnest.model.Listing;
-import com.rentnest.model.RoommateListing;
-import com.rentnest.model.RoommateMember;
+import com.rentnest.model.*;
 import com.rentnest.model.enums.ListingCategory;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +15,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
- * Response DTO for listing details, including owner info and optional roommate data.
+ * Response DTO for listing details, including owner info and all category-specific data.
  */
 @Data
 @NoArgsConstructor
@@ -30,6 +28,8 @@ public class ListingResponse {
     private String title;
     private String description;
     private BigDecimal price;
+    private BigDecimal priceMin;
+    private BigDecimal priceMax;
     private String imageUrl;
     private String locationText;
     private BigDecimal latitude;
@@ -44,27 +44,58 @@ public class ListingResponse {
     private String userPhone;
     private String userPhotoUrl;
 
-    // Roommate info (null if not a ROOMMATE_FINDER listing)
+    // Category-specific nested data
+    private ResidentialInfo residentialInfo;
+    private ConventionInfo conventionInfo;
+    private List<RoomInfo> rooms;
+    private List<String> amenities;
+    private List<OfferingInfo> offerings;
     private RoommateInfo roommateInfo;
 
     // ---- Nested response DTOs ----
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
+    public static class ResidentialInfo {
+        private Integer bedroomCount;
+        private Integer bathroomCount;
+        private Integer otherRoomsCount;
+    }
+
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
+    public static class ConventionInfo {
+        private Integer capacity;
+        private Integer hallCount;
+    }
+
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
+    public static class RoomInfo {
+        private UUID id;
+        private String roomType;
+        private String description;
+        private List<String> imageUrls;
+    }
+
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
+    public static class OfferingInfo {
+        private UUID id;
+        private String offeringName;
+        private BigDecimal priceMin;
+        private BigDecimal priceMax;
+        private String description;
+    }
+
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
     public static class RoommateInfo {
         private UUID id;
         private String ownerPhotoUrl;
         private Integer totalRoommatesWanted;
         private Integer roommatesAlreadyHave;
+        private Integer budgetMin;
+        private Integer budgetMax;
         private List<MemberInfo> members;
     }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
+    @Data @NoArgsConstructor @AllArgsConstructor @Builder
     public static class MemberInfo {
         private UUID id;
         private String memberDescription;
@@ -72,7 +103,7 @@ public class ListingResponse {
     }
 
     /**
-     * Build a ListingResponse from a Listing entity, including user and roommate data.
+     * Build a ListingResponse from a Listing entity, including all nested data.
      */
     public static ListingResponse fromEntity(Listing listing) {
         ListingResponseBuilder builder = ListingResponse.builder()
@@ -80,7 +111,9 @@ public class ListingResponse {
                 .category(listing.getCategory())
                 .title(listing.getTitle())
                 .description(listing.getDescription())
-                .price(listing.getPrice())
+                .price(listing.getPriceMin()) // backward compat
+                .priceMin(listing.getPriceMin())
+                .priceMax(listing.getPriceMax())
                 .imageUrl(listing.getImageUrl())
                 .locationText(listing.getLocationText())
                 .latitude(listing.getLatitude())
@@ -95,6 +128,59 @@ public class ListingResponse {
                    .userName(listing.getUser().getName())
                    .userPhone(listing.getUser().getPhoneNumber())
                    .userPhotoUrl(listing.getUser().getProfilePhotoUrl());
+        }
+
+        // Map residential detail
+        if (listing.getResidentialDetail() != null) {
+            ResidentialDetail rd = listing.getResidentialDetail();
+            builder.residentialInfo(ResidentialInfo.builder()
+                    .bedroomCount(rd.getBedroomCount())
+                    .bathroomCount(rd.getBathroomCount())
+                    .otherRoomsCount(rd.getOtherRoomsCount())
+                    .build());
+        }
+
+        // Map convention detail
+        if (listing.getConventionDetail() != null) {
+            ConventionDetail cd = listing.getConventionDetail();
+            builder.conventionInfo(ConventionInfo.builder()
+                    .capacity(cd.getCapacity())
+                    .hallCount(cd.getHallCount())
+                    .build());
+        }
+
+        // Map room details
+        if (listing.getRoomDetails() != null && !listing.getRoomDetails().isEmpty()) {
+            builder.rooms(listing.getRoomDetails().stream()
+                    .map(r -> RoomInfo.builder()
+                            .id(r.getId())
+                            .roomType(r.getRoomType())
+                            .description(r.getDescription())
+                            .imageUrls(r.getImageUrls() != null && !r.getImageUrls().isBlank()
+                                    ? List.of(r.getImageUrls().split(","))
+                                    : Collections.emptyList())
+                            .build())
+                    .collect(Collectors.toList()));
+        }
+
+        // Map amenities
+        if (listing.getAmenities() != null && !listing.getAmenities().isEmpty()) {
+            builder.amenities(listing.getAmenities().stream()
+                    .map(ListingAmenity::getAmenityName)
+                    .collect(Collectors.toList()));
+        }
+
+        // Map service offerings
+        if (listing.getServiceOfferings() != null && !listing.getServiceOfferings().isEmpty()) {
+            builder.offerings(listing.getServiceOfferings().stream()
+                    .map(s -> OfferingInfo.builder()
+                            .id(s.getId())
+                            .offeringName(s.getOfferingName())
+                            .priceMin(s.getPriceMin())
+                            .priceMax(s.getPriceMax())
+                            .description(s.getDescription())
+                            .build())
+                    .collect(Collectors.toList()));
         }
 
         // Map roommate extension if present
@@ -115,6 +201,8 @@ public class ListingResponse {
                     .ownerPhotoUrl(rl.getOwnerPhotoUrl())
                     .totalRoommatesWanted(rl.getTotalRoommatesWanted())
                     .roommatesAlreadyHave(rl.getRoommatesAlreadyHave())
+                    .budgetMin(rl.getBudgetMin())
+                    .budgetMax(rl.getBudgetMax())
                     .members(memberInfos)
                     .build());
         }

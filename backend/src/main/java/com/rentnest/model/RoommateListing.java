@@ -44,6 +44,12 @@ public class RoommateListing {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "budget_min")
+    private Integer budgetMin;
+
+    @Column(name = "budget_max")
+    private Integer budgetMax;
+
     @Builder.Default
     @OneToMany(mappedBy = "roommateListing", cascade = CascadeType.ALL, orphanRemoval = true)
     @ToString.Exclude
