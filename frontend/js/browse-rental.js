@@ -24,6 +24,62 @@ document.addEventListener('DOMContentLoaded', () => {
   if (initialLoc) locationInput.value = initialLoc;
   if (initialCategory) categorySelect.value = initialCategory;
 
+  // Create suggestions container dynamically
+  const suggestionsContainer = document.createElement('div');
+  suggestionsContainer.id = 'location-suggestions';
+  suggestionsContainer.className = 'absolute left-0 right-0 top-full mt-2 bg-white border border-gray-200 rounded-2xl shadow-lg z-50 hidden max-h-60 overflow-y-auto py-1';
+  locationInput.parentNode.appendChild(suggestionsContainer);
+
+  // Debounce helper to prevent database spamming
+  function debounce(func, delay) {
+    let timeout;
+    return function (...args) {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), delay);
+    };
+  }
+
+  // Fetch location suggestions as the user types
+  locationInput.addEventListener('input', debounce(async (e) => {
+    const val = e.target.value.trim();
+    if (val.length < 1) {
+      suggestionsContainer.innerHTML = '';
+      suggestionsContainer.classList.add('hidden');
+      return;
+    }
+
+    try {
+      const res = await apiGet(`/search/locations?query=${encodeURIComponent(val)}`);
+      if (res.success && res.data && res.data.length > 0) {
+        suggestionsContainer.innerHTML = '';
+        res.data.forEach(loc => {
+          const item = document.createElement('div');
+          item.className = 'px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors duration-150 border-b border-gray-100 last:border-b-0';
+          item.textContent = loc;
+          item.addEventListener('click', () => {
+            locationInput.value = loc;
+            suggestionsContainer.innerHTML = '';
+            suggestionsContainer.classList.add('hidden');
+          });
+          suggestionsContainer.appendChild(item);
+        });
+        suggestionsContainer.classList.remove('hidden');
+      } else {
+        suggestionsContainer.innerHTML = '';
+        suggestionsContainer.classList.add('hidden');
+      }
+    } catch (err) {
+      console.error("Failed to fetch location suggestions:", err);
+    }
+  }, 250));
+
+  // Hide suggestions dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!locationInput.contains(e.target) && !suggestionsContainer.contains(e.target)) {
+      suggestionsContainer.classList.add('hidden');
+    }
+  });
+
   let allFetchedListings = [];
   let currentListings = [];
   let searchedCoords = null; // { lat, lng }

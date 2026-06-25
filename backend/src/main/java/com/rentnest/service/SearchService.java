@@ -2,7 +2,6 @@ package com.rentnest.service;
 
 import com.rentnest.dto.SearchRequest;
 import com.rentnest.dto.ListingResponse;
-import com.rentnest.dto.ListingDistanceProjection;
 import com.rentnest.model.Listing;
 import com.rentnest.model.enums.ListingCategory;
 import com.rentnest.repository.ListingRepository;
@@ -20,9 +19,9 @@ public class SearchService {
 
     public List<ListingResponse> searchRentals(String location, ListingCategory category, Double lat, Double lng, Integer radius) {
         if (lat != null && lng != null && radius != null) {
-            List<ListingDistanceProjection> projections;
+            List<Listing> listings;
             if (category != null) {
-                projections = listingRepository.findWithinRadius(lat, lng, radius, category.name());
+                listings = listingRepository.findWithinRadius(lat, lng, radius, category.name());
             } else {
                 List<String> rentalCategoryNames = java.util.List.of(
                     ListingCategory.FLAT.name(),
@@ -30,13 +29,24 @@ public class SearchService {
                     ListingCategory.HOUSE.name(),
                     ListingCategory.CONVENTION_HALL.name()
                 );
-                projections = listingRepository.findWithinRadiusMultipleCategories(lat, lng, radius, rentalCategoryNames);
+                listings = listingRepository.findWithinRadiusMultipleCategories(lat, lng, radius, rentalCategoryNames);
             }
-            return projections.stream()
-                    .map(proj -> {
-                        ListingResponse resp = ListingResponse.fromEntity(proj.getListing());
-                        resp.setDistanceMetres(proj.getDistanceMetres());
+            return listings.stream()
+                    .map(l -> {
+                        ListingResponse resp = ListingResponse.fromEntity(l);
+                        if (l.getLatitude() != null && l.getLongitude() != null) {
+                            double dist = calculateHaversineDistance(lat, lng, l.getLatitude().doubleValue(), l.getLongitude().doubleValue());
+                            resp.setDistanceMetres(dist);
+                        } else {
+                            resp.setDistanceMetres(null);
+                        }
                         return resp;
+                    })
+                    .sorted((r1, r2) -> {
+                        if (r1.getDistanceMetres() == null && r2.getDistanceMetres() == null) return 0;
+                        if (r1.getDistanceMetres() == null) return 1;
+                        if (r2.getDistanceMetres() == null) return -1;
+                        return Double.compare(r1.getDistanceMetres(), r2.getDistanceMetres());
                     })
                     .collect(Collectors.toList());
         }
@@ -67,6 +77,30 @@ public class SearchService {
         return listings.stream()
                 .map(ListingResponse::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Get autocomplete location text suggestions matching the user's typed prefix/query.
+     */
+    public List<String> getLocationSuggestions(String query) {
+        if (query == null || query.trim().length() < 1) {
+            return java.util.List.of();
+        }
+        return listingRepository.findDistinctLocationTexts(query.trim());
+    }
+
+    /**
+     * Helper to calculate the straight-line Haversine distance in metres between two coordinate points.
+     */
+    private double calculateHaversineDistance(double lat1, double lng1, double lat2, double lng2) {
+        final int R = 6371000; // Radius of the earth in metres
+        double latDistance = Math.toRadians(lat2 - lat1);
+        double lonDistance = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
     }
 
     public List<Listing> searchMarketplace(String item) {

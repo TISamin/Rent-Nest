@@ -63,4 +63,11 @@ public class SearchController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(ApiResponse.success(responses, "Service listings retrieved successfully"));
     }
+
+    @GetMapping("/locations")
+    public ResponseEntity<ApiResponse<List<String>>> getLocations(
+            @RequestParam String query) {
+        List<String> suggestions = searchService.getLocationSuggestions(query);
+        return ResponseEntity.ok(ApiResponse.success(suggestions, "Location suggestions retrieved successfully"));
+    }
 }
