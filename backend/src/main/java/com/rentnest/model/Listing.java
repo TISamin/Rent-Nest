@@ -49,6 +49,9 @@ public class Listing {
     @Column(name = "price_max", precision = 12, scale = 2)
     private BigDecimal priceMax;
 
+    @Column(name = "price_unit", length = 20)
+    private String priceUnit;
+
     @Column(name = "image_url", columnDefinition = "TEXT")
     private String imageUrl;
 

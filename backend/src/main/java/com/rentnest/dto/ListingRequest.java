@@ -38,6 +38,7 @@ public class ListingRequest {
     /** New price range fields */
     private BigDecimal priceMin;
     private BigDecimal priceMax;
+    private String priceUnit;
 
     private String imageUrl;
 

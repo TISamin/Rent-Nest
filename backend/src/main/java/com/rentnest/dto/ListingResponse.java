@@ -30,6 +30,7 @@ public class ListingResponse {
     private BigDecimal price;
     private BigDecimal priceMin;
     private BigDecimal priceMax;
+    private String priceUnit;
     private String imageUrl;
     private String locationText;
     private BigDecimal latitude;
@@ -114,6 +115,7 @@ public class ListingResponse {
                 .price(listing.getPriceMin()) // backward compat
                 .priceMin(listing.getPriceMin())
                 .priceMax(listing.getPriceMax())
+                .priceUnit(listing.getPriceUnit() != null ? listing.getPriceUnit() : "month")
                 .imageUrl(listing.getImageUrl())
                 .locationText(listing.getLocationText())
                 .latitude(listing.getLatitude())

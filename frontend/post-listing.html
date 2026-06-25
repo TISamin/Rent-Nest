@@ -85,8 +85,12 @@
           <option value="HOUSE">🏡 House</option>
           <option value="CONVENTION_HALL">🏛️ Convention Hall</option>
           <option value="SHIFTING_SERVICE">🚚 Shifting Service</option>
-          <option value="MARKETPLACE">🛒 Marketplace Item</option>
           <option value="CATERING_SERVICE">🍽️ Catering Service</option>
+          <option value="CLEANING_SERVICE">🧹 Cleaning Service</option>
+          <option value="MAINTENANCE_SERVICE">🛠️ Maintenance Service</option>
+          <option value="DECORATION_SERVICE">🎨 Decoration Service</option>
+          <option value="EVENT_PLANNING">📅 Event Planning</option>
+          <option value="MARKETPLACE">🛒 Marketplace Item</option>
           <option value="ROOMMATE_FINDER">🤝 Roommate Finder</option>
         </select>
       </div>
@@ -107,14 +111,24 @@
         </div>
         
         <!-- Base Price Range (Hidden for services that use offerings) -->
-        <div id="base-price-section" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div id="base-price-section" class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="form-label">Min Price (BDT) <span class="text-red-500">*</span></label>
             <input type="number" id="listing-price-min" placeholder="e.g. 15000" min="0" class="form-input">
           </div>
           <div>
-            <label class="form-label">Max Price (BDT) <span class="text-gray-400 text-xs font-normal">(optional)</span></label>
-            <input type="number" id="listing-price-max" placeholder="Leave blank for fixed price" min="0" class="form-input">
+            <label class="form-label">Max Price (BDT) <span class="text-xs text-gray-400">(Optional)</span></label>
+            <input type="number" id="listing-price-max" placeholder="e.g. 20000" min="0" class="form-input">
+          </div>
+          <div id="price-unit-container">
+            <label class="form-label">Price Unit</label>
+            <select id="listing-price-unit" class="form-input">
+              <option value="month" selected>Per Month</option>
+              <option value="year">Per Year</option>
+              <option value="week">Per Week</option>
+              <option value="day">Per Day</option>
+              <option value="">No Unit (Total)</option>
+            </select>
           </div>
         </div>
 
@@ -247,12 +261,12 @@
       </div>
 
       <!-- Step 3: Photos (Base for non-residential) -->
-      <div id="step-3-photos-base" class="hidden bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+      <div id="step-3-photos-base" class="hidden bg-white border border-gray-200 rounded-2xl p-6 shadow-sm space-y-5">
         <h2 class="text-base font-bold text-gray-900 flex items-center gap-2 mb-1">
           <span class="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-bold flex-shrink-0">3</span>
           Photos <span class="text-red-500">*</span>
         </h2>
-        <div id="cover-photo-dropzone" class="image-upload-dropzone">
+        <div id="cover-photo-dropzone" class="image-upload-dropzone py-6">
           <p class="text-gray-500 text-sm font-medium">Click or drag images to upload</p>
         </div>
         <input type="file" id="cover-photo-input" accept="image/*" multiple class="hidden">

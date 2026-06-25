@@ -330,11 +330,12 @@ window.formatImageUrl = function(url, fallback = 'https://images.unsplash.com/ph
 window.formatPriceRange = function(item) {
   const min = item.priceMin || item.price;
   const max = item.priceMax;
+  const unit = item.priceUnit ? ` / ${item.priceUnit}` : '';
   
   if (min && max && min !== max) {
-    return `${min} - ${max} BDT`;
+    return `${min} - ${max} BDT${unit}`;
   } else if (min) {
-    return `${min} BDT`;
+    return `${min} BDT${unit}`;
   } else {
     return 'Negotiable';
   }

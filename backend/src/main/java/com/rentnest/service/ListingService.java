@@ -163,6 +163,7 @@ public class ListingService {
         listing.setDescription(request.getDescription());
         listing.setPriceMin(request.getPriceMin() != null ? request.getPriceMin() : request.getPrice());
         listing.setPriceMax(request.getPriceMax());
+        listing.setPriceUnit(request.getPriceUnit() != null ? request.getPriceUnit() : "month");
         listing.setImageUrl(request.getImageUrl());
         listing.setLocationText(request.getLocationText());
         listing.setLatitude(request.getLatitude());

@@ -143,7 +143,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="text-[14px] text-gray-500">${item.category.replace('_', ' ')}</p>
                 <div class="mt-1 flex items-baseline gap-1">
                   <span class="text-[15px] font-semibold text-gray-900">${formatPriceRange(item)}</span>
-                  <span class="text-[14px] text-gray-500">/ month</span>
                 </div>
               </div>
             </div>

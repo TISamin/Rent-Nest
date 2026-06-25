@@ -267,8 +267,7 @@
                   <p class="text-[14px] text-gray-500 mt-0.5">${item.locationText || item.category.replace('_', ' ')}</p>
                   <p class="text-[14px] text-gray-500">${item.category.replace('_', ' ')} &middot; Available Now</p>
                   <div class="mt-1 flex items-baseline gap-1">
-                    <span class="text-[15px] font-semibold text-gray-900">${item.price ? 'BDT ' + item.price : 'Negotiable'}</span>
-                    <span class="text-[14px] text-gray-500">/ month</span>
+                    <span class="text-[15px] font-semibold text-gray-900">${formatPriceRange(item)}</span>
                   </div>
                 </div>
               </div>

@@ -77,6 +77,15 @@ document.addEventListener('DOMContentLoaded', () => {
       // Marketplace
       step3PhotosBase.classList.remove('hidden');
     }
+
+    const priceUnitContainer = document.getElementById('price-unit-container');
+    if (priceUnitContainer) {
+      if (cat === 'MARKETPLACE') {
+        priceUnitContainer.classList.add('hidden');
+      } else {
+        priceUnitContainer.classList.remove('hidden');
+      }
+    }
   });
 
   // --- Stepper Logic ---
@@ -323,9 +332,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     let priceMin = null;
     let priceMax = null;
+    let priceUnit = null;
     if (!['SHIFTING_SERVICE', 'CATERING_SERVICE', 'MAINTENANCE_SERVICE', 'CLEANING_SERVICE', 'DECORATION_SERVICE', 'EVENT_PLANNING'].includes(cat)) {
       priceMin = parseFloat(document.getElementById('listing-price-min').value) || null;
       priceMax = parseFloat(document.getElementById('listing-price-max').value) || null;
+      priceUnit = document.getElementById('listing-price-unit').value || null;
     }
 
     const locText = document.getElementById('listing-location-text').value.trim();
@@ -342,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
       longitude: lng,
       priceMin: priceMin,
       priceMax: priceMax,
+      priceUnit: priceUnit,
     };
 
     // Extract Amenities
