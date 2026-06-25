@@ -25,11 +25,11 @@ public class SearchController {
     @GetMapping("/rental")
     public ResponseEntity<ApiResponse<List<ListingResponse>>> searchRental(
             @RequestParam(required = false) String location,
-            @RequestParam(required = false) ListingCategory category) {
-        List<Listing> listings = searchService.searchRentals(location, category);
-        List<ListingResponse> responses = listings.stream()
-                .map(ListingResponse::fromEntity)
-                .collect(Collectors.toList());
+            @RequestParam(required = false) ListingCategory category,
+            @RequestParam(required = false) Double lat,
+            @RequestParam(required = false) Double lng,
+            @RequestParam(required = false) Integer radius) {
+        List<ListingResponse> responses = searchService.searchRentals(location, category, lat, lng, radius);
         return ResponseEntity.ok(ApiResponse.success(responses, "Rental listings retrieved successfully"));
     }
 

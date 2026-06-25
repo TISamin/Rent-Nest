@@ -38,6 +38,7 @@ public class ListingResponse {
     private String contactPhone;
     private LocalDateTime createdAt;
     private Boolean isActive;
+    private Double distanceMetres;
 
     // Owner info (flattened from User)
     private UUID userId;

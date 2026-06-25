@@ -1,6 +1,8 @@
 package com.rentnest.service;
 
 import com.rentnest.dto.SearchRequest;
+import com.rentnest.dto.ListingResponse;
+import com.rentnest.dto.ListingDistanceProjection;
 import com.rentnest.model.Listing;
 import com.rentnest.model.enums.ListingCategory;
 import com.rentnest.repository.ListingRepository;
@@ -16,7 +18,29 @@ public class SearchService {
 
     private final ListingRepository listingRepository;
 
-    public List<Listing> searchRentals(String location, ListingCategory category) {
+    public List<ListingResponse> searchRentals(String location, ListingCategory category, Double lat, Double lng, Integer radius) {
+        if (lat != null && lng != null && radius != null) {
+            List<ListingDistanceProjection> projections;
+            if (category != null) {
+                projections = listingRepository.findWithinRadius(lat, lng, radius, category.name());
+            } else {
+                List<String> rentalCategoryNames = java.util.List.of(
+                    ListingCategory.FLAT.name(),
+                    ListingCategory.HOTEL.name(),
+                    ListingCategory.HOUSE.name(),
+                    ListingCategory.CONVENTION_HALL.name()
+                );
+                projections = listingRepository.findWithinRadiusMultipleCategories(lat, lng, radius, rentalCategoryNames);
+            }
+            return projections.stream()
+                    .map(proj -> {
+                        ListingResponse resp = ListingResponse.fromEntity(proj.getListing());
+                        resp.setDistanceMetres(proj.getDistanceMetres());
+                        return resp;
+                    })
+                    .collect(Collectors.toList());
+        }
+
         List<Listing> listings;
         if (category != null) {
             listings = listingRepository.findByCategoryAndIsActiveTrueOrderByCreatedAtDesc(category);
@@ -35,12 +59,14 @@ public class SearchService {
 
         if (location != null && !location.trim().isEmpty()) {
             String lowerLoc = location.toLowerCase();
-            return listings.stream()
+            listings = listings.stream()
                     .filter(l -> l.getLocationText() != null && l.getLocationText().toLowerCase().contains(lowerLoc))
                     .collect(Collectors.toList());
         }
 
-        return listings;
+        return listings.stream()
+                .map(ListingResponse::fromEntity)
+                .collect(Collectors.toList());
     }
 
     public List<Listing> searchMarketplace(String item) {
