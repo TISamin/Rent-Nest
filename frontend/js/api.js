@@ -34,7 +34,27 @@ async function apiRequest(method, path, body = null) {
       throw new Error("Unauthorized. Redirecting to login...");
     }
 
-    const result = await response.json();
+    let text = "";
+    try {
+      text = await response.text();
+    } catch (e) {
+      // Ignore text read error
+    }
+
+    let result;
+    try {
+      result = text ? JSON.parse(text) : {};
+    } catch (e) {
+      if (!response.ok) {
+        throw new Error(`Server Error (${response.status}): Could not parse response.`);
+      }
+      throw new Error("Invalid response from server");
+    }
+
+    if (!response.ok) {
+      throw new Error(result.message || `Server Error (${response.status})`);
+    }
+
     return result;
   } catch (error) {
     console.error(`API Error (${method} ${path}):`, error);

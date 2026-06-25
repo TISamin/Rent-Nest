@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
     formData.append('upload_preset', uploadPreset);
 
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("Upload timed out (15s).")), 15000);
+      setTimeout(() => reject(new Error("Upload timed out (120s).")), 120000);
     });
 
     const uploadPromise = fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
