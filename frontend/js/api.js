@@ -1,5 +1,7 @@
-// const API_BASE_URL = 'https://rent-nest-wntm.onrender.com/api';
-const API_BASE_URL = 'http://localhost:8080/api'; // Local backend URL
+// Auto-detect: use local backend when running locally, Render backend when deployed
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+  ? 'http://localhost:8080/api'
+  : 'https://rent-nest-wntm.onrender.com/api';
 
 /**
  * Perform an HTTP fetch request against the RentNest backend API.

@@ -138,9 +138,9 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <div class="flex justify-between items-start">
               <div>
-                <h4 class="font-semibold text-gray-900 truncate text-[15px]">${item.locationText || 'Location Specified'}</h4>
-                <p class="text-[14px] text-gray-500 mt-0.5">${item.category.replace('_', ' ')}</p>
-                <p class="text-[14px] text-gray-500">Within ${radiusValue} km</p>
+                <h4 class="font-semibold text-gray-900 truncate text-[15px]">${item.title}</h4>
+                <p class="text-[14px] text-gray-500 mt-0.5">${item.locationText || item.category.replace('_', ' ')}</p>
+                <p class="text-[14px] text-gray-500">${item.category.replace('_', ' ')}</p>
                 <div class="mt-1 flex items-baseline gap-1">
                   <span class="text-[15px] font-semibold text-gray-900">${formatPriceRange(item)}</span>
                   <span class="text-[14px] text-gray-500">/ month</span>

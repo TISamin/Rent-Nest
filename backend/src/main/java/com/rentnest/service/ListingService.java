@@ -145,6 +145,7 @@ public class ListingService {
         return listingRepository.save(savedListing);
     }
 
+    @Transactional(readOnly = true)
     public Listing getListing(UUID id) {
         return listingRepository.findById(id)
                 .orElseThrow(() -> new com.rentnest.exception.ResourceNotFoundException("Listing not found with ID: " + id));

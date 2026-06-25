@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  initPostListingMap('leaflet-post-map');
+  let mapInitialized = false;
 
   // DOM Elements
   const categorySelect = document.getElementById('listing-category');
@@ -47,6 +47,13 @@ document.addEventListener('DOMContentLoaded', () => {
     step4Location.classList.remove('hidden');
     submitBtn.classList.remove('hidden');
     basePriceSection.classList.remove('hidden');
+
+    // Initialize map after location section is visible
+    if (!mapInitialized) {
+      setTimeout(() => { initPostListingMap('leaflet-post-map'); mapInitialized = true; }, 100);
+    } else if (typeof mapInstance !== 'undefined' && mapInstance) {
+      setTimeout(() => mapInstance.invalidateSize(), 100);
+    }
 
     if (['FLAT', 'HOUSE', 'HOTEL'].includes(cat)) {
       step2Residential.classList.remove('hidden');
@@ -364,8 +371,12 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       payload.rooms = rooms;
       
-      // Use first image of first room as cover image fallback if base not provided
-      if (rooms.length > 0 && rooms[0].imageUrls.length > 0) {
+      // Use base cover photo (building picture) as cover image
+      const baseCoverUrl = document.getElementById('cover-photo-url-hidden').value;
+      if (baseCoverUrl) {
+        payload.imageUrl = baseCoverUrl;
+      } else if (rooms.length > 0 && rooms[0].imageUrls.length > 0) {
+        // Fallback: use first image of first room if no building photo provided
         payload.imageUrl = rooms[0].imageUrls[0];
       }
 

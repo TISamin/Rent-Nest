@@ -241,6 +241,9 @@ document.addEventListener('DOMContentLoaded', () => {
         L.marker([lat, lng]).addTo(map)
           .bindPopup(`<b>${item.title}</b><br>${item.locationText || ''}`)
           .openPopup();
+        
+        // Ensure map tiles render fully
+        setTimeout(() => map.invalidateSize(), 200);
 
         // Render Roommates specs dynamically if category is ROOMMATE_FINDER
         if (item.category === 'ROOMMATE_FINDER' && item.roommateInfo) {
