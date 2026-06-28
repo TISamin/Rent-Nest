@@ -1,5 +1,5 @@
-// Auto-detect: use local backend when running locally, Render backend when deployed
-const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+// Auto-detect: use local backend when running locally or opened from local files, Render backend when deployed
+const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '' || window.location.protocol === 'file:')
   ? 'http://localhost:8080/api'
   : 'https://rent-nest-wntm.onrender.com/api';
 
