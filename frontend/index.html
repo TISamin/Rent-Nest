@@ -84,51 +84,13 @@
           <!-- Hidden Input for Form Submission -->
           <input type="hidden" id="search-category" value="">
           
-          <!-- Dropdown List Options (Unique visual card grid) -->
-          <div id="categoryDropdownList" class="absolute right-0 top-full mt-3 bg-white border border-gray-100 rounded-[24px] shadow-2xl p-4 z-50 hidden transition-all opacity-0 scale-95 origin-top-right transform duration-200 w-[90vw] max-w-[420px] md:w-[440px]">
-            <p class="text-[11px] font-extrabold text-gray-400 uppercase tracking-widest px-1 mb-2.5">Select Category</p>
-            <div class="grid grid-cols-2 gap-2">
-              <!-- Any Category -->
-              <div class="p-3 rounded-2xl border border-gray-100 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all flex items-start gap-2.5 group" data-value="">
-                <div class="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-base group-hover:bg-primary/10 transition-colors flex-shrink-0">✨</div>
-                <div>
-                  <h4 class="font-bold text-xs text-gray-900 group-hover:text-primary transition-colors">Any Category</h4>
-                  <p class="text-[10px] text-gray-500 mt-0.5 leading-tight">Explore all rental categories</p>
-                </div>
-              </div>
-              <!-- Flat -->
-              <div class="p-3 rounded-2xl border border-gray-100 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all flex items-start gap-2.5 group" data-value="FLAT">
-                <div class="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-base group-hover:bg-primary/10 transition-colors flex-shrink-0">🏢</div>
-                <div>
-                  <h4 class="font-bold text-xs text-gray-900 group-hover:text-primary transition-colors">Flat / Apt</h4>
-                  <p class="text-[10px] text-gray-500 mt-0.5 leading-tight">Cozy residential apartments</p>
-                </div>
-              </div>
-              <!-- Hotel -->
-              <div class="p-3 rounded-2xl border border-gray-100 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all flex items-start gap-2.5 group" data-value="HOTEL">
-                <div class="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-base group-hover:bg-primary/10 transition-colors flex-shrink-0">🏨</div>
-                <div>
-                  <h4 class="font-bold text-xs text-gray-900 group-hover:text-primary transition-colors">Hotel Stay</h4>
-                  <p class="text-[10px] text-gray-500 mt-0.5 leading-tight">Curated rooms & premium suites</p>
-                </div>
-              </div>
-              <!-- House -->
-              <div class="p-3 rounded-2xl border border-gray-100 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all flex items-start gap-2.5 group" data-value="HOUSE">
-                <div class="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-base group-hover:bg-primary/10 transition-colors flex-shrink-0">🏡</div>
-                <div>
-                  <h4 class="font-bold text-xs text-gray-900 group-hover:text-primary transition-colors">Entire House</h4>
-                  <p class="text-[10px] text-gray-500 mt-0.5 leading-tight">Spacious private homes</p>
-                </div>
-              </div>
-              <!-- Convention Hall -->
-              <div class="p-3 rounded-2xl border border-gray-100 hover:border-primary hover:bg-primary/5 cursor-pointer transition-all col-span-2 flex items-start gap-2.5 group" data-value="CONVENTION_HALL">
-                <div class="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-base group-hover:bg-primary/10 transition-colors flex-shrink-0">🏛️</div>
-                <div>
-                  <h4 class="font-bold text-xs text-gray-900 group-hover:text-primary transition-colors">Convention Hall</h4>
-                  <p class="text-[10px] text-gray-500 mt-0.5 leading-tight">Spacious venues, banquet halls & event centers</p>
-                </div>
-              </div>
-            </div>
+          <!-- Dropdown List Options -->
+          <div id="categoryDropdownList" class="absolute left-0 right-0 top-full mt-3 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 hidden max-h-60 overflow-y-auto py-1.5 transition-all opacity-0 scale-95 origin-top-left transform duration-200">
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="">Any Category</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="FLAT">Flat</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="HOTEL">Hotel</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="HOUSE">House</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="CONVENTION_HALL">Convention Hall</div>
           </div>
         </div>
 
@@ -299,8 +261,7 @@
       categoryDropdownList.querySelectorAll('[data-value]').forEach(item => {
         item.addEventListener('click', () => {
           const val = item.getAttribute('data-value');
-          const h4 = item.querySelector('h4');
-          const text = h4 ? h4.textContent : item.textContent;
+          const text = item.textContent;
           searchCategoryInput.value = val;
           selectedCategoryLabel.textContent = text;
           closeCategoryDropdown();
