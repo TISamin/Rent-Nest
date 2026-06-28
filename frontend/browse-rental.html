@@ -60,15 +60,24 @@
             class="w-full pl-10 pr-4 py-2.5 rounded-full border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all shadow-sm hover:shadow-md">
         </div>
 
-        <!-- Category Dropdown -->
-        <div class="w-full md:w-48">
-          <select id="search-category" class="w-full px-4 py-2.5 rounded-full border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all bg-white cursor-pointer shadow-sm hover:shadow-md appearance-none">
-            <option value="">Any type</option>
-            <option value="FLAT">Flat</option>
-            <option value="HOTEL">Hotel</option>
-            <option value="HOUSE">House</option>
-            <option value="CONVENTION_HALL">Convention Hall</option>
-          </select>
+        <!-- Custom Category Dropdown Wrapper -->
+        <div class="w-full md:w-48 relative" id="categoryDropdownWrapper">
+          <button type="button" id="categoryDropdownBtn" class="w-full flex items-center justify-between px-4 py-2.5 rounded-full border border-gray-300 bg-white text-sm text-gray-500 font-medium cursor-pointer shadow-sm hover:shadow-md focus:outline-none transition-all">
+            <span id="selectedCategoryLabel">Any type</span>
+            <svg class="w-4 h-4 text-gray-400 transform transition-transform duration-200" id="categoryDropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          
+          <!-- Hidden Input for Form Submission -->
+          <input type="hidden" id="search-category" value="">
+          
+          <!-- Dropdown List Options -->
+          <div id="categoryDropdownList" class="absolute left-0 right-0 top-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 hidden max-h-60 overflow-y-auto py-1.5 transition-all opacity-0 scale-95 origin-top-left transform duration-200">
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="">Any type</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="FLAT">Flat</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="HOTEL">Hotel</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="HOUSE">House</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="CONVENTION_HALL">Convention Hall</div>
+          </div>
         </div>
 
         <!-- Budget Range -->
@@ -78,14 +87,23 @@
           <input type="number" id="budget-max" placeholder="Max BDT" class="w-full md:w-28 px-4 py-2.5 rounded-full border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all shadow-sm hover:shadow-md">
         </div>
 
-        <!-- Radius Dropdown -->
-        <div class="w-full md:w-40">
-          <select id="radius-dropdown" class="w-full px-4 py-2.5 rounded-full border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-primary/25 focus:border-primary transition-all bg-white cursor-pointer shadow-sm hover:shadow-md appearance-none">
-            <option value="5">Within 5 km</option>
-            <option value="15" selected>Within 15 km</option>
-            <option value="30">Within 30 km</option>
-            <option value="50">Within 50 km</option>
-          </select>
+        <!-- Custom Radius Dropdown Wrapper -->
+        <div class="w-full md:w-40 relative" id="radiusDropdownWrapper">
+          <button type="button" id="radiusDropdownBtn" class="w-full flex items-center justify-between px-4 py-2.5 rounded-full border border-gray-300 bg-white text-sm text-gray-500 font-medium cursor-pointer shadow-sm hover:shadow-md focus:outline-none transition-all">
+            <span id="selectedRadiusLabel">Within 15 km</span>
+            <svg class="w-4 h-4 text-gray-400 transform transition-transform duration-200" id="radiusDropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+          
+          <!-- Hidden Input for Form Submission -->
+          <input type="hidden" id="radius-dropdown" value="15">
+          
+          <!-- Dropdown List Options -->
+          <div id="radiusDropdownList" class="absolute left-0 right-0 top-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 hidden max-h-60 overflow-y-auto py-1.5 transition-all opacity-0 scale-95 origin-top-left transform duration-200">
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="5">Within 5 km</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="15">Within 15 km</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="30">Within 30 km</div>
+            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="50">Within 50 km</div>
+          </div>
         </div>
 
         <!-- Search button -->

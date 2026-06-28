@@ -22,7 +22,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Set initial input states
   if (initialLoc) locationInput.value = initialLoc;
-  if (initialCategory) categorySelect.value = initialCategory;
+  if (initialCategory) {
+    categorySelect.value = initialCategory;
+    const categoryLabels = {
+      'FLAT': 'Flat',
+      'HOTEL': 'Hotel',
+      'HOUSE': 'House',
+      'CONVENTION_HALL': 'Convention Hall'
+    };
+    const initialLabel = categoryLabels[initialCategory] || 'Any type';
+    const labelElem = document.getElementById('selectedCategoryLabel');
+    if (labelElem) {
+      labelElem.textContent = initialLabel;
+    }
+  }
 
   // Create suggestions container dynamically
   const suggestionsContainer = document.createElement('div');
@@ -80,6 +93,103 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Custom Category Dropdown Logic
+  const categoryDropdownBtn = document.getElementById('categoryDropdownBtn');
+  const categoryDropdownList = document.getElementById('categoryDropdownList');
+  const selectedCategoryLabel = document.getElementById('selectedCategoryLabel');
+  const categoryDropdownArrow = document.getElementById('categoryDropdownArrow');
+
+  if (categoryDropdownBtn && categoryDropdownList) {
+    categoryDropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeRadiusDropdown();
+      const isHidden = categoryDropdownList.classList.contains('hidden');
+      if (isHidden) {
+        categoryDropdownList.classList.remove('hidden');
+        setTimeout(() => {
+          categoryDropdownList.classList.remove('opacity-0', 'scale-95');
+          categoryDropdownList.classList.add('opacity-100', 'scale-100');
+        }, 10);
+        categoryDropdownArrow.classList.add('rotate-180');
+      } else {
+        closeCategoryDropdown();
+      }
+    });
+
+    categoryDropdownList.querySelectorAll('[data-value]').forEach(item => {
+      item.addEventListener('click', () => {
+        const val = item.getAttribute('data-value');
+        const text = item.textContent;
+        categorySelect.value = val;
+        selectedCategoryLabel.textContent = text;
+        closeCategoryDropdown();
+      });
+    });
+  }
+
+  function closeCategoryDropdown() {
+    if (categoryDropdownList && !categoryDropdownList.classList.contains('hidden')) {
+      categoryDropdownList.classList.remove('opacity-100', 'scale-100');
+      categoryDropdownList.classList.add('opacity-0', 'scale-95');
+      categoryDropdownArrow.classList.remove('rotate-180');
+      setTimeout(() => {
+        categoryDropdownList.classList.add('hidden');
+      }, 150);
+    }
+  }
+
+  // Custom Radius Dropdown Logic
+  const radiusDropdownBtn = document.getElementById('radiusDropdownBtn');
+  const radiusDropdownList = document.getElementById('radiusDropdownList');
+  const selectedRadiusLabel = document.getElementById('selectedRadiusLabel');
+  const radiusDropdownArrow = document.getElementById('radiusDropdownArrow');
+
+  if (radiusDropdownBtn && radiusDropdownList) {
+    radiusDropdownBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      closeCategoryDropdown();
+      const isHidden = radiusDropdownList.classList.contains('hidden');
+      if (isHidden) {
+        radiusDropdownList.classList.remove('hidden');
+        setTimeout(() => {
+          radiusDropdownList.classList.remove('opacity-0', 'scale-95');
+          radiusDropdownList.classList.add('opacity-100', 'scale-100');
+        }, 10);
+        radiusDropdownArrow.classList.add('rotate-180');
+      } else {
+        closeRadiusDropdown();
+      }
+    });
+
+    radiusDropdownList.querySelectorAll('[data-value]').forEach(item => {
+      item.addEventListener('click', () => {
+        const val = item.getAttribute('data-value');
+        const text = item.textContent;
+        radiusSlider.value = val;
+        selectedRadiusLabel.textContent = text;
+        closeRadiusDropdown();
+        radiusSlider.dispatchEvent(new Event('change'));
+      });
+    });
+  }
+
+  function closeRadiusDropdown() {
+    if (radiusDropdownList && !radiusDropdownList.classList.contains('hidden')) {
+      radiusDropdownList.classList.remove('opacity-100', 'scale-100');
+      radiusDropdownList.classList.add('opacity-0', 'scale-95');
+      radiusDropdownArrow.classList.remove('rotate-180');
+      setTimeout(() => {
+        radiusDropdownList.classList.add('hidden');
+      }, 150);
+    }
+  }
+
+  // Dismiss dropdowns on outside document click
+  document.addEventListener('click', () => {
+    closeCategoryDropdown();
+    closeRadiusDropdown();
+  });
+
   let allFetchedListings = [];
   let currentListings = [];
   let searchedCoords = null; // { lat, lng }
@@ -96,6 +206,9 @@ document.addEventListener('DOMContentLoaded', () => {
       if (currentVal < 15) nextVal = 15;
       else if (currentVal < 30) nextVal = 30;
       radiusSlider.value = nextVal.toString();
+      if (selectedRadiusLabel) {
+        selectedRadiusLabel.textContent = `Within ${nextVal} km`;
+      }
       fetchListings();
     });
   }
