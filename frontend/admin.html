@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Panel | RentNest</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans h-screen flex overflow-hidden">
+  
+  <!-- Sidebar -->
+  <aside class="w-64 bg-gray-900 text-white flex flex-col h-full shadow-2xl z-20">
+    <div class="p-6 border-b border-gray-800">
+      <h1 class="text-2xl font-bold tracking-tight text-white flex items-center gap-2">
+        <svg class="w-6 h-6 text-[#e67e5a]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+        RentNest <span class="text-[#e67e5a] font-medium">Admin</span>
+      </h1>
+    </div>
+    <nav class="flex-1 p-4 space-y-2">
+      <button onclick="switchTab('stats')" id="tab-stats" class="admin-tab-btn active w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors bg-[#e67e5a] text-white font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"></path></svg>
+        Platform Stats
+      </button>
+      <button onclick="switchTab('reports')" id="tab-reports" class="admin-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors text-gray-300 hover:bg-gray-800 hover:text-white font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+        Reports Queue
+      </button>
+      <button onclick="switchTab('users')" id="tab-users" class="admin-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors text-gray-300 hover:bg-gray-800 hover:text-white font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        User Management
+      </button>
+      <button onclick="switchTab('content')" id="tab-content" class="admin-tab-btn w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-colors text-gray-300 hover:bg-gray-800 hover:text-white font-medium">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+        Content Moderation
+      </button>
+    </nav>
+    <div class="p-4 border-t border-gray-800">
+      <a href="index.html" class="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        Back to Public Site
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="flex-1 overflow-y-auto bg-gray-50 h-full p-8 relative">
+    
+    <!-- STATS TAB -->
+    <div id="view-stats" class="admin-view block">
+      <h2 class="text-3xl font-bold text-gray-900 mb-8">Platform Statistics</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6" id="stats-container">
+        <!-- Stats cards rendered by JS -->
+      </div>
+    </div>
+
+    <!-- REPORTS TAB -->
+    <div id="view-reports" class="admin-view hidden">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">Reports Queue</h2>
+      
+      <!-- Sub-tabs -->
+      <div class="border-b border-gray-200 mb-6">
+        <nav class="-mb-px flex space-x-8">
+          <button onclick="setReportTab('PENDING')" id="rep-tab-PENDING" class="border-[#e67e5a] text-[#e67e5a] whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Pending</button>
+          <button onclick="setReportTab('ESCALATED')" id="rep-tab-ESCALATED" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Escalated</button>
+          <button onclick="setReportTab('RESOLVED')" id="rep-tab-RESOLVED" class="border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm">Resolved</button>
+        </nav>
+      </div>
+
+      <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-100">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Date</th>
+              <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Type</th>
+              <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Reason</th>
+              <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Target ID</th>
+              <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Note</th>
+              <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="reports-table-body" class="bg-white divide-y divide-gray-200">
+            <!-- Rows rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- USERS TAB -->
+    <div id="view-users" class="admin-view hidden">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">User Management</h2>
+      <div class="mb-6 flex gap-4">
+        <input type="text" id="user-search-input" placeholder="Search users by name or email..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#e67e5a]/25 outline-none">
+        <button onclick="searchUsers()" class="px-6 py-2 bg-[#e67e5a] text-white font-medium rounded-lg hover:bg-[#d06d4a] transition">Search</button>
+      </div>
+      <div class="bg-white shadow rounded-lg overflow-hidden border border-gray-100">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-gray-50">
+            <tr>
+              <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">User</th>
+              <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Role</th>
+              <th class="px-6 py-3 text-left font-medium text-gray-500 uppercase tracking-wider">Status</th>
+              <th class="px-6 py-3 text-right font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="users-table-body" class="bg-white divide-y divide-gray-200">
+            <!-- Rows rendered by JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CONTENT TAB -->
+    <div id="view-content" class="admin-view hidden">
+      <h2 class="text-3xl font-bold text-gray-900 mb-6">Content Moderation</h2>
+      <div class="mb-6 max-w-2xl">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Delete Listing by ID</label>
+        <div class="flex gap-4">
+          <input type="text" id="listing-delete-id" placeholder="Enter Listing UUID..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+          <button onclick="deleteListing()" class="px-6 py-2 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition">Delete Listing</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>

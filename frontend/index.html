@@ -1,222 +1,498 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <base target="_self">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RentNest — Find Your Perfect Space</title>
-  <meta name="description" content="Your one-stop platform for rentals, services, marketplace, and roommate connections. Find flats, hotels, houses, and more.">
+  <meta name="description" content="Discover your dream rental with RentNest. Browse flats, houses, hotels, and convention halls with smart search and curated listings.">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: {
-              DEFAULT: '#FF385C',
-              dark: '#E31C5F',
-            },
-            surface: '#FFFFFF',
-            background: '#F7F7F7',
-            textPrimary: '#222222',
-            textSecondary: '#717171',
-            border: '#DDDDDD',
-          },
-          borderRadius: {
-            custom: '12px',
-          },
-          boxShadow: {
-            card: '0 2px 16px rgba(0,0,0,0.12)',
-            hover: '0 4px 24px rgba(0,0,0,0.18)',
-          }
-        }
-      }
-    }
-  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="assets/style.css">
   <style>
-    /* Custom Hide Scrollbar */
-    .no-scrollbar::-webkit-scrollbar {
-      display: none;
+    :root {
+      --nest-primary: #1a2e3f;
+      --nest-accent: #e67e5a;
+      --nest-gold: #d4a853;
+      --nest-light: #f8f6f2;
+      --nest-cream: #f0ede6;
+      --nest-secondary: #2d4a5e;
+      --nest-soft: #e8d5c4;
+      --nest-shadow: rgba(26,46,63,0.08);
     }
-    .no-scrollbar {
-      -ms-overflow-style: none;
-      scrollbar-width: none;
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--nest-light);
+      color: var(--nest-primary);
+      overflow-x: hidden;
+    }
+    .font-display { font-family: 'Playfair Display', serif; }
+    
+    /* Glass morphism */
+    .glass {
+      background: rgba(255,255,255,0.7);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid rgba(255,255,255,0.4);
+    }
+    .glass-card {
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(16px) saturate(160%);
+      -webkit-backdrop-filter: blur(16px) saturate(160%);
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+    
+    /* Neumorphic */
+    .neumo {
+      background: var(--nest-light);
+      box-shadow: 8px 8px 16px rgba(0,0,0,0.06), -8px -8px 16px rgba(255,255,255,0.8);
+    }
+    .neumo-inset {
+      background: var(--nest-light);
+      box-shadow: inset 4px 4px 8px rgba(0,0,0,0.06), inset -4px -4px 8px rgba(255,255,255,0.8);
+    }
+    
+    /* Parallax hero */
+    .hero-parallax {
+      background-attachment: fixed;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+    @media (max-width: 768px) {
+      .hero-parallax { background-attachment: scroll; }
+    }
+    
+    /* Skeleton pulse */
+    .skeleton {
+      background: linear-gradient(90deg, #e8e3da 25%, #f5f0ea 50%, #e8e3da 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.8s infinite ease-in-out;
+      border-radius: 12px;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+    
+    /* Category glass hover */
+    .cat-card {
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transform: translateY(0);
+    }
+    .cat-card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(230,126,90,0.15);
+    }
+    
+    /* Listing card */
+    .listing-card {
+      transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      transform: translateY(0);
+      cursor: pointer;
+    }
+    .listing-card:hover {
+      transform: translateY(-12px) scale(1.01);
+      box-shadow: 0 30px 60px rgba(26,46,63,0.12);
+    }
+    .listing-card .heart-btn {
+      transition: all 0.3s ease;
+      opacity: 0.7;
+    }
+    .listing-card:hover .heart-btn { opacity: 1; }
+    .heart-btn.liked i { color: #e74c3c; text-shadow: 0 0 20px rgba(231,76,60,0.4); }
+    .heart-btn i { transition: all 0.3s ease; }
+    .heart-btn.liked i { animation: heartPop 0.4s ease; }
+    @keyframes heartPop { 0% { transform: scale(1); } 50% { transform: scale(1.35); } 100% { transform: scale(1); } }
+    
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    
+    /* Geometric decorations */
+    .geo-circle {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+    .geo-diamond {
+      width: 120px; height: 120px;
+      background: var(--nest-accent);
+      opacity: 0.04;
+      transform: rotate(45deg);
+      position: absolute;
+      pointer-events: none;
+    }
+    
+    /* Autocomplete suggestion */
+    .suggestion-item {
+      padding: 12px 18px;
+      cursor: pointer;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .suggestion-item:hover { background: rgba(230,126,90,0.08); }
+    .suggestion-item.active { background: rgba(230,126,90,0.12); }
+    
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--nest-cream); }
+    ::-webkit-scrollbar-thumb { background: var(--nest-accent); border-radius: 10px; }
+    
+    /* Search bar glow */
+    .search-glow:focus-within {
+      box-shadow: 0 0 0 4px rgba(230,126,90,0.15), 0 8px 32px rgba(230,126,90,0.1);
+    }
+    
+    /* Stats counter */
+    .stat-number { font-size: 2.8rem; font-weight: 800; line-height: 1; }
+    
+    /* Price tag */
+    .price-tag {
+      background: linear-gradient(135deg, var(--nest-accent), #f0987a);
+      color: white;
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    /* CSS Navbar Overrides & Animations */
+    #navbar {
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(20px) !important;
+      -webkit-backdrop-filter: blur(20px) !important;
+      border-bottom: 1px solid rgba(26, 46, 63, 0.08) !important;
+      box-shadow: 0 4px 30px rgba(26, 46, 63, 0.05) !important;
+    }
+    #navbar a, #navbar button {
+      color: var(--nest-primary) !important;
+    }
+    #navbar a.text-primary, #navbar button.text-primary {
+      color: var(--nest-accent) !important;
+    }
+    #navbar nav a, #navbar div.hidden.md\:flex a {
+      position: relative;
+      padding: 0.5rem 0;
+      color: rgba(26, 46, 63, 0.75) !important;
+      transition: color 0.3s ease;
+    }
+    #navbar nav a::after, #navbar div.hidden.md\:flex a::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--nest-accent);
+      transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    #navbar nav a:hover, #navbar div.hidden.md\:flex a:hover {
+      color: var(--nest-accent) !important;
+    }
+    #navbar nav a:hover::after, #navbar div.hidden.md\:flex a:hover::after {
+      width: 100%;
+    }
+    
+    /* Post Listing Button overrides for readability */
+    #navbar a[href="post-listing.html"] {
+      background: var(--nest-accent) !important;
+      color: white !important;
+      box-shadow: 0 4px 14px rgba(230, 126, 90, 0.25) !important;
+      transition: all 0.3s ease !important;
+    }
+    #navbar a[href="post-listing.html"]:hover {
+      background: #d06d4a !important;
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 6px 20px rgba(230, 126, 90, 0.35) !important;
+    }
+
+    /* Orange profile icon avatar override */
+    #navbar #profileDropdownBtn div {
+      background: var(--nest-accent) !important;
+      color: white !important;
+      box-shadow: 0 4px 14px rgba(230, 126, 90, 0.25) !important;
+    }
+    #navbar #profileDropdownBtn div:hover {
+      transform: scale(1.03);
     }
   </style>
 </head>
-<body class="bg-[#F7F7F7] text-[#222222] min-h-screen flex flex-col justify-between">
+<body class="bg-[var(--nest-light)] text-[var(--nest-primary)] min-h-screen flex flex-col justify-between">
+  <!-- Dynamic sticky navbar container -->
+  <nav class="sticky top-0 z-50 transition-all duration-300" id="navbar"></nav>
 
-  <!-- Navbar -->
-  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 transition-all duration-300"></nav>
+  <!-- ===== HERO SECTION WITH PARALLAX ===== -->
+  <section class="relative min-h-screen flex items-center hero-parallax overflow-hidden" style="background-image: url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1600&auto=format&fit=crop');">
+    <div class="absolute inset-0 bg-black/45 z-0"></div>
+    <!-- Geometric accents -->
+    <div class="geo-circle w-72 h-72 bg-[#d4a853] top-20 left-10"></div>
+    <div class="geo-circle w-48 h-48 bg-[#e67e5a] bottom-32 right-16"></div>
+    <div class="geo-diamond top-40 right-20"></div>
 
-  <!-- Hero Section with Parallax background -->
-  <section class="relative min-h-[80vh] flex items-center justify-center pt-20 parallax-bg" style="background-image: url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?q=80&w=1600&auto=format&fit=crop');">
-    <!-- Dark Gradient Overlay -->
-    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/25 z-0"></div>
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full pt-24 md:pt-0">
+      <div class="max-w-3xl reveal bg-black/40 backdrop-blur-md p-8 sm:p-12 rounded-3xl border border-white/10 shadow-2xl">
+        <span class="inline-block px-4 py-1.5 rounded-full text-xs font-semibold uppercase tracking-widest bg-white/20 text-white backdrop-blur-sm border border-white/20 mb-6">🏡 Your Space Awaits</span>
+        <h1 class="text-5xl sm:text-6xl md:text-7xl lg:text-[76px] font-black text-white leading-[1.05] tracking-tight">
+          Find Your<br>
+          <span class="font-display italic text-[#d4a853]">Perfect Nest</span>
+        </h1>
+        <p class="text-base sm:text-lg text-white/90 mt-6 max-w-xl leading-relaxed font-semibold drop-shadow-md">
+          Discover handpicked rentals that feel like home. From city flats to countryside escapes — your next chapter starts here.
+        </p>
 
-    <div class="relative z-10 text-center max-w-4xl mx-auto px-6 flex flex-col items-center">
-      <h1 class="text-4xl sm:text-5xl md:text-[52px] leading-tight font-extrabold text-white mb-4 animate-fade-in-up tracking-tight" style="font-weight: 700;">
-        Find your perfect space
-      </h1>
-      <p class="text-base sm:text-lg text-white/80 max-w-xl mx-auto mb-10 animate-fade-in-up" style="animation-delay: 0.1s;">
-        Discover and book apartments, hotel rooms, houses, shifting help, and services globally.
-      </p>
-
-      <!-- Floating Search Bar -->
-      <form id="heroSearchForm" class="w-full max-w-3xl bg-white rounded-2xl md:rounded-full p-2 pl-4 md:pl-6 shadow-2xl flex flex-col md:flex-row gap-2 items-center z-20 hover:shadow-hover transition-all animate-fade-in-up" style="animation-delay: 0.2s;">
-        <div class="flex-1 w-full flex items-center gap-2.5 relative">
-          <svg class="w-5 h-5 text-primary flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          <input type="text" id="search-location" placeholder="Where are you looking to go?" required autocomplete="off" class="w-full bg-transparent border-0 outline-none text-text-primary text-sm font-medium placeholder-gray-500 py-2">
-          
-          <!-- Location Suggestions Dropdown -->
-          <div id="location-suggestions" class="absolute left-0 right-0 top-full mt-3 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 hidden max-h-60 overflow-y-auto py-1"></div>
-        </div>
-        
-        <div class="h-8 w-px bg-gray-200 hidden md:block"></div>
-        
-        <!-- Custom Dropdown Wrapper -->
-        <div class="w-full md:w-52 relative" id="categoryDropdownWrapper">
-          <button type="button" id="categoryDropdownBtn" class="w-full flex items-center justify-between bg-transparent border-0 outline-none text-text-secondary text-sm font-medium py-2 px-2 cursor-pointer focus:text-primary transition-all">
-            <span id="selectedCategoryLabel">Any Category</span>
-            <svg class="w-4 h-4 text-gray-400 transform transition-transform duration-200" id="dropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+        <!-- Search Bar Form -->
+        <form id="heroSearchForm" class="mt-10 flex flex-col sm:flex-row gap-3 sm:gap-0 w-full max-w-2xl bg-white rounded-2xl p-2 search-glow shadow-2xl transition-all duration-300">
+          <div class="relative flex-1">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-[#1a2e3f]/30 text-sm"></i>
+            <input type="text" id="search-location" autocomplete="off" placeholder="City, neighborhood, or property..." required class="w-full pl-11 pr-4 py-3.5 rounded-xl border-0 outline-none text-sm font-medium text-[#1a2e3f] placeholder:text-[#1a2e3f]/30 bg-transparent focus:ring-0" aria-label="Search location" aria-autocomplete="list">
+            <!-- Autocomplete suggestions container -->
+            <div id="location-suggestions" class="absolute top-full left-0 right-0 mt-2 rounded-xl bg-white shadow-xl border border-[#1a2e3f]/5 overflow-hidden hidden z-20"></div>
+          </div>
+          <div class="relative sm:border-l border-[#1a2e3f]/10 sm:pl-2">
+            <!-- Premium Category Dropdown Button -->
+            <div class="h-full relative flex items-center" id="categoryDropdownWrapper">
+              <button type="button" id="categoryDropdownBtn" class="h-full flex items-center justify-between gap-3 bg-transparent border-0 outline-none text-sm font-semibold text-[#1a2e3f] px-4 py-3.5 sm:py-0 cursor-pointer min-w-[150px] transition-all hover:text-[#e67e5a]">
+                <span id="selectedCategoryLabel">Any Category</span>
+                <svg class="w-4 h-4 text-gray-400 transform transition-transform duration-200" id="dropdownArrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+              </button>
+              <input type="hidden" id="search-category" value="">
+              <!-- Fixed: w-56 ensures dropdown is not squished/cut off on small screen wraps -->
+              <div id="categoryDropdownList" class="absolute left-0 mt-3 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 hidden max-h-60 overflow-y-auto py-1.5 transition-all opacity-0 scale-95 origin-top-left transform duration-200">
+                <div class="px-4 py-2.5 hover:bg-[#e67e5a]/10 hover:text-[#e67e5a] cursor-pointer text-sm text-[#1a2e3f] font-semibold transition-colors border-b border-gray-50 last:border-b-0" data-value="">Any Category</div>
+                <div class="px-4 py-2.5 hover:bg-[#e67e5a]/10 hover:text-[#e67e5a] cursor-pointer text-sm text-[#1a2e3f] font-semibold transition-colors border-b border-gray-50 last:border-b-0" data-value="FLAT">Flat</div>
+                <div class="px-4 py-2.5 hover:bg-[#e67e5a]/10 hover:text-[#e67e5a] cursor-pointer text-sm text-[#1a2e3f] font-semibold transition-colors border-b border-gray-50 last:border-b-0" data-value="HOTEL">Hotel</div>
+                <div class="px-4 py-2.5 hover:bg-[#e67e5a]/10 hover:text-[#e67e5a] cursor-pointer text-sm text-[#1a2e3f] font-semibold transition-colors border-b border-gray-50 last:border-b-0" data-value="HOUSE">House</div>
+                <div class="px-4 py-2.5 hover:bg-[#e67e5a]/10 hover:text-[#e67e5a] cursor-pointer text-sm text-[#1a2e3f] font-semibold transition-colors border-b border-gray-50 last:border-b-0" data-value="CONVENTION_HALL">Convention Hall</div>
+              </div>
+            </div>
+          </div>
+          <button type="submit" class="bg-[#e67e5a] hover:bg-[#d06d4a] text-white font-semibold px-8 py-3.5 rounded-xl transition-all duration-300 whitespace-nowrap shadow-lg shadow-[#e67e5a]/20 flex items-center gap-2 justify-center" aria-label="Search">
+            <i class="fas fa-arrow-right"></i>
+            <span>Search</span>
           </button>
-          
-          <!-- Hidden Input for Form Submission -->
-          <input type="hidden" id="search-category" value="">
-          
-          <!-- Dropdown List Options -->
-          <div id="categoryDropdownList" class="absolute left-0 right-0 top-full mt-3 bg-white border border-gray-100 rounded-2xl shadow-xl z-50 hidden max-h-60 overflow-y-auto py-1.5 transition-all opacity-0 scale-95 origin-top-left transform duration-200">
-            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="">Any Category</div>
-            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="FLAT">Flat</div>
-            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="HOTEL">Hotel</div>
-            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="HOUSE">House</div>
-            <div class="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors border-b border-gray-100 last:border-b-0" data-value="CONVENTION_HALL">Convention Hall</div>
+        </form>
+
+        <!-- Trust badges -->
+        <div class="flex flex-wrap items-center gap-6 mt-8 text-white/70 text-xs font-semibold">
+          <span class="flex items-center gap-2"><i class="fas fa-check-circle text-[#d4a853]"></i> 12k+ listings</span>
+          <span class="flex items-center gap-2"><i class="fas fa-star text-[#d4a853]"></i> 4.9 avg rating</span>
+          <span class="flex items-center gap-2"><i class="fas fa-shield-alt text-[#d4a853]"></i> Verified hosts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll hint -->
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 animate-bounce text-white/40">
+      <i class="fas fa-chevron-down text-xl"></i>
+    </div>
+  </section>
+
+  <!-- ===== CATEGORIES SECTION ===== -->
+  <section id="categories" class="py-20 md:py-28 relative overflow-hidden">
+    <div class="geo-circle w-96 h-96 bg-[#d4a853] -top-48 -left-48"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-14 reveal">
+        <span class="text-xs font-semibold uppercase tracking-[0.2em] text-[#e67e5a]">Browse by</span>
+        <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-[#1a2e3f] mt-2">Category</h2>
+        <p class="text-[#1a2e3f]/50 mt-3 max-w-lg mx-auto text-sm">Find exactly what you need, from cozy flats to grand halls.</p>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-6" role="list" aria-label="Property categories">
+        <a href="browse-rental.html?category=FLAT" class="cat-card glass-card rounded-2xl p-5 md:p-6 text-center cursor-pointer group relative overflow-hidden flex flex-col items-center">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#e67e5a]/10 to-[#d4a853]/10 flex items-center justify-center text-2xl text-[#e67e5a] group-hover:scale-110 transition-transform duration-400">
+            <i class="fas fa-building"></i>
+          </div>
+          <h3 class="mt-3 font-bold text-sm text-[#1a2e3f]">Flats</h3>
+          <p class="text-xs text-[#1a2e3f]/40 mt-0.5">Urban living</p>
+        </a>
+        <a href="browse-rental.html?category=HOTEL" class="cat-card glass-card rounded-2xl p-5 md:p-6 text-center cursor-pointer group relative overflow-hidden flex flex-col items-center">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#e67e5a]/10 to-[#d4a853]/10 flex items-center justify-center text-2xl text-[#e67e5a] group-hover:scale-110 transition-transform duration-400">
+            <i class="fas fa-hotel"></i>
+          </div>
+          <h3 class="mt-3 font-bold text-sm text-[#1a2e3f]">Hotels</h3>
+          <p class="text-xs text-[#1a2e3f]/40 mt-0.5">Stay luxe</p>
+        </a>
+        <a href="browse-rental.html?category=HOUSE" class="cat-card glass-card rounded-2xl p-5 md:p-6 text-center cursor-pointer group relative overflow-hidden flex flex-col items-center">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#e67e5a]/10 to-[#d4a853]/10 flex items-center justify-center text-2xl text-[#e67e5a] group-hover:scale-110 transition-transform duration-400">
+            <i class="fas fa-home"></i>
+          </div>
+          <h3 class="mt-3 font-bold text-sm text-[#1a2e3f]">Houses</h3>
+          <p class="text-xs text-[#1a2e3f]/40 mt-0.5">Full privacy</p>
+        </a>
+        <a href="browse-rental.html?category=CONVENTION_HALL" class="cat-card glass-card rounded-2xl p-5 md:p-6 text-center cursor-pointer group relative overflow-hidden flex flex-col items-center">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#e67e5a]/10 to-[#d4a853]/10 flex items-center justify-center text-2xl text-[#e67e5a] group-hover:scale-110 transition-transform duration-400">
+            <i class="fas fa-people-arrows"></i>
+          </div>
+          <h3 class="mt-3 font-bold text-sm text-[#1a2e3f]">Convention Halls</h3>
+          <p class="text-xs text-[#1a2e3f]/40 mt-0.5">Events & more</p>
+        </a>
+        <a href="services.html?type=SHIFTING" class="cat-card glass-card rounded-2xl p-5 md:p-6 text-center cursor-pointer group relative overflow-hidden flex flex-col items-center">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#e67e5a]/10 to-[#d4a853]/10 flex items-center justify-center text-2xl text-[#e67e5a] group-hover:scale-110 transition-transform duration-400">
+            <i class="fas fa-truck-moving"></i>
+          </div>
+          <h3 class="mt-3 font-bold text-sm text-[#1a2e3f]">Shifting</h3>
+          <p class="text-xs text-[#1a2e3f]/40 mt-0.5">Move easy</p>
+        </a>
+        <a href="services.html?type=CATERING" class="cat-card glass-card rounded-2xl p-5 md:p-6 text-center cursor-pointer group relative overflow-hidden flex flex-col items-center">
+          <div class="w-14 h-14 mx-auto rounded-2xl bg-gradient-to-br from-[#e67e5a]/10 to-[#d4a853]/10 flex items-center justify-center text-2xl text-[#e67e5a] group-hover:scale-110 transition-transform duration-400">
+            <i class="fas fa-utensils"></i>
+          </div>
+          <h3 class="mt-3 font-bold text-sm text-[#1a2e3f]">Catering</h3>
+          <p class="text-xs text-[#1a2e3f]/40 mt-0.5">Food & events</p>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== FEATURED LISTINGS ===== -->
+  <section id="listings" class="py-20 md:py-28 bg-[#f0ede6] relative">
+    <div class="geo-circle w-64 h-64 bg-[#e67e5a] -bottom-32 -right-32"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-14 reveal">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-[0.2em] text-[#e67e5a]">Featured</span>
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-[#1a2e3f] mt-2">Popular Stays</h2>
+          <p class="text-[#1a2e3f]/50 mt-2 text-sm">Handpicked homes with the best reviews.</p>
+        </div>
+        <a href="browse-rental.html" class="mt-4 sm:mt-0 text-sm font-semibold text-[#e67e5a] hover:text-[#d06d4a] transition flex items-center gap-2" aria-label="View all listings">
+          View All <i class="fas fa-arrow-right text-xs"></i>
+        </a>
+      </div>
+
+      <!-- Skeleton loader (shown until JS renders) -->
+      <div id="listings-skeleton" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+        <div class="skeleton h-80"></div>
+        <div class="skeleton h-80"></div>
+        <div class="skeleton h-80"></div>
+        <div class="skeleton h-80 hidden sm:block"></div>
+        <div class="skeleton h-80 hidden lg:block"></div>
+        <div class="skeleton h-80 hidden lg:block"></div>
+      </div>
+
+      <!-- Actual listings grid -->
+      <div id="featured-listings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 hidden" role="list" aria-label="Featured listings"></div>
+    </div>
+  </section>
+
+  <!-- ===== VALUE PROPOSITION (stats + why) ===== -->
+  <section id="why" class="py-20 md:py-28 relative overflow-hidden">
+    <div class="geo-circle w-80 h-80 bg-[#1a2e3f] -top-40 -right-40 opacity-[0.03]"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-16 items-center reveal">
+        <!-- Left: Image collage -->
+        <div class="relative">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="rounded-3xl overflow-hidden shadow-xl h-64 sm:h-80 transform hover:scale-[1.02] transition duration-500">
+              <img src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=600" alt="Modern living room with city view" class="w-full h-full object-cover" loading="lazy">
+            </div>
+            <div class="rounded-3xl overflow-hidden shadow-xl h-48 sm:h-56 mt-8 transform hover:scale-[1.02] transition duration-500">
+              <img src="https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=600" alt="Cozy bedroom with warm lighting" class="w-full h-full object-cover" loading="lazy">
+            </div>
+            <div class="rounded-3xl overflow-hidden shadow-xl h-48 sm:h-56 -mt-8 transform hover:scale-[1.02] transition duration-500">
+              <img src="https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=600" alt="Stylish kitchen with marble countertops" class="w-full h-full object-cover" loading="lazy">
+            </div>
+            <div class="rounded-3xl overflow-hidden shadow-xl h-64 sm:h-80 transform hover:scale-[1.02] transition duration-500">
+              <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=600" alt="Outdoor terrace with panoramic view" class="w-full h-full object-cover" loading="lazy">
+            </div>
+          </div>
+          <!-- floating badge -->
+          <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl shadow-2xl px-6 py-4 flex items-center gap-3 glass-card">
+            <div class="w-12 h-12 rounded-full bg-[#e67e5a] flex items-center justify-center text-white text-xl"><i class="fas fa-heart"></i></div>
+            <div><span class="text-sm font-bold text-[#1a2e3f]">97%</span><span class="text-xs text-[#1a2e3f]/50 block">Satisfaction</span></div>
           </div>
         </div>
+        <!-- Right: Content -->
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-[0.2em] text-[#e67e5a]">Why RentNest</span>
+          <h2 class="text-3xl sm:text-4xl md:text-5xl font-black text-[#1a2e3f] mt-3 leading-tight">More Than Just <br><span class="font-display italic text-[#d4a853]">a Place to Stay</span></h2>
+          <p class="text-[#1a2e3f]/60 mt-5 leading-relaxed">We curate every listing with care. From seamless booking to 24/7 support, we make renting feel effortless — so you can focus on making memories.</p>
+          
+          <div class="grid grid-cols-3 gap-6 mt-10">
+            <div class="text-center">
+              <div class="stat-number text-[#e67e5a]">12k+</div>
+              <div class="text-xs text-[#1a2e3f]/50 mt-1 font-medium">Listings</div>
+            </div>
+            <div class="text-center">
+              <div class="stat-number text-[#d4a853]">4.9</div>
+              <div class="text-xs text-[#1a2e3f]/50 mt-1 font-medium">Avg Rating</div>
+            </div>
+            <div class="text-center">
+              <div class="stat-number text-[#1a2e3f]">99%</div>
+              <div class="text-xs text-[#1a2e3f]/50 mt-1 font-medium">Response Rate</div>
+            </div>
+          </div>
 
-        <button type="submit" class="w-full md:w-auto px-6 py-3.5 rounded-full bg-primary hover:bg-primary-dark text-white font-bold text-sm tracking-wide shadow transition-all transform active:scale-95 flex items-center justify-center gap-1.5">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-          <span>Search</span>
-        </button>
-      </form>
-
-    </div>
-  </section>
-
-  <!-- Categories Horizontal Scroll Row -->
-  <section class="max-w-[1600px] 2xl:max-w-none w-full px-6 md:px-12 lg:px-20 mx-auto pt-16">
-    <div class="mb-6 hidden">
-      <h2 class="text-2xl font-bold tracking-tight text-gray-900">Browse by category</h2>
-      <p class="text-sm text-gray-500">Explore places to stay or services matching your specific needs</p>
-    </div>
-    
-    <div class="flex gap-8 overflow-x-auto pb-4 pt-1 no-scrollbar scroll-smooth items-center justify-start xl:justify-center">
-      <a href="browse-rental.html?category=FLAT" class="flex flex-col items-center gap-2 min-w-[64px] text-gray-500 hover:text-black border-b-2 border-transparent hover:border-gray-900 pb-2 transition-all cursor-pointer">
-        <div class="text-2xl grayscale group-hover:grayscale-0">🏢</div>
-        <div class="text-[13px] font-medium whitespace-nowrap">Flats</div>
-      </a>
-      <a href="browse-rental.html?category=HOTEL" class="flex flex-col items-center gap-2 min-w-[64px] text-gray-500 hover:text-black border-b-2 border-transparent hover:border-gray-900 pb-2 transition-all cursor-pointer">
-        <div class="text-2xl grayscale group-hover:grayscale-0">🏨</div>
-        <div class="text-[13px] font-medium whitespace-nowrap">Hotels</div>
-      </a>
-      <a href="browse-rental.html?category=HOUSE" class="flex flex-col items-center gap-2 min-w-[64px] text-gray-500 hover:text-black border-b-2 border-transparent hover:border-gray-900 pb-2 transition-all cursor-pointer">
-        <div class="text-2xl grayscale group-hover:grayscale-0">🏡</div>
-        <div class="text-[13px] font-medium whitespace-nowrap">Houses</div>
-      </a>
-      <a href="browse-rental.html?category=CONVENTION_HALL" class="flex flex-col items-center gap-2 min-w-[64px] text-gray-500 hover:text-black border-b-2 border-transparent hover:border-gray-900 pb-2 transition-all cursor-pointer">
-        <div class="text-2xl grayscale group-hover:grayscale-0">🏟️</div>
-        <div class="text-[13px] font-medium whitespace-nowrap">Convention Halls</div>
-      </a>
-      <a href="services.html?type=SHIFTING" class="flex flex-col items-center gap-2 min-w-[64px] text-gray-500 hover:text-black border-b-2 border-transparent hover:border-gray-900 pb-2 transition-all cursor-pointer">
-        <div class="text-2xl grayscale group-hover:grayscale-0">🚚</div>
-        <div class="text-[13px] font-medium whitespace-nowrap">Shifting</div>
-      </a>
-      <a href="services.html?type=CATERING" class="flex flex-col items-center gap-2 min-w-[64px] text-gray-500 hover:text-black border-b-2 border-transparent hover:border-gray-900 pb-2 transition-all cursor-pointer">
-        <div class="text-2xl grayscale group-hover:grayscale-0">🍽️</div>
-        <div class="text-[13px] font-medium whitespace-nowrap">Catering</div>
-      </a>
-    </div>
-  </section>
-
-  <!-- Featured Listings Section -->
-  <section class="max-w-[1600px] 2xl:max-w-none w-full px-6 md:px-12 lg:px-20 mx-auto py-10">
-    <div class="mb-8">
-      <h2 class="text-[26px] font-bold tracking-tight text-gray-900">Popular spaces right now</h2>
-    </div>
-    
-    <!-- Listings responsive grid -->
-    <div id="featured-listings-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-6 gap-y-10">
-      <!-- Skeletons rendered during fetch -->
-      <div class="aspect-square rounded-xl bg-gray-200 animate-pulse"></div>
-      <div class="aspect-square rounded-xl bg-gray-200 animate-pulse hidden sm:block"></div>
-      <div class="aspect-square rounded-xl bg-gray-200 animate-pulse hidden md:block"></div>
-      <div class="aspect-square rounded-xl bg-gray-200 animate-pulse hidden lg:block"></div>
-      <div class="aspect-square rounded-xl bg-gray-200 animate-pulse hidden xl:block"></div>
-    </div>
-  </section>
-
-  <!-- How It Works Section -->
-  <section class="max-w-7xl mx-auto px-6 py-16 w-full border-t border-gray-200 bg-white rounded-3xl mb-16 shadow-sm">
-    <div class="text-center mb-12">
-      <h2 class="text-3xl font-extrabold tracking-tight text-gray-900 mb-2">How it works</h2>
-      <p class="text-sm text-gray-500 max-w-md mx-auto">Three simple steps to connect, book and settle into your new place.</p>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-      <div class="text-center flex flex-col items-center">
-        <div class="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xl font-bold mb-4">1</div>
-        <h3 class="text-lg font-bold text-gray-800 mb-2">Search</h3>
-        <p class="text-sm text-gray-500 px-6">Browse thousands of verified spaces matching your custom filters and locations.</p>
-      </div>
-      <div class="text-center flex flex-col items-center">
-        <div class="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xl font-bold mb-4">2</div>
-        <h3 class="text-lg font-bold text-gray-800 mb-2">Connect</h3>
-        <p class="text-sm text-gray-500 px-6">Directly coordinate details and setup matches with owners or potential roommates.</p>
-      </div>
-      <div class="text-center flex flex-col items-center">
-        <div class="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xl font-bold mb-4">3</div>
-        <h3 class="text-lg font-bold text-gray-800 mb-2">Move In</h3>
-        <p class="text-sm text-gray-500 px-6">Seal your deal safely and enjoy checking into your new beautifully tailored home.</p>
+          <div class="flex flex-wrap gap-4 mt-10">
+            <div class="flex items-center gap-3 glass-card px-5 py-3 rounded-xl">
+              <i class="fas fa-bolt text-[#e67e5a]"></i>
+              <span class="text-sm font-semibold">Instant Booking</span>
+            </div>
+            <div class="flex items-center gap-3 glass-card px-5 py-3 rounded-xl">
+              <i class="fas fa-shield-alt text-[#d4a853]"></i>
+              <span class="text-sm font-semibold">Secure Payments</span>
+            </div>
+            <div class="flex items-center gap-3 glass-card px-5 py-3 rounded-xl">
+              <i class="fas fa-headset text-[#1a2e3f]"></i>
+              <span class="text-sm font-semibold">24/7 Support</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Footer -->
-  <footer class="bg-white border-t border-gray-200 pt-16 pb-8 text-sm text-gray-500 w-full mt-auto">
-    <div class="max-w-7xl mx-auto px-6">
-      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
-        <div class="space-y-4">
-          <a href="index.html" class="flex items-center space-x-2 text-primary font-bold text-xl">
-            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/></svg>
-            <span>RentNest</span>
+  <!-- ===== FOOTER ===== -->
+  <footer id="footer" class="bg-[#1a2e3f] text-white pt-16 pb-8 relative overflow-hidden">
+    <div class="geo-circle w-96 h-96 bg-[#e67e5a] -top-48 -right-48 opacity-[0.04]"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 reveal">
+        <div class="col-span-2 md:col-span-1">
+          <a href="#" class="flex items-center gap-2 mb-4" aria-label="RentNest Home">
+            <div class="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center text-white text-lg font-bold">R</div>
+            <span class="font-bold text-xl tracking-tight">ent<span class="text-[#e67e5a]">Nest</span></span>
           </a>
-          <p class="text-gray-500">Your trusted marketplace for finding accommodation, room shares, moving help, and food services.</p>
-        </div>
-        <div>
-          <h4 class="font-bold text-gray-900 mb-4">Discover</h4>
-          <div class="space-y-2.5 flex flex-col">
-            <a href="browse-rental.html" class="hover:text-primary transition-colors">Rent Rentals</a>
-            <a href="roommate-finder.html" class="hover:text-primary transition-colors">Find Roommates</a>
-            <a href="services.html" class="hover:text-primary transition-colors">Help Services</a>
+          <p class="text-white/50 text-sm leading-relaxed">Discover your perfect space with RentNest. Your journey home starts here.</p>
+          <div class="flex gap-3 mt-5">
+            <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#e67e5a] transition text-sm" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#e67e5a] transition text-sm" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-[#e67e5a] transition text-sm" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
           </div>
         </div>
         <div>
-          <h4 class="font-bold text-gray-900 mb-4">Host</h4>
-          <div class="space-y-2.5 flex flex-col">
-            <a href="post-listing.html" class="hover:text-primary transition-colors">Post Space / Ad</a>
-            <a href="dashboard.html" class="hover:text-primary transition-colors">Landlord Dashboard</a>
-          </div>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-white/60 mb-4">Explore</h4>
+          <ul class="space-y-3">
+            <li><a href="browse-rental.html" class="text-white/50 hover:text-white transition text-sm flex items-center gap-2"><i class="fas fa-chevron-right text-[10px] text-[#e67e5a]"></i>Rent Rentals</a></li>
+            <li><a href="roommate-finder.html" class="text-white/50 hover:text-white transition text-sm flex items-center gap-2"><i class="fas fa-chevron-right text-[10px] text-[#e67e5a]"></i>Find Roommates</a></li>
+            <li><a href="services.html" class="text-white/50 hover:text-white transition text-sm flex items-center gap-2"><i class="fas fa-chevron-right text-[10px] text-[#e67e5a]"></i>Help Services</a></li>
+          </ul>
         </div>
         <div>
-          <h4 class="font-bold text-gray-900 mb-4">Contact Support</h4>
-          <p class="text-gray-500">support@rentnest.com</p>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-white/60 mb-4">Host</h4>
+          <ul class="space-y-3">
+            <li><a href="post-listing.html" class="text-white/50 hover:text-white transition text-sm flex items-center gap-2"><i class="fas fa-chevron-right text-[10px] text-[#e67e5a]"></i>Post Space / Ad</a></li>
+            <li><a href="dashboard.html" class="text-white/50 hover:text-white transition text-sm flex items-center gap-2"><i class="fas fa-chevron-right text-[10px] text-[#e67e5a]"></i>Landlord Dashboard</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="text-sm font-bold uppercase tracking-wider text-white/60 mb-4">Contact</h4>
+          <ul class="space-y-3 text-white/50 text-sm">
+            <li class="flex items-center gap-2"><i class="fas fa-map-marker-alt text-[#e67e5a] w-4"></i> Nest Street, Dhaka</li>
+            <li class="flex items-center gap-2"><i class="fas fa-phone text-[#e67e5a] w-4"></i> +880 1712-345678</li>
+            <li class="flex items-center gap-2"><i class="fas fa-envelope text-[#e67e5a] w-4"></i> support@rentnest.com</li>
+          </ul>
         </div>
       </div>
-      <div class="border-t border-gray-200 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4">
-        <p>&copy; 2026 RentNest. All rights reserved.</p>
-        <div class="flex gap-6 text-gray-400">
-          <a href="#" class="hover:text-gray-600">Terms</a>
-          <a href="#" class="hover:text-gray-600">Privacy</a>
-          <a href="#" class="hover:text-gray-600">Sitemap</a>
+      <div class="border-t border-white/10 mt-12 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-white/30 text-xs">
+        <p>© 2026 RentNest. All rights reserved.</p>
+        <div class="flex gap-6">
+          <a href="#" class="hover:text-white/50 transition">Privacy</a>
+          <a href="#" class="hover:text-white/50 transition">Terms</a>
+          <a href="#" class="hover:text-white/50 transition">Cookies</a>
         </div>
       </div>
     </div>
@@ -225,66 +501,30 @@
   <script src="js/api.js"></script>
   <script src="js/ui-common.js"></script>
   <script>
-    // Smooth Parallax hero scrolling effect
-    window.addEventListener('scroll', () => {
-      const scrollPosition = window.pageYOffset;
-      const parallaxBg = document.querySelector('.parallax-bg');
-      if (parallaxBg) {
-        parallaxBg.style.backgroundPositionY = `${scrollPosition * 0.45}px`;
+    // ==================== SCROLL REVEAL (Intersection Observer) ====================
+    const revealElements = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    revealElements.forEach(el => observer.observe(el));
+
+    // ==================== PARALLAX SCROLL EFFECT (hero) ====================
+    const hero = document.querySelector('.hero-parallax');
+    window.addEventListener('scroll', function() {
+      const scrollY = window.scrollY;
+      if (hero && scrollY < window.innerHeight) {
+        const translateY = scrollY * 0.35;
+        hero.style.backgroundPositionY = `calc(50% - ${translateY}px)`;
       }
     });
 
-    // Custom Category Dropdown Animations & Toggles
-    const categoryDropdownBtn = document.getElementById('categoryDropdownBtn');
-    const categoryDropdownList = document.getElementById('categoryDropdownList');
-    const selectedCategoryLabel = document.getElementById('selectedCategoryLabel');
-    const searchCategoryInput = document.getElementById('search-category');
-    const dropdownArrow = document.getElementById('dropdownArrow');
-
-    if (categoryDropdownBtn && categoryDropdownList) {
-      categoryDropdownBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const isHidden = categoryDropdownList.classList.contains('hidden');
-        if (isHidden) {
-          categoryDropdownList.classList.remove('hidden');
-          // Trigger entry transition
-          setTimeout(() => {
-            categoryDropdownList.classList.remove('opacity-0', 'scale-95');
-            categoryDropdownList.classList.add('opacity-100', 'scale-100');
-          }, 20);
-          dropdownArrow.classList.add('rotate-180');
-        } else {
-          closeCategoryDropdown();
-        }
-      });
-
-      categoryDropdownList.querySelectorAll('[data-value]').forEach(item => {
-        item.addEventListener('click', () => {
-          const val = item.getAttribute('data-value');
-          const text = item.textContent;
-          searchCategoryInput.value = val;
-          selectedCategoryLabel.textContent = text;
-          closeCategoryDropdown();
-        });
-      });
-
-      document.addEventListener('click', () => {
-        closeCategoryDropdown();
-      });
-    }
-
-    function closeCategoryDropdown() {
-      if (categoryDropdownList && !categoryDropdownList.classList.contains('hidden')) {
-        categoryDropdownList.classList.remove('opacity-100', 'scale-100');
-        categoryDropdownList.classList.add('opacity-0', 'scale-95');
-        dropdownArrow.classList.remove('rotate-180');
-        setTimeout(() => {
-          categoryDropdownList.classList.add('hidden');
-        }, 150);
-      }
-    }
-
-    // Debounce helper to prevent database spamming
+    // ==================== SEARCH / INPUT AUTOCOMPLETE ====================
     function debounce(func, delay) {
       let timeout;
       return function (...args) {
@@ -293,10 +533,8 @@
       };
     }
 
-    // Location autocomplete suggestions on landing page
     const locationInput = document.getElementById('search-location');
     const suggestionsContainer = document.getElementById('location-suggestions');
-
     if (locationInput && suggestionsContainer) {
       locationInput.addEventListener('input', debounce(async (e) => {
         const val = e.target.value.trim();
@@ -305,15 +543,18 @@
           suggestionsContainer.classList.add('hidden');
           return;
         }
-
         try {
           const res = await apiGet(`/search/locations?query=${encodeURIComponent(val)}`);
           if (res.success && res.data && res.data.length > 0) {
             suggestionsContainer.innerHTML = '';
             res.data.forEach(loc => {
               const item = document.createElement('div');
-              item.className = 'px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 font-medium transition-colors duration-150 border-b border-gray-100 last:border-b-0';
-              item.textContent = loc;
+              item.className = 'suggestion-item';
+              item.setAttribute('data-value', loc);
+              item.innerHTML = `
+                <i class="fas fa-map-pin text-[#e67e5a] text-xs"></i>
+                <span class="text-sm font-medium text-[#1a2e3f]">${loc}</span>
+              `;
               item.addEventListener('click', () => {
                 locationInput.value = loc;
                 suggestionsContainer.innerHTML = '';
@@ -338,12 +579,61 @@
       });
     }
 
-    // Form search inputs redirection to browse-rental.html
+    // ==================== PREMIUM CATEGORY DROPDOWN LOGIC ====================
+    const categoryDropdownBtn = document.getElementById('categoryDropdownBtn');
+    const categoryDropdownList = document.getElementById('categoryDropdownList');
+    const selectedCategoryLabel = document.getElementById('selectedCategoryLabel');
+    const searchCategoryInput = document.getElementById('search-category');
+    const dropdownArrow = document.getElementById('dropdownArrow');
+    
+    if (categoryDropdownBtn && categoryDropdownList) {
+      categoryDropdownBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = categoryDropdownList.classList.contains('hidden');
+        if (isHidden) {
+          categoryDropdownList.classList.remove('hidden');
+          setTimeout(() => {
+            categoryDropdownList.classList.remove('opacity-0', 'scale-95');
+            categoryDropdownList.classList.add('opacity-100', 'scale-100');
+          }, 20);
+          dropdownArrow.classList.add('rotate-180');
+        } else {
+          closeCategoryDropdown();
+        }
+      });
+      
+      categoryDropdownList.querySelectorAll('[data-value]').forEach(item => {
+        item.addEventListener('click', () => {
+          const val = item.getAttribute('data-value');
+          const text = item.textContent;
+          searchCategoryInput.value = val;
+          selectedCategoryLabel.textContent = text;
+          closeCategoryDropdown();
+        });
+      });
+      
+      document.addEventListener('click', () => {
+        closeCategoryDropdown();
+      });
+    }
+    
+    function closeCategoryDropdown() {
+      if (categoryDropdownList && !categoryDropdownList.classList.contains('hidden')) {
+        categoryDropdownList.classList.remove('opacity-100', 'scale-100');
+        categoryDropdownList.classList.add('opacity-0', 'scale-95');
+        dropdownArrow.classList.remove('rotate-180');
+        setTimeout(() => {
+          categoryDropdownList.classList.add('hidden');
+        }, 150);
+      }
+    }
+
+    // ==================== FORM SUBMIT ====================
     const heroSearchForm = document.getElementById('heroSearchForm');
     if (heroSearchForm) {
       heroSearchForm.addEventListener('submit', (e) => {
         e.preventDefault();
-        const loc = document.getElementById('search-location').value.trim();
+        const loc = locationInput.value.trim();
         const cat = searchCategoryInput.value;
         let queryParams = [];
         if (loc) queryParams.push(`location=${encodeURIComponent(loc)}`);
@@ -353,53 +643,62 @@
       });
     }
 
-    // Dynamic Featured Listings Fetching (Up to 6 results)
+    // ==================== FEATURED LISTINGS LOAD ====================
     async function loadFeaturedListings() {
       const grid = document.getElementById('featured-listings-grid');
+      const skeleton = document.getElementById('listings-skeleton');
       try {
         const res = await apiGet('/search/rental');
         if (res.success && res.data && res.data.length > 0) {
           grid.innerHTML = '';
-          const listingsToRender = res.data.slice(0, 10);
+          const listingsToRender = res.data.slice(0, 9);
           listingsToRender.forEach(item => {
             const images = item.imageUrl ? item.imageUrl.split(',') : [];
             const mainImage = formatImageUrl(images.length > 0 ? images[0] : '');
-            
-            const card = document.createElement('a');
-            card.href = `listing-detail.html?id=${item.id}`;
-            card.className = 'group cursor-pointer block';
+            const card = document.createElement('article');
+            card.className = 'listing-card bg-white rounded-3xl overflow-hidden shadow-lg relative group';
+            card.setAttribute('data-id', item.id);
             card.innerHTML = `
-              <div class="relative aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden mb-3">
-                <img src="${mainImage}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-300 ease group-hover:scale-105" loading="lazy">
-                <button class="absolute top-3 right-3 p-1.5 text-white hover:scale-110 transition-transform focus:outline-none z-10 drop-shadow-md" onclick="toggleHeart(event, this)">
+              <div class="relative overflow-hidden h-56 sm:h-64">
+                <img src="${mainImage}" alt="${item.title}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                <button class="heart-btn absolute top-4 right-4 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-all z-10" onclick="toggleHeart(event, this)">
                   <svg class="w-6 h-6 fill-black/30 stroke-white stroke-2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                   </svg>
                 </button>
+                <div class="absolute bottom-4 left-4 price-tag">${formatPriceRange(item)}</div>
               </div>
-              <div class="flex justify-between items-start">
-                <div>
-                  <h4 class="font-semibold text-gray-900 truncate text-[15px]">${item.title}</h4>
-                  <p class="text-[14px] text-gray-500 mt-0.5">${item.locationText || item.category.replace('_', ' ')}</p>
-                  <p class="text-[14px] text-gray-500">${item.category.replace('_', ' ')} &middot; Available Now</p>
-                  <div class="mt-1 flex items-baseline gap-1">
-                    <span class="text-[15px] font-semibold text-gray-900">${formatPriceRange(item)}</span>
-                  </div>
+              <div class="p-5" onclick="window.location.href='listing-detail.html?id=${item.id}'">
+                <h3 class="font-bold text-[#1a2e3f] text-lg truncate">${item.title}</h3>
+                <p class="text-sm text-[#1a2e3f]/50 mt-1 flex items-center gap-1.5"><i class="fas fa-map-marker-alt text-[#e67e5a] text-xs"></i> ${item.locationText || item.category.replace('_', ' ')}</p>
+                <div class="flex items-center justify-between mt-4 pt-3 border-t border-[#1a2e3f]/5">
+                  <span class="text-xs font-medium text-[#1a2e3f]/40">
+                    <i class="fas fa-star text-[#d4a853] mr-1"></i>
+                    ${item.averageRating ? item.averageRating.toFixed(1) : 'New'} (${item.reviewCount || 0})
+                  </span>
+                  <span class="text-xs font-semibold text-[#e67e5a]">View Details <i class="fas fa-arrow-right ml-1 text-[10px]"></i></span>
                 </div>
               </div>
             `;
             grid.appendChild(card);
           });
+          skeleton.classList.add('hidden');
+          grid.classList.remove('hidden');
         } else {
+          skeleton.classList.add('hidden');
           grid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-10">No featured listings found.</p>';
+          grid.classList.remove('hidden');
         }
       } catch (err) {
         console.error(err);
+        skeleton.classList.add('hidden');
         grid.innerHTML = '<p class="col-span-full text-center text-red-500 py-10">Failed to load featured spaces.</p>';
+        grid.classList.remove('hidden');
       }
     }
 
-    // Toggle heart/favorite state representation
+    // ==================== WISH / HEART TOGGLE ====================
     function toggleHeart(event, element) {
       event.preventDefault();
       event.stopPropagation();

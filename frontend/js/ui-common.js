@@ -110,28 +110,30 @@ function injectCommonNavbar() {
   const navHtml = `
     <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
       <!-- Left: Logo & Icon -->
-      <a href="index.html" class="flex items-center space-x-2 text-primary hover:opacity-90 transition-opacity">
-        <svg class="w-8 h-8 text-primary" fill="currentColor" viewBox="0 0 24 24">
-          <path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/>
-        </svg>
-        <span class="text-2xl font-bold tracking-tight">RentNest</span>
+      <a href="index.html" class="flex items-center space-x-2 hover:opacity-90 transition-opacity">
+        <div class="w-9 h-9 rounded-xl bg-[#1a2e3f] flex items-center justify-center text-white text-lg font-bold">R</div>
+        <span class="text-xl font-bold tracking-tight text-[#1a2e3f]">ent<span class="text-[#e67e5a]">Nest</span></span>
       </a>
 
       <!-- Center: Links (Desktop) -->
-      <div class="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm font-semibold text-text-primary">
-        <a href="browse-rental.html" class="${isRent ? 'text-primary' : 'text-gray-600 hover:text-text-primary'} transition-colors">Rent</a>
-        <a href="roommate-finder.html" class="${isRoommates ? 'text-primary' : 'text-gray-600 hover:text-text-primary'} transition-colors">Roommates</a>
-        <a href="services.html" class="${isServices ? 'text-primary' : 'text-gray-600 hover:text-text-primary'} transition-colors">Services</a>
-        <a href="marketplace.html" class="${isMarketplace ? 'text-primary' : 'text-gray-600 hover:text-text-primary'} transition-colors">Marketplace</a>
-        <a href="dashboard.html" class="${isDashboard ? 'text-primary' : 'text-gray-600 hover:text-text-primary'} transition-colors">Dashboard</a>
+      <div class="hidden md:flex items-center space-x-6 lg:space-x-8 text-sm font-semibold">
+        <a href="browse-rental.html" class="nav-hover-link ${isRent ? 'text-[#e67e5a]' : 'text-[#1a2e3f]/60 hover:text-[#1a2e3f]'} transition-colors relative py-1">Rent</a>
+        <a href="roommate-finder.html" class="nav-hover-link ${isRoommates ? 'text-[#e67e5a]' : 'text-[#1a2e3f]/60 hover:text-[#1a2e3f]'} transition-colors relative py-1">Roommates</a>
+        <a href="services.html" class="nav-hover-link ${isServices ? 'text-[#e67e5a]' : 'text-[#1a2e3f]/60 hover:text-[#1a2e3f]'} transition-colors relative py-1">Services</a>
+        <a href="marketplace.html" class="nav-hover-link ${isMarketplace ? 'text-[#e67e5a]' : 'text-[#1a2e3f]/60 hover:text-[#1a2e3f]'} transition-colors relative py-1">Marketplace</a>
+        <a href="dashboard.html" class="nav-hover-link ${isDashboard ? 'text-[#e67e5a]' : 'text-[#1a2e3f]/60 hover:text-[#1a2e3f]'} transition-colors relative py-1">Dashboard</a>
       </div>
 
       <!-- Right: User Profiles / Auth -->
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-3">
         ${user ? `
+          <a href="post-listing.html" class="hidden md:inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#e67e5a] hover:bg-[#d06d4a] text-white text-sm font-semibold shadow-lg shadow-[#e67e5a]/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Post Listing
+          </a>
           <div class="relative">
             <button id="profileDropdownBtn" class="flex items-center space-x-2 focus:outline-none">
-              <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold shadow-sm">
+              <div class="w-10 h-10 rounded-full bg-[#e67e5a] text-white flex items-center justify-center font-bold shadow-lg shadow-[#e67e5a]/20 transition-transform hover:scale-105">
                 ${getUserInitials(user.name || user.email)}
               </div>
             </button>
@@ -141,12 +143,13 @@ function injectCommonNavbar() {
                 <p class="text-xs text-gray-500 truncate">${user.email}</p>
               </div>
               <a href="profile.html" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">My Profile</a>
+              <a href="wishlist.html" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">My Wishlist</a>
               <a href="post-listing.html" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">Post Listing</a>
               <button onclick="handleLogout()" class="w-full text-left block px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">Logout</button>
             </div>
           </div>
         ` : `
-          <a href="login.html" class="px-5 py-2.5 rounded-full bg-primary hover:bg-primary-dark text-white text-sm font-semibold shadow-sm transition-all hover:scale-[1.02] active:scale-[0.98]">
+          <a href="login.html" class="px-5 py-2.5 rounded-full bg-[#e67e5a] hover:bg-[#d06d4a] text-white text-sm font-semibold shadow-lg shadow-[#e67e5a]/20 transition-all hover:scale-[1.02] active:scale-[0.98]">
             Log in
           </a>
         `}
@@ -174,6 +177,7 @@ function injectCommonNavbar() {
           <a href="marketplace.html" class="block hover:text-primary transition-colors">Marketplace</a>
           <a href="dashboard.html" class="block hover:text-primary transition-colors">Dashboard</a>
           <a href="profile.html" class="block hover:text-primary transition-colors border-t pt-4 border-gray-100">My Profile</a>
+          <a href="wishlist.html" class="block hover:text-primary transition-colors">My Wishlist</a>
           <a href="post-listing.html" class="block hover:text-primary transition-colors">Post Ad</a>
           ${user ? `
             <button onclick="handleLogout()" class="w-full text-left text-red-500 block hover:text-red-600 transition-colors">Logout</button>
@@ -185,9 +189,29 @@ function injectCommonNavbar() {
     </div>
   `;
 
-  // Re-style and rebuild navbar element
-  existingNav.className = 'sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 transition-all duration-300';
+  existingNav.className = 'sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-[#1a2e3f]/8 transition-all duration-300 shadow-[0_4px_30px_rgba(26,46,63,0.05)]';
   existingNav.innerHTML = navHtml;
+
+  // Inject nav hover underline animation styles
+  if (!document.getElementById('nav-hover-styles')) {
+    const styleEl = document.createElement('style');
+    styleEl.id = 'nav-hover-styles';
+    styleEl.innerHTML = `
+      .nav-hover-link { position: relative; }
+      .nav-hover-link::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 0;
+        height: 2px;
+        background: #e67e5a;
+        transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+      .nav-hover-link:hover::after { width: 100%; }
+    `;
+    document.head.appendChild(styleEl);
+  }
 
   // Backdrop filter on scroll check
   window.addEventListener('scroll', () => {
@@ -338,5 +362,100 @@ window.formatPriceRange = function(item) {
     return `${min} BDT${unit}`;
   } else {
     return 'Negotiable';
+  }
+};
+
+// Global Report System
+window.openReportModal = function(targetType, targetId) {
+  if (!isAuthenticated()) {
+    showToast("Please log in to report this content.", "warning");
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  let modal = document.getElementById('reportModal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'reportModal';
+    modal.className = 'fixed inset-0 bg-black/60 z-[9999] flex items-center justify-center p-4 hidden';
+    modal.innerHTML = `
+      <div class="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl scale-95 transition-transform duration-200" id="reportModalContent">
+        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
+          <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+            Report Content
+          </h3>
+          <button onclick="closeReportModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-200 transition-colors">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+        </div>
+        <div class="p-6">
+          <input type="hidden" id="reportTargetType">
+          <input type="hidden" id="reportTargetId">
+          
+          <label class="block text-sm font-medium text-gray-700 mb-2">Select a reason:</label>
+          <select id="reportReason" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 mb-4 focus:ring-2 focus:ring-red-500 outline-none appearance-none bg-gray-50 text-gray-800">
+            <!-- Populated dynamically -->
+          </select>
+          
+          <label class="block text-sm font-medium text-gray-700 mb-2">Additional Note (Optional):</label>
+          <textarea id="reportNote" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-red-500 outline-none text-gray-800 placeholder-gray-400" placeholder="Provide more context..."></textarea>
+          
+          <button onclick="submitReport()" class="w-full mt-6 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-xl transition-all shadow-sm">Submit Report</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+  }
+
+  const reasonSelect = document.getElementById('reportReason');
+  reasonSelect.innerHTML = '';
+  
+  const reasonsMap = {
+    'LISTING': ['Fake', 'Misleading', 'Spam', 'Inappropriate'],
+    'REVIEW': ['Abusive', 'Fake', 'Irrelevant'],
+    'USER': ['Scam', 'Harassment', 'Impersonation']
+  };
+
+  const reasons = reasonsMap[targetType] || ['Other'];
+  reasons.forEach(r => {
+    const opt = document.createElement('option');
+    opt.value = r;
+    opt.textContent = r;
+    reasonSelect.appendChild(opt);
+  });
+
+  document.getElementById('reportTargetType').value = targetType;
+  document.getElementById('reportTargetId').value = targetId;
+  document.getElementById('reportNote').value = '';
+
+  modal.classList.remove('hidden');
+  setTimeout(() => {
+    document.getElementById('reportModalContent').classList.remove('scale-95');
+    document.getElementById('reportModalContent').classList.add('scale-100');
+  }, 10);
+};
+
+window.closeReportModal = function() {
+  const modal = document.getElementById('reportModal');
+  if (modal) {
+    document.getElementById('reportModalContent').classList.remove('scale-100');
+    document.getElementById('reportModalContent').classList.add('scale-95');
+    setTimeout(() => modal.classList.add('hidden'), 200);
+  }
+};
+
+window.submitReport = async function() {
+  const targetType = document.getElementById('reportTargetType').value;
+  const targetId = document.getElementById('reportTargetId').value;
+  const reason = document.getElementById('reportReason').value;
+  const note = document.getElementById('reportNote').value.trim();
+
+  try {
+    await apiPost('/reports', { targetType, targetId, reason, note });
+    showToast("Thank you for your report. We will look into it.", "success");
+    closeReportModal();
+  } catch(e) {
+    // API client shows error toast
   }
 };

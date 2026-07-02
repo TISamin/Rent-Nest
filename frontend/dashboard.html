@@ -14,21 +14,21 @@
         extend: {
           colors: {
             primary: {
-              DEFAULT: '#FF385C',
-              dark: '#E31C5F',
+              DEFAULT: '#e67e5a',
+              dark: '#d06d4a',
             },
             surface: '#FFFFFF',
-            background: '#F7F7F7',
-            textPrimary: '#222222',
-            textSecondary: '#717171',
-            border: '#DDDDDD',
+            background: '#f8f6f2',
+            textPrimary: '#1a2e3f',
+            textSecondary: '#2d4a5e',
+            border: '#e8d5c4',
           },
           borderRadius: {
-            custom: '12px',
+            custom: '16px',
           },
           boxShadow: {
-            card: '0 2px 16px rgba(0,0,0,0.08)',
-            hover: '0 6px 24px rgba(0,0,0,0.14)',
+            card: '0 4px 20px rgba(26,46,63,0.06)',
+            hover: '0 10px 30px rgba(26,46,63,0.12)',
           }
         }
       }
@@ -50,6 +50,10 @@
       background-color: rgba(255, 56, 92, 0.05);
       border-color: var(--primary) !important;
     }
+    .tab-active {
+      border-bottom: 2px solid #FF385C;
+      color: #FF385C;
+    }
   </style>
 </head>
 <body class="bg-[#F7F7F7] text-[#222222] min-h-screen flex flex-col justify-between">
@@ -59,191 +63,579 @@
 
   <!-- Main Dashboard Container -->
   <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-8">
-    <div class="mb-8">
-      <h1 class="text-3xl font-bold tracking-tight text-gray-900">Landlord Dashboard</h1>
-      <p class="text-gray-500 text-sm mt-1">Real-time overview of your leases, collections, and property operations.</p>
-    </div>
+    <!-- Go Back -->
+    <a href="index.html" class="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors mb-4">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+      <span class="text-sm font-medium">Back to Home</span>
+    </a>
 
-    <!-- Stat Cards Grid -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <!-- Card 1 -->
-      <div class="bg-white p-6 rounded-2xl border-l-4 border-primary shadow-card flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Earnings</p>
-          <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-earnings">$12,450</h3>
-          <span class="text-xs text-emerald-500 font-medium flex items-center mt-1">
-            <span>↑ 8.2%</span> <span class="text-gray-400 ml-1">vs last month</span>
-          </span>
-        </div>
-        <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-primary text-xl">💵</div>
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+      <div>
+        <h1 class="text-3xl font-bold tracking-tight text-gray-900">Landlord Dashboard</h1>
+        <p class="text-gray-500 text-sm mt-1">Real-time overview of your leases, collections, and property operations.</p>
       </div>
-      <!-- Card 2 -->
-      <div class="bg-white p-6 rounded-2xl border-l-4 border-blue-500 shadow-card flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Active Tenants</p>
-          <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-tenants">18</h3>
-          <span class="text-xs text-gray-400 font-medium flex items-center mt-1">
-            <span>92% Occupancy Rate</span>
-          </span>
-        </div>
-        <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-xl">👥</div>
-      </div>
-      <!-- Card 3 -->
-      <div class="bg-white p-6 rounded-2xl border-l-4 border-amber-500 shadow-card flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Maintenance Requests</p>
-          <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-maintenance">3</h3>
-          <span class="text-xs text-amber-500 font-medium flex items-center mt-1">
-            <span>2 high priority</span>
-          </span>
-        </div>
-        <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-xl">🛠️</div>
-      </div>
-      <!-- Card 4 -->
-      <div class="bg-white p-6 rounded-2xl border-l-4 border-emerald-500 shadow-card flex items-center justify-between">
-        <div>
-          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Occupancy Rate</p>
-          <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-occupancy">94.8%</h3>
-          <span class="text-xs text-emerald-500 font-medium flex items-center mt-1">
-            <span>+1.5%</span> <span class="text-gray-400 ml-1">this week</span>
-          </span>
-        </div>
-        <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-xl">📈</div>
+      <!-- Tab Navigation -->
+      <div class="flex border-b border-gray-200 text-sm font-semibold space-x-6">
+        <button onclick="switchTab('overview')" id="tab-overview" class="py-2.5 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all tab-active">Overview</button>
+        <button onclick="switchTab('leases')" id="tab-leases" class="py-2.5 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">Properties & Leases</button>
+        <button onclick="switchTab('maintenance')" id="tab-maintenance" class="py-2.5 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">Maintenance</button>
+        <button onclick="switchTab('expenditures')" id="tab-expenditures" class="py-2.5 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">Expenditures</button>
+        <button onclick="switchTab('announcements')" id="tab-announcements" class="py-2.5 px-1 border-b-2 border-transparent text-gray-500 hover:text-gray-900 transition-all">Reminders</button>
       </div>
     </div>
 
-    <!-- Chart & Activity Row -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-      <!-- Monthly Rent Collection Chart -->
-      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-card lg:col-span-2">
-        <div class="flex items-center justify-between mb-6">
-          <h3 class="font-bold text-gray-900 text-lg">Monthly Rent Collections</h3>
-          <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full font-medium">Year 2026</span>
+    <!-- ==================== OVERVIEW TAB ==================== -->
+    <div id="section-overview" class="tab-section">
+      <!-- Stat Cards Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <!-- Card 1: Total Earnings -->
+        <div class="bg-white p-6 rounded-2xl border-l-4 border-primary shadow-card flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Net Earnings</p>
+            <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-earnings">$0</h3>
+            <span class="text-xs text-gray-400 font-medium flex items-center mt-1">
+              <span>Rent minus fees</span>
+            </span>
+          </div>
+          <div class="w-12 h-12 bg-rose-50 rounded-full flex items-center justify-center text-primary text-xl">💵</div>
         </div>
-        <div id="rent-chart-root" class="h-72 w-full">
-          <!-- Rendered by React & Recharts CDN -->
+        <!-- Card 2: Active Tenants -->
+        <div class="bg-white p-6 rounded-2xl border-l-4 border-blue-500 shadow-card flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Active Tenants</p>
+            <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-tenants">0</h3>
+            <span class="text-xs text-gray-400 font-medium flex items-center mt-1">
+              <span id="stat-units-total">0 units total</span>
+            </span>
+          </div>
+          <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-500 text-xl">👥</div>
+        </div>
+        <!-- Card 3: Maintenance -->
+        <div class="bg-white p-6 rounded-2xl border-l-4 border-amber-500 shadow-card flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Open Maintenance</p>
+            <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-maintenance">0</h3>
+            <span class="text-xs text-gray-400 font-medium flex items-center mt-1">
+              <span>Requires attention</span>
+            </span>
+          </div>
+          <div class="w-12 h-12 bg-amber-50 rounded-full flex items-center justify-center text-amber-500 text-xl">🛠️</div>
+        </div>
+        <!-- Card 4: Occupancy Rate -->
+        <div class="bg-white p-6 rounded-2xl border-l-4 border-emerald-500 shadow-card flex items-center justify-between">
+          <div>
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Occupancy Rate</p>
+            <h3 class="text-2xl font-bold text-gray-900 mt-1" id="stat-occupancy">0%</h3>
+            <span class="text-xs text-gray-400 font-medium flex items-center mt-1">
+              <span id="stat-occupied-units">0 occupied</span>
+            </span>
+          </div>
+          <div class="w-12 h-12 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-500 text-xl">📈</div>
         </div>
       </div>
 
-      <!-- Quick Actions / Quick stats -->
-      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-card flex flex-col justify-between">
-        <div>
-          <h3 class="font-bold text-gray-900 text-lg mb-4">Quick Management Actions</h3>
-          <div class="space-y-3">
-            <a href="post-listing.html" class="flex items-center space-x-3 p-3.5 rounded-xl border border-gray-100 hover:border-primary/20 hover:bg-rose-50/20 transition-all group">
-              <span class="text-xl">➕</span>
-              <div>
-                <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition-colors">Post New Listing</p>
-                <p class="text-xs text-gray-400">Add an apartment, flat, or room</p>
-              </div>
-            </a>
-            <button onclick="showToast('Feature coming soon: Export reports', 'info')" class="w-full text-left flex items-center space-x-3 p-3.5 rounded-xl border border-gray-100 hover:border-blue-500/20 hover:bg-blue-50/20 transition-all group">
-              <span class="text-xl">📊</span>
-              <div>
-                <p class="text-sm font-semibold text-gray-800 group-hover:text-blue-500 transition-colors">Export Financials</p>
-                <p class="text-xs text-gray-400">Get CSV report of collections</p>
-              </div>
-            </button>
-            <button onclick="showToast('Feature coming soon: Tenant messaging', 'info')" class="w-full text-left flex items-center space-x-3 p-3.5 rounded-xl border border-gray-100 hover:border-emerald-500/20 hover:bg-emerald-50/20 transition-all group">
-              <span class="text-xl">💬</span>
-              <div>
-                <p class="text-sm font-semibold text-gray-800 group-hover:text-emerald-500 transition-colors">Message Tenants</p>
-                <p class="text-xs text-gray-400">Send bulk notification broadcast</p>
-              </div>
-            </button>
+      <!-- Chart & Actions Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+        <!-- Monthly Collections Chart -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-card lg:col-span-2">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="font-bold text-gray-900 text-lg">Financial Performance</h3>
+            <span class="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full font-medium">Dynamic updates</span>
+          </div>
+          <div id="rent-chart-root" class="h-72 w-full flex items-center justify-center text-gray-400">
+            <!-- Rendered by React & Recharts CDN -->
+            No financial data available yet. Add properties and collect rent to populate the chart.
           </div>
         </div>
 
-        <div class="mt-6 pt-6 border-t border-gray-100">
-          <p class="text-xs text-gray-400 text-center">Connected with RentNest Smart Gateway</p>
+        <!-- Quick Actions -->
+        <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-card flex flex-col justify-between">
+          <div>
+            <h3 class="font-bold text-gray-900 text-lg mb-4">Quick Actions</h3>
+            <div class="space-y-3">
+              <button onclick="openAddPropertyModal()" class="w-full text-left flex items-center space-x-3 p-3.5 rounded-xl border border-gray-100 hover:border-primary/20 hover:bg-rose-50/20 transition-all group">
+                <span class="text-xl">🏢</span>
+                <div>
+                  <p class="text-sm font-semibold text-gray-800 group-hover:text-primary transition-colors">Add New Property</p>
+                  <p class="text-xs text-gray-400">Manage new apartments or flats</p>
+                </div>
+              </button>
+              <button onclick="openAddMaintenanceModal()" class="w-full text-left flex items-center space-x-3 p-3.5 rounded-xl border border-gray-100 hover:border-amber-500/20 hover:bg-amber-50/20 transition-all group">
+                <span class="text-xl">🛠️</span>
+                <div>
+                  <p class="text-sm font-semibold text-gray-800 group-hover:text-amber-500 transition-colors">Request Maintenance</p>
+                  <p class="text-xs text-gray-400">Log repair requests for units</p>
+                </div>
+              </button>
+              <button onclick="openAddExpenditureModal()" class="w-full text-left flex items-center space-x-3 p-3.5 rounded-xl border border-gray-100 hover:border-blue-500/20 hover:bg-blue-50/20 transition-all group">
+                <span class="text-xl">📉</span>
+                <div>
+                  <p class="text-sm font-semibold text-gray-800 group-hover:text-blue-500 transition-colors">Log Personal Expense</p>
+                  <p class="text-xs text-gray-400">Record property expenditures</p>
+                </div>
+              </button>
+            </div>
+          </div>
+          <div class="mt-6 pt-6 border-t border-gray-100">
+            <p class="text-xs text-gray-400 text-center">Connected with RentNest Landlord Gateway</p>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Leases Table Section -->
-    <div class="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden mb-8">
-      <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <!-- ==================== LEASES & PROPERTIES TAB ==================== -->
+    <div id="section-leases" class="tab-section hidden">
+      <!-- Properties & Units Section -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-card p-6 mb-8">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h3 class="font-bold text-gray-900 text-lg">My Managed Properties</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Manage building information and corresponding units.</p>
+          </div>
+          <button onclick="openAddPropertyModal()" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold transition-all">
+            + Add Property
+          </button>
+        </div>
+        <div id="properties-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Dynamically populated property cards -->
+        </div>
+      </div>
+
+      <!-- Active Leases Table Section -->
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-card overflow-hidden">
+        <div class="p-6 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h3 class="font-bold text-gray-900 text-lg">Active Tenancy Leases</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Manage agreements and track rent status.</p>
+          </div>
+          <div class="flex items-center space-x-2">
+            <input type="text" id="lease-search" placeholder="Search tenant..." class="px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-primary">
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th class="p-4">Tenant Name</th>
+                <th class="p-4">Property & Unit</th>
+                <th class="p-4">Start Date</th>
+                <th class="p-4">Rent Details</th>
+                <th class="p-4">Rent Status</th>
+                <th class="p-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="lease-table-body" class="text-sm divide-y divide-gray-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MAINTENANCE TAB ==================== -->
+    <div id="section-maintenance" class="tab-section hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h3 class="font-bold text-gray-900 text-lg">Active Leases</h3>
-          <p class="text-xs text-gray-400 mt-0.5">Click column headers to sort leases</p>
+          <h3 class="font-bold text-gray-900 text-lg">Maintenance Kanban Board</h3>
+          <p class="text-xs text-gray-400 mt-0.5">Drag and drop request cards between columns to change status.</p>
         </div>
         <div class="flex items-center space-x-2">
-          <input type="text" id="lease-search" placeholder="Search tenant..." class="px-4 py-2 border border-gray-200 rounded-lg text-sm outline-none focus:border-primary">
+          <a href="services.html" class="px-4 py-2 border border-gray-200 hover:border-primary text-gray-700 hover:text-primary rounded-lg text-sm font-semibold transition-all">
+            🔍 Find Maintenance Service
+          </a>
+          <button onclick="openAddMaintenanceModal()" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold transition-all">
+            + Add Request
+          </button>
         </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse">
-          <thead>
-            <tr class="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-              <th class="p-4 cursor-pointer hover:bg-gray-100 select-none" onclick="sortLeases('tenant')">Tenant Name <span id="sort-icon-tenant" class="ml-1 text-gray-400"></span></th>
-              <th class="p-4 cursor-pointer hover:bg-gray-100 select-none" onclick="sortLeases('property')">Property <span id="sort-icon-property" class="ml-1 text-gray-400"></span></th>
-              <th class="p-4">Start Date</th>
-              <th class="p-4">End Date</th>
-              <th class="p-4 cursor-pointer hover:bg-gray-100 select-none" onclick="sortLeases('rent')">Rent <span id="sort-icon-rent" class="ml-1 text-gray-400"></span></th>
-              <th class="p-4 cursor-pointer hover:bg-gray-100 select-none" onclick="sortLeases('status')">Status <span id="sort-icon-status" class="ml-1 text-gray-400"></span></th>
-            </tr>
-          </thead>
-          <tbody id="lease-table-body" class="text-sm divide-y divide-gray-100">
-            <!-- Dynamically populated -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- Maintenance Kanban Board Section -->
-    <div class="mb-8">
-      <div class="mb-6">
-        <h3 class="font-bold text-gray-900 text-lg">Maintenance Requests Kanban</h3>
-        <p class="text-xs text-gray-400 mt-0.5">Drag and drop request cards between columns to change status.</p>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- Open Column -->
-        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex flex-col min-h-[400px]">
+        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex flex-col min-h-[450px]">
           <div class="flex items-center justify-between mb-4 px-2">
             <span class="font-bold text-gray-700">Open Requests</span>
             <span class="px-2.5 py-0.5 bg-rose-100 text-primary text-xs font-bold rounded-full" id="count-open">0</span>
           </div>
           <div id="col-open" class="flex-1 space-y-4 p-1 rounded-xl transition-all border border-dashed border-transparent"
-               ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'open')">
+               ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'OPEN')">
             <!-- Kanban cards -->
           </div>
         </div>
 
         <!-- In Progress Column -->
-        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex flex-col min-h-[400px]">
+        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex flex-col min-h-[450px]">
           <div class="flex items-center justify-between mb-4 px-2">
             <span class="font-bold text-gray-700">In Progress</span>
             <span class="px-2.5 py-0.5 bg-amber-100 text-amber-600 text-xs font-bold rounded-full" id="count-progress">0</span>
           </div>
           <div id="col-progress" class="flex-1 space-y-4 p-1 rounded-xl transition-all border border-dashed border-transparent"
-               ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'progress')">
+               ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'IN_PROGRESS')">
             <!-- Kanban cards -->
           </div>
         </div>
 
         <!-- Resolved Column -->
-        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex flex-col min-h-[400px]">
+        <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200 flex flex-col min-h-[450px]">
           <div class="flex items-center justify-between mb-4 px-2">
-            <span class="font-bold text-gray-700">Resolved</span>
+            <span class="font-bold text-gray-700">Resolved (Deducted)</span>
             <span class="px-2.5 py-0.5 bg-emerald-100 text-emerald-600 text-xs font-bold rounded-full" id="count-resolved">0</span>
           </div>
           <div id="col-resolved" class="flex-1 space-y-4 p-1 rounded-xl transition-all border border-dashed border-transparent"
-               ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'resolved')">
+               ondragover="allowDrop(event)" ondragenter="dragEnter(event)" ondragleave="dragLeave(event)" ondrop="handleDrop(event, 'RESOLVED')">
             <!-- Kanban cards -->
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== EXPENDITURES TAB ==================== -->
+    <div id="section-expenditures" class="tab-section hidden">
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-card p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h3 class="font-bold text-gray-900 text-lg">Logged Expenditures</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Log properties costs and general expenses.</p>
+          </div>
+          <button onclick="openAddExpenditureModal()" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold transition-all">
+            + Log Expenditure
+          </button>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                <th class="p-4">Expenditure Name</th>
+                <th class="p-4">Cost (BDT)</th>
+                <th class="p-4">Logged Date</th>
+                <th class="p-4 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="expenditure-table-body" class="text-sm divide-y divide-gray-100">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== ANNOUNCEMENTS (REMINDERS) TAB ==================== -->
+    <div id="section-announcements" class="tab-section hidden">
+      <div class="bg-white rounded-2xl border border-gray-100 shadow-card p-6">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <h3 class="font-bold text-gray-900 text-lg">Personal Reminders & Notes</h3>
+            <p class="text-xs text-gray-400 mt-0.5">Keep text reminders, todo lists, and notes for yourself.</p>
+          </div>
+          <button onclick="openAddAnnouncementModal()" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold transition-all">
+            + Add Reminder
+          </button>
+        </div>
+        <div id="announcements-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Dynamically populated notes -->
         </div>
       </div>
     </div>
   </main>
 
   <!-- Footer -->
-  <footer class="bg-white border-t border-gray-200 py-8 text-center text-sm text-gray-500">
+  <footer class="bg-white border-t border-gray-200 py-8 text-center text-sm text-gray-500 mt-12">
     <div class="max-w-7xl mx-auto px-4">
       <p>&copy; 2026 RentNest. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- ==================== FIRST TIME EXPERIENCE SETUP WIZARD OVERLAY ==================== -->
+  <div id="setup-wizard-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-2xl w-full rounded-2xl shadow-2xl p-8 overflow-y-auto max-h-[90vh]">
+      <div class="flex items-center justify-between border-b pb-4 mb-6">
+        <h2 class="text-2xl font-bold text-gray-900">Welcome to RentNest Landlord Dashboard!</h2>
+        <div class="flex items-center gap-3">
+          <span class="text-xs bg-rose-50 text-primary font-bold px-3 py-1 rounded-full">Setup Guide</span>
+          <a href="index.html" class="text-gray-400 hover:text-gray-600 p-1 bg-gray-100 hover:bg-gray-200 rounded-full transition-colors" title="Exit to Home">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Step Indicator -->
+      <div class="flex items-center justify-between mb-8 text-xs font-bold text-gray-400 border-b pb-4">
+        <span id="indicator-step1" class="text-primary border-b-2 border-primary pb-2">1. Add Property</span>
+        <span id="indicator-step2" class="pb-2">2. Define Units</span>
+        <span id="indicator-step3" class="pb-2">3. Set Up Tenants</span>
+      </div>
+
+      <form id="wizard-form" onsubmit="handleWizardSubmit(event)">
+        <!-- Step 1 Container -->
+        <div id="wizard-step1">
+          <h3 class="text-lg font-bold text-gray-800 mb-4">Step 1: Tell us about your property</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Property Name *</label>
+              <input type="text" id="wizard-prop-name" placeholder="e.g. Agrabad Heights, Rose Villa" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none" required>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Location / Address</label>
+              <input type="text" id="wizard-prop-location" placeholder="e.g. Rd 4, Agrabad C/A, Chattogram" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-gray-700 mb-1">Property Type</label>
+              <select id="wizard-prop-type" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+                <option value="Apartment Building">Apartment Building</option>
+                <option value="Commercial Complex">Commercial Complex</option>
+                <option value="Residential House">Residential House</option>
+                <option value="Student Dorm">Student Dorm</option>
+              </select>
+            </div>
+          </div>
+          <div class="mt-8 flex justify-end">
+            <button type="button" onclick="goToWizardStep(2)" class="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition-all">Next: Define Units →</button>
+          </div>
+        </div>
+
+        <!-- Step 2 Container -->
+        <div id="wizard-step2" class="hidden">
+          <h3 class="text-lg font-bold text-gray-800 mb-4">Step 2: Add units to this property</h3>
+          <div class="mb-4">
+            <label class="block text-sm font-bold text-gray-700 mb-1">Number of Units to Create</label>
+            <div class="flex items-center space-x-2">
+              <input type="number" id="wizard-units-count" min="1" max="10" value="1" onchange="generateWizardUnitsForm()" class="w-20 px-3 py-1.5 border rounded-lg focus:border-primary outline-none">
+              <span class="text-xs text-gray-400">(Maximum 10 units in setup wizard)</span>
+            </div>
+          </div>
+          <!-- Dynamic Units Form Container -->
+          <div id="wizard-units-list" class="space-y-4 divide-y divide-gray-100 max-h-[350px] overflow-y-auto pr-2">
+            <!-- Dynamic Unit Form Blocks -->
+          </div>
+          <div class="mt-8 flex justify-between">
+            <button type="button" onclick="goToWizardStep(1)" class="px-6 py-2.5 border rounded-lg font-semibold hover:bg-gray-50 transition-all">← Back</button>
+            <button type="button" onclick="goToWizardStep(3)" class="px-6 py-2.5 bg-primary hover:bg-primary-dark text-white rounded-lg font-semibold transition-all">Next: Set Up Tenants →</button>
+          </div>
+        </div>
+
+        <!-- Step 3 Container -->
+        <div id="wizard-step3" class="hidden">
+          <h3 class="text-lg font-bold text-gray-800 mb-4">Step 3: Assign Tenants (Optional)</h3>
+          <p class="text-xs text-gray-400 mb-4">Provide details for units you marked as "Occupied". If a unit is vacant, just leave it as is.</p>
+          <!-- Dynamic Tenants Input Container -->
+          <div id="wizard-tenants-list" class="space-y-6 max-h-[350px] overflow-y-auto pr-2">
+            <!-- Dynamic Tenant Form Blocks -->
+          </div>
+          <div class="mt-8 flex justify-between">
+            <button type="button" onclick="goToWizardStep(2)" class="px-6 py-2.5 border rounded-lg font-semibold hover:bg-gray-50 transition-all">← Back</button>
+            <button type="submit" class="px-6 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg font-semibold transition-all">Finish & Save Setup 🎉</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Add Property Modal -->
+  <div id="modal-property" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-gray-900 mb-4" id="prop-modal-title">Add Property</h3>
+      <form id="prop-form" onsubmit="saveProperty(event)">
+        <input type="hidden" id="prop-id">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Property Name *</label>
+            <input type="text" id="prop-name" required class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Location</label>
+            <input type="text" id="prop-location" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Property Type</label>
+            <input type="text" id="prop-type" placeholder="e.g. Apartment, House" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('modal-property')" class="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Unit Modal -->
+  <div id="modal-unit" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-gray-900 mb-4" id="unit-modal-title">Add Unit</h3>
+      <form id="unit-form" onsubmit="saveUnit(event)">
+        <input type="hidden" id="unit-id">
+        <input type="hidden" id="unit-property-id">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Unit Name *</label>
+            <input type="text" id="unit-name" required placeholder="e.g. Apt 4B, Suite 101" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Rent Amount (BDT) *</label>
+            <input type="number" id="unit-rent-amount" required class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Rent Period</label>
+            <select id="unit-rent-period" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+              <option value="DAILY">Daily</option>
+              <option value="WEEKLY">Weekly</option>
+              <option value="MONTHLY">Monthly</option>
+              <option value="QUARTERLY">Quarterly</option>
+              <option value="YEARLY">Yearly</option>
+              <option value="ONE_TIME">One Time</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Rent Collection Day (of the month)</label>
+            <input type="number" id="unit-collection-day" min="1" max="31" value="1" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('modal-unit')" class="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lease Modal (Assign/Edit Tenant) -->
+  <div id="modal-lease" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-gray-900 mb-4" id="lease-modal-title">Assign Tenant</h3>
+      <form id="lease-form" onsubmit="saveLease(event)">
+        <input type="hidden" id="lease-id">
+        <input type="hidden" id="lease-unit-id">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Tenant Name *</label>
+            <input type="text" id="lease-tenant-name" required class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">WhatsApp Number *</label>
+            <input type="text" id="lease-whatsapp" required placeholder="e.g. +8801700000000" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Tenancy Start Date *</label>
+            <input type="date" id="lease-start-date" required class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('modal-lease')" class="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Rent Record Creation Modal (Generate Due Rent manually) -->
+  <div id="modal-rent-record" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-gray-900 mb-4">Issue Due Period Rent</h3>
+      <form id="rent-record-form" onsubmit="generateRentRecord(event)">
+        <input type="hidden" id="rr-lease-id">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Billing Period Label *</label>
+            <input type="text" id="rr-period-label" placeholder="e.g. July 2026" required class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Rent Amount (BDT) *</label>
+            <input type="number" id="rr-amount" required class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('modal-rent-record')" class="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold">Issue DUE</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add/Edit Maintenance Request Modal -->
+  <div id="modal-maintenance" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-gray-900 mb-4" id="maint-modal-title">Maintenance Request</h3>
+      <form id="maint-form" onsubmit="saveMaintenance(event)">
+        <input type="hidden" id="maint-id">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Request Title *</label>
+            <input type="text" id="maint-title" required placeholder="e.g. Geyser leaking water" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Detailed Description</label>
+            <textarea id="maint-desc" rows="3" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none"></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Assign to Unit</label>
+            <select id="maint-unit-id" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+              <!-- Dynamically populated with all units -->
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Priority Level</label>
+            <select id="maint-priority" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+              <option value="LOW">Low</option>
+              <option value="MEDIUM">Medium</option>
+              <option value="HIGH">High</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Estimated Cost (BDT)</label>
+            <input type="number" id="maint-cost" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('modal-maintenance')" class="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add/Edit Expenditure Modal -->
+  <div id="modal-expenditure" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-gray-900 mb-4" id="exp-modal-title">Log Expenditure</h3>
+      <form id="exp-form" onsubmit="saveExpenditure(event)">
+        <input type="hidden" id="exp-id">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Expense Name *</label>
+            <input type="text" id="exp-name" required placeholder="e.g. Paint for lobby, Municipality Tax" class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Total Cost (BDT) *</label>
+            <input type="number" id="exp-cost" required class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none">
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('modal-expenditure')" class="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Add Announcement Modal -->
+  <div id="modal-announcement" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center hidden p-4">
+    <div class="bg-white max-w-md w-full rounded-2xl p-6 shadow-2xl">
+      <h3 class="text-lg font-bold text-gray-900 mb-4">Add Reminder / Announcement</h3>
+      <form id="ann-form" onsubmit="saveAnnouncement(event)">
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-bold text-gray-700 mb-1">Note Details *</label>
+            <textarea id="ann-text" rows="4" required placeholder="e.g. Send gas bill notices next week..." class="w-full px-4 py-2 border rounded-lg focus:border-primary outline-none"></textarea>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end space-x-3">
+          <button type="button" onclick="closeModal('modal-announcement')" class="px-4 py-2 border rounded-lg text-sm font-semibold hover:bg-gray-50">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-dark text-white rounded-lg text-sm font-semibold">Add Note</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Base JS scripts -->
   <script src="js/api.js"></script>

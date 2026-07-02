@@ -17,11 +17,11 @@ public class SearchService {
 
     private final ListingRepository listingRepository;
 
-    public List<ListingResponse> searchRentals(String location, ListingCategory category, Double lat, Double lng, Integer radius) {
+    public List<ListingResponse> searchRentals(String location, ListingCategory category, Double lat, Double lng, Integer radius, Double minBudget, Double maxBudget) {
         if (lat != null && lng != null && radius != null) {
             List<Listing> listings;
             if (category != null) {
-                listings = listingRepository.findWithinRadius(lat, lng, radius, category.name());
+                listings = listingRepository.findWithinRadius(lat, lng, radius, category.name(), minBudget, maxBudget);
             } else {
                 List<String> rentalCategoryNames = java.util.List.of(
                     ListingCategory.FLAT.name(),
@@ -29,7 +29,7 @@ public class SearchService {
                     ListingCategory.HOUSE.name(),
                     ListingCategory.CONVENTION_HALL.name()
                 );
-                listings = listingRepository.findWithinRadiusMultipleCategories(lat, lng, radius, rentalCategoryNames);
+                listings = listingRepository.findWithinRadiusMultipleCategories(lat, lng, radius, rentalCategoryNames, minBudget, maxBudget);
             }
             return listings.stream()
                     .map(l -> {
@@ -53,7 +53,7 @@ public class SearchService {
 
         List<Listing> listings;
         if (category != null) {
-            listings = listingRepository.findByCategoryAndIsActiveTrueOrderByCreatedAtDesc(category);
+            listings = listingRepository.findByCategoryAndBudget(category, minBudget, maxBudget);
         } else {
             // "All" tab: only rental categories, not services/marketplace/roommates
             List<ListingCategory> rentalCategories = java.util.List.of(
@@ -62,9 +62,7 @@ public class SearchService {
                 ListingCategory.HOUSE,
                 ListingCategory.CONVENTION_HALL
             );
-            listings = listingRepository.findByIsActiveTrueOrderByCreatedAtDesc().stream()
-                    .filter(l -> rentalCategories.contains(l.getCategory()))
-                    .collect(Collectors.toList());
+            listings = listingRepository.findByCategoriesAndBudget(rentalCategories, minBudget, maxBudget);
         }
 
         if (location != null && !location.trim().isEmpty()) {

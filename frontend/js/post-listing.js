@@ -230,7 +230,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
   // --- Helper to upload files to Cloudinary ---
-  async function uploadFileToFirebase(file, pathPrefix) {
+  async function uploadFileToCloudinary(file, pathPrefix) {
     const cloudName = "du711ught";
     const uploadPreset = "bwuqyeyc";
 
@@ -284,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
         previewGrid.appendChild(previewDiv);
 
         try {
-          const url = await uploadFileToFirebase(file, pathPrefix);
+          const url = await uploadFileToCloudinary(file, pathPrefix);
           uploadedUrls.push(url);
           hiddenUrl.value = uploadedUrls.join(',');
           

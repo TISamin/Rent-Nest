@@ -28,8 +28,10 @@ public class SearchController {
             @RequestParam(required = false) ListingCategory category,
             @RequestParam(required = false) Double lat,
             @RequestParam(required = false) Double lng,
-            @RequestParam(required = false) Integer radius) {
-        List<ListingResponse> responses = searchService.searchRentals(location, category, lat, lng, radius);
+            @RequestParam(required = false) Integer radius,
+            @RequestParam(required = false) Double minBudget,
+            @RequestParam(required = false) Double maxBudget) {
+        List<ListingResponse> responses = searchService.searchRentals(location, category, lat, lng, radius, minBudget, maxBudget);
         return ResponseEntity.ok(ApiResponse.success(responses, "Rental listings retrieved successfully"));
     }
 

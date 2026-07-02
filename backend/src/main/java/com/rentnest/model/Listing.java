@@ -67,6 +67,14 @@ public class Listing {
     @Column(name = "contact_phone", length = 20)
     private String contactPhone;
 
+    @Builder.Default
+    @Column(name = "review_count", nullable = false)
+    private Integer reviewCount = 0;
+
+    @Builder.Default
+    @Column(name = "average_rating", nullable = false, precision = 3, scale = 2)
+    private BigDecimal averageRating = BigDecimal.ZERO;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
