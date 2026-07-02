@@ -55,7 +55,8 @@ async function apiRequest(method, path, body = null) {
         }
         throw new Error("Account banned.");
       } else {
-        const isAuthPage = window.location.pathname.includes('login') || window.location.pathname.includes('signup');
+        const path = window.location.pathname.toLowerCase();
+        const isAuthPage = path.includes('login') || path.includes('signup') || document.getElementById('loginForm') || document.getElementById('signupForm');
         
         if (!isAuthPage) {
           console.warn("Session expired or unauthorized. Redirecting to login...");

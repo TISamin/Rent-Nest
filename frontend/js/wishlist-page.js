@@ -127,6 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast("Failed to remove item.", "error");
     }
   }
+  window.handleRemoveClick = handleRemoveClick;
 
   // Handle checking and unchecking compare checkboxes
   function handleCompareSelection(item, checkbox) {
