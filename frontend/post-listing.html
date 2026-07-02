@@ -267,6 +267,23 @@
             <button type="button" class="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-medium hover:bg-gray-700 transition add-amenity-btn">Add</button>
           </div>
         </div>
+
+        <!-- Current Roommate Members -->
+        <div class="mt-5 border-t border-gray-100 pt-5">
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-bold text-gray-800">Current Roommates</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Add a photo &amp; short bio for each existing roommate.</p>
+            </div>
+            <span class="text-xs text-gray-400 italic">Optional</span>
+          </div>
+          <div id="roommate-members-container" class="space-y-4">
+            <p id="roommate-members-empty" class="text-sm text-gray-400 italic">No existing roommates added yet. Use the button below to add one.</p>
+          </div>
+          <button type="button" id="add-member-btn" class="w-full mt-4 py-3 border-2 border-dashed border-gray-300 rounded-xl text-gray-600 font-medium hover:bg-gray-50 hover:border-primary transition-colors text-sm">
+            + Add a Current Roommate
+          </button>
+        </div>
       </div>
 
       <!-- Step 3: Photos (Base for non-residential) -->

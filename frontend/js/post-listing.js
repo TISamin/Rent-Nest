@@ -187,6 +187,80 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 
+  // --- Dynamic Roommate Member Slots ---
+  const membersContainer = document.getElementById('roommate-members-container');
+  const membersEmpty = document.getElementById('roommate-members-empty');
+  let memberIndex = 0;
+
+  function addMemberSlot() {
+    if (membersEmpty) membersEmpty.style.display = 'none';
+    const idx = memberIndex++;
+    const card = document.createElement('div');
+    card.className = 'member-slot-card border border-gray-200 rounded-xl p-4 bg-gray-50 flex gap-4 items-start';
+    card.innerHTML = `
+      <div class="flex-shrink-0">
+        <div id="member-avatar-preview-${idx}" class="w-20 h-20 rounded-full border-2 border-dashed border-gray-300 bg-white flex items-center justify-center overflow-hidden cursor-pointer hover:border-[#e67e5a] transition-colors" title="Click to upload photo">
+          <svg class="w-7 h-7 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+        </div>
+        <input type="file" id="member-photo-input-${idx}" accept="image/*" class="hidden">
+        <input type="hidden" id="member-photo-url-${idx}" class="member-photo-url-hidden">
+        <p class="text-center text-xs text-gray-400 mt-1">Click to upload</p>
+      </div>
+      <div class="flex-1">
+        <label class="form-label">Roommate ${idx + 1}</label>
+        <input type="text" class="form-input text-sm member-desc-input" placeholder="Short bio (e.g. 25, software engineer, non-smoker)">
+        <p class="text-xs text-gray-400 mt-1.5">Helps potential roommates learn about existing members.</p>
+      </div>
+      <button type="button" class="delete-member-btn text-red-400 hover:text-red-600 transition text-xl leading-none mt-0.5 flex-shrink-0" title="Remove">&times;</button>
+    `;
+    membersContainer.appendChild(card);
+
+    const avatarPreview = card.querySelector(`#member-avatar-preview-${idx}`);
+    const photoInput = card.querySelector(`#member-photo-input-${idx}`);
+    const photoUrlHidden = card.querySelector(`#member-photo-url-${idx}`);
+
+    avatarPreview.addEventListener('click', () => photoInput.click());
+
+    photoInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      activeUploadsCount++;
+      updateSubmitBtn();
+      avatarPreview.innerHTML = `<span class="text-xs text-gray-400 animate-pulse px-1 text-center">Uploading...</span>`;
+      try {
+        const url = await uploadFileToCloudinary(file, 'listings/roommate-members');
+        photoUrlHidden.value = url;
+        avatarPreview.innerHTML = `<img src="${url}" class="w-full h-full object-cover">`;
+      } catch (err) {
+        avatarPreview.innerHTML = `<svg class="w-7 h-7 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01M21 12A9 9 0 113 12a9 9 0 0118 0z"/></svg>`;
+        showToast('Member photo upload failed.', 'error');
+      } finally {
+        activeUploadsCount--;
+        updateSubmitBtn();
+      }
+      photoInput.value = '';
+    });
+
+    card.querySelector('.delete-member-btn').addEventListener('click', () => {
+      card.remove();
+      if (membersContainer.querySelectorAll('.member-slot-card').length === 0 && membersEmpty) {
+        membersEmpty.style.display = '';
+      }
+    });
+  }
+
+  document.getElementById('add-member-btn').addEventListener('click', () => addMemberSlot());
+
+  // Auto-populate member slots when the "Already Have" count is changed
+  document.getElementById('roommate-have').addEventListener('input', () => {
+    const count = parseInt(document.getElementById('roommate-have').value) || 0;
+    const current = membersContainer.querySelectorAll('.member-slot-card').length;
+    if (count > current) {
+      for (let i = current; i < count; i++) addMemberSlot();
+    }
+  });
+
+
   // --- Dynamic Service Offerings ---
   const servicesContainer = document.getElementById('service-offerings-container');
   
@@ -419,9 +493,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     } else if (cat === 'ROOMMATE_FINDER') {
       payload.imageUrl = document.getElementById('cover-photo-url-hidden').value;
+      const memberCards = document.querySelectorAll('.member-slot-card');
+      const members = [];
+      memberCards.forEach(card => {
+        const desc = card.querySelector('.member-desc-input').value.trim();
+        const photoUrl = card.querySelector('.member-photo-url-hidden').value;
+        if (desc || photoUrl) {
+          members.push({ memberDescription: desc || null, memberPhotoUrl: photoUrl || null });
+        }
+      });
       payload.roommateInfo = {
         totalRoommatesWanted: parseInt(document.getElementById('roommate-wanted').value) || 1,
         roommatesAlreadyHave: parseInt(document.getElementById('roommate-have').value) || 0,
+        members: members.length > 0 ? members : [],
       };
     } else {
       // General (Marketplace)
