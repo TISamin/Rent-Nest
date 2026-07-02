@@ -500,6 +500,7 @@
 
   <script src="js/api.js"></script>
   <script src="js/ui-common.js"></script>
+  <script src="js/wishlist.js"></script>
   <script>
     // ==================== SCROLL REVEAL (Intersection Observer) ====================
     const revealElements = document.querySelectorAll('.reveal');
@@ -662,7 +663,7 @@
               <div class="relative overflow-hidden h-56 sm:h-64">
                 <img src="${mainImage}" alt="${item.title}" loading="lazy" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
                 <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
-                <button class="heart-btn absolute top-4 right-4 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-all z-10" onclick="toggleHeart(event, this)">
+                <button class="heart-btn absolute top-4 right-4 w-10 h-10 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center shadow-lg hover:bg-white transition-all z-10" data-wishlist-btn data-listing-id="${item.id}" onclick="toggleWishlist(event, '${item.id}', this)">
                   <svg class="w-6 h-6 fill-black/30 stroke-white stroke-2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                   </svg>
@@ -685,6 +686,8 @@
           });
           skeleton.classList.add('hidden');
           grid.classList.remove('hidden');
+          // Sync wishlist heart states from backend
+          syncHeartStates();
         } else {
           skeleton.classList.add('hidden');
           grid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-10">No featured listings found.</p>';
@@ -698,21 +701,6 @@
       }
     }
 
-    // ==================== WISH / HEART TOGGLE ====================
-    function toggleHeart(event, element) {
-      event.preventDefault();
-      event.stopPropagation();
-      const svg = element.querySelector('svg');
-      if (svg.classList.contains('fill-black/30')) {
-        svg.classList.remove('fill-black/30', 'stroke-white');
-        svg.classList.add('fill-primary', 'stroke-primary');
-        showToast("Added to saved spaces!", "success");
-      } else {
-        svg.classList.remove('fill-primary', 'stroke-primary');
-        svg.classList.add('fill-black/30', 'stroke-white');
-        showToast("Removed from saved spaces.", "info");
-      }
-    }
 
     document.addEventListener('DOMContentLoaded', loadFeaturedListings);
   </script>
