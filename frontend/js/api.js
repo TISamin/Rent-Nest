@@ -26,14 +26,53 @@ async function apiRequest(method, path, body = null) {
   try {
     const response = await fetch(url, options);
     
-    // Handle 401 Unauthorized globally by redirecting to login.html
-    if (response.status === 401) {
-      console.warn("Session expired or unauthorized. Redirecting to login...");
-      logout();
-      if (!window.location.pathname.endsWith('login.html') && !window.location.pathname.endsWith('index.html')) {
-        window.location.href = 'login.html';
+    // Handle 401/403 globally by redirecting to login.html or banned.html
+    if (response.status === 401 || response.status === 403) {
+      let resultText = "";
+      try {
+        resultText = await response.text();
+      } catch (e) {}
+
+      let isBanned = false;
+      let banReason = "No reason provided";
+
+      if (resultText) {
+        try {
+          const resObj = JSON.parse(resultText);
+          if (resObj.message && resObj.message.startsWith("Account banned:")) {
+            isBanned = true;
+            banReason = resObj.message.replace("Account banned: ", "").trim();
+          }
+        } catch(e) {}
       }
-      throw new Error("Unauthorized. Redirecting to login...");
+
+      if (isBanned) {
+        console.warn("Account is banned. Redirecting to banned.html...");
+        localStorage.removeItem('rentnest_token');
+        localStorage.removeItem('rentnest_user');
+        if (!window.location.pathname.endsWith('banned.html')) {
+          window.location.href = `banned.html?reason=${encodeURIComponent(banReason)}`;
+        }
+        throw new Error("Account banned.");
+      } else {
+        const isAuthPage = window.location.pathname.endsWith('login.html') || window.location.pathname.endsWith('signup.html');
+        
+        if (!isAuthPage) {
+          console.warn("Session expired or unauthorized. Redirecting to login...");
+          logout();
+          throw new Error("Unauthorized. Redirecting to login...");
+        } else {
+          // If already on login page, just parse the backend error and throw it so the UI can show a toast
+          let errorMsg = "Invalid email or password.";
+          if (resultText) {
+            try {
+              const resObj = JSON.parse(resultText);
+              if (resObj.message) errorMsg = resObj.message;
+            } catch(e) {}
+          }
+          throw new Error(errorMsg);
+        }
+      }
     }
 
     let text = "";

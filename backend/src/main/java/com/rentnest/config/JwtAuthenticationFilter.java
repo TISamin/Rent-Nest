@@ -17,8 +17,10 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  * JWT authentication filter that runs once per request.
@@ -47,11 +49,23 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 if (userOpt.isPresent()) {
                     User user = userOpt.get();
 
+                    if (user.isBanned()) {
+                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                        response.setContentType("application/json");
+                        response.getWriter().write(String.format("{\"success\":false,\"message\":\"Account banned: %s\",\"data\":null}",
+                                user.getBanReason() != null ? user.getBanReason().replace("\"", "\\\"") : "No reason provided"));
+                        return;
+                    }
+
+                    List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+                            new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+                    );
+
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     user,            // principal — the User entity
                                     null,            // credentials
-                                    Collections.emptyList()  // authorities
+                                    authorities      // authorities
                             );
                     authentication.setDetails(
                             new WebAuthenticationDetailsSource().buildDetails(request));

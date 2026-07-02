@@ -3,7 +3,31 @@
 // Supports password login, OTP signup, OTP password resets
 // ============================================================
 
+// ============================================================
+// EmailJS Security Notice
+// ============================================================
+// The public key below is intentionally client-side (EmailJS requires it in
+// the browser). To prevent abuse from unauthorized origins, the following
+// restrictions MUST remain active in the EmailJS dashboard:
+//
+//   Dashboard → Account → Security
+//   1. "Allowed Origins" — add ONLY:
+//        https://rent-nest-pi.vercel.app
+//        https://tisamin.github.io
+//        http://localhost:5500
+//        http://127.0.0.1:5500
+//        http://localhost:5501
+//        http://127.0.0.1:5501
+//      Requests from any other origin will be rejected by EmailJS.
+//
+//   2. Template "template_xrdy6ao" → enable "reCAPTCHA verification"
+//      to block automated/scripted email sends.
+//
+// ⚠ If these dashboard settings are removed, anyone with DevTools can
+//   extract the key and send unlimited emails impersonating RentNest.
+// ============================================================
 emailjs.init("Novly2bnLjG0RR2ZE");
+
 
 let currentOtp = null;
 let currentEmail = null;

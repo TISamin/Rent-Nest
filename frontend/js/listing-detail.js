@@ -9,8 +9,14 @@ document.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
+  // let galleryImages = [];
+  // let currentImageIndex = 0;
+  // let currentReviewRating = 0;
   let galleryImages = [];
   let currentImageIndex = 0;
+  let currentReviewRating = 0;
+  const localUser = localStorage.getItem('rentnest_user');
+  const currentUserId = localUser ? JSON.parse(localUser).id : null;
 
   // Load single listing details
   loadListingDetail(id);
@@ -74,6 +80,34 @@ document.addEventListener('DOMContentLoaded', () => {
         // Render Category Badge
         const categoryBadge = document.getElementById('detail-category-badge');
         categoryBadge.innerText = categoryLabel;
+
+        // Report Listing Button
+        const reportBtn = document.getElementById('report-listing-btn');
+        if (reportBtn) {
+          reportBtn.addEventListener('click', () => openReportModal('LISTING', item.id));
+        }
+
+        // Ratings UI
+        // const localUser = localStorage.getItem('rentnest_user');
+        // const localUser = localStorage.getItem('rentnest_user');
+        // const currentUserId = localUser ? JSON.parse(localUser).id : null;
+        if (['FLAT', 'HOTEL', 'HOUSE', 'CONVENTION_HALL', 'SHIFTING_SERVICE', 'CATERING_SERVICE'].includes(item.category)) {
+          document.getElementById('detail-rating-container').classList.remove('hidden');
+          const avg = (item.averageRating || 0).toFixed(1);
+          document.getElementById('detail-rating-score').innerText = avg;
+          document.getElementById('detail-review-count').innerText = item.reviewCount || 0;
+
+          document.getElementById('detail-reviews-title-score').innerText = avg;
+          document.getElementById('detail-reviews-title-count').innerText = item.reviewCount || 0;
+          
+          document.getElementById('detail-reviews-panel').classList.remove('hidden');
+          
+          if (isAuthenticated() && (!localUser || JSON.parse(localUser).id !== item.userId)) {
+            document.getElementById('write-review-btn').classList.remove('hidden');
+          }
+          
+          loadReviews(item.id);
+        }
         
         // Render Title & Address
         document.getElementById('detail-title').innerText = item.title;
@@ -181,7 +215,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Show delete button if the logged-in user is the owner
-        const localUser = localStorage.getItem('rentnest_user');
         if (localUser && isAuthenticated()) {
           try {
             const userObj = JSON.parse(localUser);
@@ -226,6 +259,26 @@ document.addEventListener('DOMContentLoaded', () => {
             }
           } catch (e) {
             console.error("Failed to parse local user or setup delete button", e);
+          }
+        }
+
+        // Setup Wishlist Heart Button
+        const heartBtn = document.getElementById('detail-heart-btn');
+        if (heartBtn) {
+          heartBtn.setAttribute('data-listing-id', item.id);
+          heartBtn.setAttribute('data-wishlist-btn', '');
+          heartBtn.addEventListener('click', (e) => {
+            toggleWishlist(e, item.id, heartBtn);
+          });
+          
+          if (isAuthenticated()) {
+            apiPost('/wishlist/check', [item.id]).then(resCheck => {
+              if (resCheck.success && resCheck.data && resCheck.data.includes(item.id)) {
+                const svg = heartBtn.querySelector('svg');
+                svg.classList.remove('fill-black/30', 'stroke-white');
+                svg.classList.add('fill-primary', 'stroke-primary');
+              }
+            }).catch(err => console.error("Error syncing detail heart:", err));
           }
         }
 
@@ -284,6 +337,133 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // Reviews Logic
+  // async function loadReviews(listingId) {
+  //   try {
+  //     const res = await apiGet(`/reviews/listing/${listingId}?page=0&size=50`);
+  //     if (res.success && res.data && res.data.content) {
+  //       const reviews = res.data.content;
+  //       const listContainer = document.getElementById('detail-reviews-list');
+        
+  //       if (reviews.length === 0) {
+  //         listContainer.innerHTML = '<p class="text-sm text-gray-500">No reviews yet.</p>';
+  //         return;
+  //       }
+
+  //       listContainer.innerHTML = reviews.map(r => `
+  //         <div class="border border-gray-100 rounded-xl p-4 bg-gray-50">
+  //           <div class="flex items-center justify-between mb-3">
+  //             <div class="flex items-center gap-3">
+  //               <img src="${r.userPhotoUrl || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'}" class="w-10 h-10 rounded-full object-cover">
+  //               <div>
+  //                 <h4 class="text-sm font-bold text-gray-900">${r.userName}</h4>
+  //                 <p class="text-xs text-gray-500">${new Date(r.createdAt).toLocaleDateString()}</p>
+  //               </div>
+  //             </div>
+  //             <button onclick="openReportModal('REVIEW', '${r.id}')" class="text-gray-400 hover:text-red-500" title="Report Review"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg></button>
+  //           </div>
+  //           <div class="flex items-center gap-1 mb-2">
+  //             ${Array(5).fill(0).map((_, i) => `<svg class="w-4 h-4 ${i < r.rating ? 'text-yellow-400' : 'text-gray-300'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>`).join('')}
+  //           </div>
+  //           <p class="text-sm text-gray-700">${r.comment || ''}</p>
+  //         </div>
+  //       `).join('');
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // }
+  async function loadReviews(listingId) {
+  try {
+    const res = await apiGet(`/reviews/listing/${listingId}?page=0&size=50`);
+    if (res.success && res.data && res.data.content) {
+      const reviews = res.data.content;
+      const listContainer = document.getElementById('detail-reviews-list');
+
+      if (reviews.length === 0) {
+        listContainer.innerHTML = '<p class="text-sm text-gray-500">No reviews yet.</p>';
+        return;
+      }
+
+      listContainer.innerHTML = reviews.map(r => {
+        const isOwner = currentUserId && r.reviewerId === currentUserId;
+        return `
+          <div class="border border-gray-100 rounded-xl p-4 bg-gray-50" id="review-card-${r.id}">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-3">
+                <img src="${r.userPhotoUrl || 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'}" class="w-10 h-10 rounded-full object-cover">
+                <div>
+                  <h4 class="text-sm font-bold text-gray-900">${r.userName}</h4>
+                  <p class="text-xs text-gray-500">${new Date(r.createdAt).toLocaleDateString()}</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                ${isOwner ? `
+                  <button onclick="editReview('${r.id}', ${r.rating}, '${(r.comment || '').replace(/'/g, "\\'").replace(/"/g, '&quot;').replace(/\n/g, '\\n')}')" class="text-gray-400 hover:text-blue-500" title="Edit Review">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                  </button>
+                  <button onclick="deleteReview('${r.id}')" class="text-gray-400 hover:text-red-500" title="Delete Review">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                  </button>
+                ` : `
+                  <button onclick="openReportModal('REVIEW', '${r.id}')" class="text-gray-400 hover:text-red-500" title="Report Review">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+                  </button>
+                `}
+              </div>
+            </div>
+            <div class="flex items-center gap-1 mb-2" id="review-stars-${r.id}">
+              ${Array(5).fill(0).map((_, i) => `<svg class="w-4 h-4 ${i < r.rating ? 'text-yellow-400' : 'text-gray-300'}" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>`).join('')}
+            </div>
+            <p class="text-sm text-gray-700" id="review-comment-${r.id}">${r.comment || ''}</p>
+          </div>
+        `;
+      }).join('');
+    }
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+  window.openReviewModal = function() {
+    currentReviewRating = 0;
+    setReviewRating(0);
+    document.getElementById('review-comment').value = '';
+    document.getElementById('reviewModal').classList.remove('hidden');
+  };
+
+  window.closeReviewModal = function() {
+    document.getElementById('reviewModal').classList.add('hidden');
+  };
+
+  window.setReviewRating = function(rating) {
+    currentReviewRating = rating;
+    const svgs = document.getElementById('review-stars-input').querySelectorAll('svg');
+    svgs.forEach((svg, idx) => {
+      if (idx < rating) {
+        svg.classList.remove('text-gray-300');
+        svg.classList.add('text-yellow-400');
+      } else {
+        svg.classList.remove('text-yellow-400');
+        svg.classList.add('text-gray-300');
+      }
+    });
+  };
+
+  window.submitReview = async function() {
+    if (currentReviewRating === 0) {
+      showToast("Please select a rating", "warning");
+      return;
+    }
+    const comment = document.getElementById('review-comment').value.trim();
+    try {
+      await apiPost('/reviews', { listingId: id, rating: currentReviewRating, comment });
+      showToast("Review submitted!", "success");
+      closeReviewModal();
+      loadListingDetail(id); // Reload to update stats and list
+    } catch(e) {}
+  };
+
   // Lightbox Modal functions
   const lightbox = document.getElementById('lightboxModal');
   const lightboxImg = document.getElementById('lightboxImg');
@@ -320,6 +500,92 @@ document.addEventListener('DOMContentLoaded', () => {
       lightbox.classList.add('hidden');
     }
   });
+  let editReviewRating = 0;
+
+window.editReview = function(reviewId, currentRating, currentComment) {
+  editReviewRating = currentRating;
+  const card = document.getElementById(`review-card-${reviewId}`);
+  card.innerHTML = `
+    <div class="flex flex-col gap-3">
+      <p class="text-sm font-semibold text-gray-700">Edit your review</p>
+      <div class="flex items-center gap-1" id="edit-stars-${reviewId}">
+        ${Array(5).fill(0).map((_, i) => `
+          <svg onclick="setEditRating('${reviewId}', ${i + 1})"
+            class="w-6 h-6 cursor-pointer ${i < currentRating ? 'text-yellow-400' : 'text-gray-300'}"
+            fill="currentColor" viewBox="0 0 20 20">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+          </svg>`).join('')}
+      </div>
+      <textarea id="edit-comment-${reviewId}" rows="3"
+        class="w-full border border-gray-200 rounded-lg p-2 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary"
+      >${currentComment}</textarea>
+      <div class="flex gap-2">
+        <button onclick="submitEditReview('${reviewId}')"
+          class="px-4 py-1.5 bg-primary text-white text-sm rounded-lg hover:bg-primary/90">Save</button>
+        <button onclick="loadReviews('${id}')"
+          class="px-4 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200">Cancel</button>
+      </div>
+    </div>
+  `;
+};
+
+window.setEditRating = function(reviewId, rating) {
+  editReviewRating = rating;
+  const stars = document.querySelectorAll(`#edit-stars-${reviewId} svg`);
+  stars.forEach((svg, i) => {
+    svg.classList.toggle('text-yellow-400', i < rating);
+    svg.classList.toggle('text-gray-300', i >= rating);
+  });
+};
+
+window.submitEditReview = async function(reviewId) {
+  if (editReviewRating === 0) {
+    showToast("Please select a rating", "warning");
+    return;
+  }
+  const comment = document.getElementById(`edit-comment-${reviewId}`).value.trim();
+  try {
+    const res = await apiPut(`/reviews/${reviewId}`, { rating: editReviewRating, comment });
+    if (res.success) {
+      showToast("Review updated!", "success");
+      refreshRatingDisplay();
+      loadReviews(id);
+    } else {
+      showToast(res.message || "Failed to update review", "error");
+    }
+  } catch(e) {
+    showToast("Error updating review", "error");
+  }
+};
+
+window.deleteReview = async function(reviewId) {
+  if (!confirm("Delete your review? This cannot be undone.")) return;
+  try {
+    const res = await apiDelete(`/reviews/${reviewId}`);
+    if (res.success) {
+      showToast("Review deleted", "success");
+      document.getElementById(`review-card-${reviewId}`).remove();
+      refreshRatingDisplay();
+    } else {
+      showToast(res.message || "Failed to delete review", "error");
+    }
+  } catch(e) {
+    showToast("Error deleting review", "error");
+  }
+};
+
+async function refreshRatingDisplay() {
+  try {
+    const res = await apiGet(`/listings/${id}`);
+    if (res.success && res.data) {
+      const avg = (res.data.averageRating || 0).toFixed(1);
+      document.getElementById('detail-rating-score').innerText = avg;
+      document.getElementById('detail-review-count').innerText = res.data.reviewCount || 0;
+      document.getElementById('detail-reviews-title-score').innerText = avg;
+      document.getElementById('detail-reviews-title-count').innerText = res.data.reviewCount || 0;
+    }
+  } catch(e) {}
+}
 
   // Support Arrow navigation keyboard events in Lightbox
   document.addEventListener('keydown', (e) => {

@@ -1,6 +1,12 @@
 document.addEventListener('DOMContentLoaded', () => {
   // Initialize EmailJS
+  // ============================================================
+  // EmailJS Security Notice — see auth.js for full details.
+  // Allowed Origins and reCAPTCHA MUST be configured in the
+  // EmailJS dashboard to prevent public key abuse.
+  // ============================================================
   emailjs.init("Novly2bnLjG0RR2ZE");
+
 
   loadProfile();
 
@@ -8,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const photoInput = document.getElementById('photo-input');
   const saveBtn = document.getElementById('save-profile-btn');
 
-  // Photo Upload to Firebase Storage
+  // Photo Upload to Cloudinary
   if (photoInput) {
     photoInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
@@ -57,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('photo-url-hidden').value = downloadUrl;
         showToast("Photo uploaded successfully!", "success");
       } catch (error) {
-        console.error("Firebase Storage Upload Error:", error);
+        console.error("Cloudinary Upload Error:", error);
         showToast("Failed to upload photo: " + error.message, "error");
       } finally {
         saveBtn.disabled = false;

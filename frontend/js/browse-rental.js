@@ -260,6 +260,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const locationValue = locationInput.value.trim();
     const categoryValue = categorySelect.value;
     const radiusValue = radiusSlider.value;
+    const minBudgetVal = budgetMin.value;
+    const maxBudgetVal = budgetMax.value;
 
     try {
       // 1. Geocode location if provided
@@ -289,6 +291,8 @@ document.addEventListener('DOMContentLoaded', () => {
         queryParams.push(`lng=${lng}`);
         queryParams.push(`radius=${parseInt(radiusValue) * 1000}`); // convert km to metres
       }
+      if (minBudgetVal) queryParams.push(`minBudget=${encodeURIComponent(minBudgetVal)}`);
+      if (maxBudgetVal) queryParams.push(`maxBudget=${encodeURIComponent(maxBudgetVal)}`);
       
       const queryStr = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
       const res = await apiGet(`/search/rental${queryStr}`);
@@ -322,13 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Filter results locally
     let filtered = allFetchedListings;
 
-    // Budget range filter
-    if (minBudget) {
-      filtered = filtered.filter(item => (item.priceMin || item.price || 0) >= parseFloat(minBudget));
-    }
-    if (maxBudget) {
-      filtered = filtered.filter(item => (item.priceMax || item.priceMin || item.price || Infinity) <= parseFloat(maxBudget));
-    }
+    // Budget filtering is now handled by the backend API.
 
     // Client-side radius filter (for real-time slider/dropdown changes)
     if (searchedCoords) {
@@ -381,27 +379,36 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
       }
 
+      let ratingHtml = '';
+      if (item.reviewCount > 0) {
+        ratingHtml = `<div class="flex items-center gap-1 text-xs font-semibold text-gray-700 mt-0.5"><svg class="w-3.5 h-3.5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>${(item.averageRating || 0).toFixed(1)} (${item.reviewCount})</div>`;
+      }
+
       const card = document.createElement('a');
       card.href = `listing-detail.html?id=${item.id}`;
-      card.className = 'group cursor-pointer block transition-all duration-200 p-2 rounded-xl hover:bg-gray-50';
+      card.className = 'listing-card p-3 group block';
       card.setAttribute('data-id', item.id);
       card.innerHTML = `
-        <div class="relative aspect-square sm:aspect-[4/3] rounded-xl overflow-hidden mb-3">
-          <img src="${mainImage}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-300 ease group-hover:scale-105" loading="lazy">
-          <button class="absolute top-3 right-3 p-1.5 text-white hover:scale-110 transition-transform focus:outline-none z-10 drop-shadow-md" onclick="toggleHeart(event, this)">
+        <div class="relative aspect-[3/2] rounded-2xl overflow-hidden mb-4">
+          <img src="${mainImage}" alt="${item.title}" class="w-full h-full object-cover transition-transform duration-700 ease group-hover:scale-110" loading="lazy">
+          <button class="absolute top-3 right-3 p-1.5 text-white hover:scale-110 transition-transform focus:outline-none z-10 drop-shadow-md" data-wishlist-btn data-listing-id="${item.id}" onclick="toggleWishlist(event, '${item.id}', this)">
             <svg class="w-6 h-6 fill-black/30 stroke-white stroke-2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
             </svg>
           </button>
         </div>
-        <div class="flex justify-between items-start">
-          <div class="w-full">
-            <h4 class="font-semibold text-gray-900 truncate text-[15px]">${item.title}</h4>
-            <p class="text-[14px] text-gray-500 mt-0.5 truncate">${item.locationText || item.category.replace('_', ' ')}</p>
+        <div class="px-1 flex justify-between items-start">
+          <div class="w-full relative">
+            <h4 class="font-semibold text-[#1a2e3f] truncate text-base pr-6">${item.title}</h4>
+            <button onclick="event.preventDefault(); openReportModal('LISTING', '${item.id}')" class="absolute top-0 right-0 text-gray-400 hover:text-red-500 transition-colors focus:outline-none" title="Report Listing">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path></svg>
+            </button>
+            ${ratingHtml}
+            <p class="text-sm text-[#2d4a5e]/70 mt-1 truncate">${item.locationText || item.category.replace('_', ' ')}</p>
             ${distanceHtml}
-            <p class="text-[14px] text-gray-400 mt-0.5">${item.category.replace('_', ' ')}</p>
-            <div class="mt-1 flex items-baseline gap-1">
-              <span class="text-[15px] font-semibold text-gray-900">${formatPriceRange(item)}</span>
+            <p class="text-sm text-[#2d4a5e]/50 mt-0.5">${item.category.replace('_', ' ')}</p>
+            <div class="mt-2 flex items-baseline gap-1">
+              <span class="text-base font-bold text-[#1a2e3f]">${formatPriceRange(item)}</span>
             </div>
           </div>
         </div>
@@ -413,6 +420,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       listingsGrid.appendChild(card);
     });
+
+    // Sync wishlist states
+    syncHeartStates();
 
     // Render map markers if map view is active
     if (isMapView && mapInstance) {
@@ -640,19 +650,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 });
-
-// Toggle heart icon favorite status
-function toggleHeart(event, element) {
-  event.preventDefault();
-  event.stopPropagation();
-  const svg = element.querySelector('svg');
-  if (svg.classList.contains('fill-black/30')) {
-    svg.classList.remove('fill-black/30', 'stroke-white');
-    svg.classList.add('fill-primary', 'stroke-primary');
-    showToast("Added to saved spaces!", "success");
-  } else {
-    svg.classList.remove('fill-primary', 'stroke-primary');
-    svg.classList.add('fill-black/30', 'stroke-white');
-    showToast("Removed from saved spaces.", "info");
-  }
-}

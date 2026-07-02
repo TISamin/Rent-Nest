@@ -22,7 +22,9 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Builder
 public class ListingResponse {
-
+    private Integer reviewCount;
+    private BigDecimal averageRating;
+    //claude says
     private UUID id;
     private ListingCategory category;
     private String title;
@@ -123,7 +125,9 @@ public class ListingResponse {
                 .longitude(listing.getLongitude())
                 .contactPhone(listing.getContactPhone())
                 .createdAt(listing.getCreatedAt())
-                .isActive(listing.getIsActive());
+                .isActive(listing.getIsActive())
+                .reviewCount(listing.getReviewCount())
+                .averageRating(listing.getAverageRating());
 
         // Flatten user info
         if (listing.getUser() != null) {

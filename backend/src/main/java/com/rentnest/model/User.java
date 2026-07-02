@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
+import com.rentnest.model.enums.UserRole;
 
 /**
  * User entity representing a registered platform user.
@@ -41,6 +42,18 @@ public class User {
     @com.fasterxml.jackson.annotation.JsonIgnore
     @Column(name = "password_hash")
     private String passwordHash;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false, length = 20)
+    @Builder.Default
+    private UserRole role = UserRole.USER;
+
+    @Column(name = "is_banned", nullable = false)
+    @Builder.Default
+    private boolean isBanned = false;
+
+    @Column(name = "ban_reason", columnDefinition = "TEXT")
+    private String banReason;
 
     @Transient
     @com.fasterxml.jackson.annotation.JsonProperty("passwordSet")

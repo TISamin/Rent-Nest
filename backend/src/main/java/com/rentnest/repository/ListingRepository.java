@@ -21,6 +21,34 @@ public interface ListingRepository extends JpaRepository<Listing, UUID> {
      */
     List<Listing> findByUserIdOrderByCreatedAtDesc(UUID userId);
 
+    @Query("""
+      SELECT l FROM Listing l
+      WHERE l.category = :category
+      AND l.isActive = true
+      AND (:minBudget IS NULL OR l.priceMax >= :minBudget)
+      AND (:maxBudget IS NULL OR l.priceMin <= :maxBudget)
+      ORDER BY l.createdAt DESC
+      """)
+    List<Listing> findByCategoryAndBudget(
+      @Param("category") ListingCategory category,
+      @Param("minBudget") Double minBudget,
+      @Param("maxBudget") Double maxBudget
+    );
+
+    @Query("""
+      SELECT l FROM Listing l
+      WHERE l.category IN :categories
+      AND l.isActive = true
+      AND (:minBudget IS NULL OR l.priceMax >= :minBudget)
+      AND (:maxBudget IS NULL OR l.priceMin <= :maxBudget)
+      ORDER BY l.createdAt DESC
+      """)
+    List<Listing> findByCategoriesAndBudget(
+      @Param("categories") List<ListingCategory> categories,
+      @Param("minBudget") Double minBudget,
+      @Param("maxBudget") Double maxBudget
+    );
+
     /**
      * Get active listings filtered by category, ordered by newest first.
      */
@@ -41,12 +69,16 @@ public interface ListingRepository extends JpaRepository<Listing, UUID> {
         )
       AND l.category = :category
       AND l.is_active = true
+      AND (:minBudget IS NULL OR l.price_max >= :minBudget)
+      AND (:maxBudget IS NULL OR l.price_min <= :maxBudget)
       """, nativeQuery = true)
     List<Listing> findWithinRadius(
       @Param("lat") double lat,
       @Param("lng") double lng,
       @Param("radius") int radius,
-      @Param("category") String category
+      @Param("category") String category,
+      @Param("minBudget") Double minBudget,
+      @Param("maxBudget") Double maxBudget
     );
 
     /**
@@ -62,12 +94,16 @@ public interface ListingRepository extends JpaRepository<Listing, UUID> {
         )
       AND l.category IN (:categories)
       AND l.is_active = true
+      AND (:minBudget IS NULL OR l.price_max >= :minBudget)
+      AND (:maxBudget IS NULL OR l.price_min <= :maxBudget)
       """, nativeQuery = true)
     List<Listing> findWithinRadiusMultipleCategories(
       @Param("lat") double lat,
       @Param("lng") double lng,
       @Param("radius") int radius,
-      @Param("categories") List<String> categories
+      @Param("categories") List<String> categories,
+      @Param("minBudget") Double minBudget,
+      @Param("maxBudget") Double maxBudget
     );
 
     /**

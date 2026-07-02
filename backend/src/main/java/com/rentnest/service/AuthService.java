@@ -57,7 +57,7 @@ public class AuthService {
         }
 
         if (!passwordEncoder.matches(password, user.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid email or password");
+            throw new IllegalArgumentException("Invalid password");
         }
 
         return user;

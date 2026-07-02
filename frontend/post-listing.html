@@ -11,28 +11,37 @@
       theme: {
         extend: {
           colors: {
-            primary: { DEFAULT: '#FF385C', dark: '#E31C5F' },
+            primary: { DEFAULT: '#e67e5a', dark: '#d06d4a' },
+            surface: '#FFFFFF',
+            background: '#f8f6f2',
+            textPrimary: '#1a2e3f',
+            textSecondary: '#2d4a5e',
+            border: '#e8d5c4',
+          },
+          borderRadius: {
+            custom: '16px',
           },
           boxShadow: {
-            card: '0 2px 16px rgba(0,0,0,0.08)',
-            hover: '0 6px 24px rgba(0,0,0,0.14)',
+            card: '0 4px 20px rgba(26,46,63,0.06)',
+            hover: '0 10px 30px rgba(26,46,63,0.12)',
           }
         }
       }
     }
   </script>
   <link rel="stylesheet" href="assets/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <style>
-    #leaflet-post-map { height: 300px; border-radius: 12px; z-index: 1; border: 1px solid #DDDDDD; }
+    #leaflet-post-map { height: 300px; border-radius: 16px; z-index: 1; border: 1px solid #e8d5c4; }
     .image-upload-dropzone {
-      border: 2px dashed #DDDDDD; border-radius: 12px; padding: 36px 20px;
+      border: 2px dashed #e8d5c4; border-radius: 16px; padding: 36px 20px;
       text-align: center; cursor: pointer; transition: all 0.25s;
-      background: #F9F9F9;
+      background: #faf8f5;
     }
-    .image-upload-dropzone:hover { border-color: #FF385C; background: #FFF1F3; }
+    .image-upload-dropzone:hover { border-color: #e67e5a; background: #fdf5f1; }
     .preview-thumbnail-container { position: relative; display: inline-block; width: 100%; }
-    .preview-thumbnail { width: 100%; max-height: 180px; object-fit: cover; border-radius: 10px; border: 1px solid #DDDDDD; }
+    .preview-thumbnail { width: 100%; max-height: 180px; object-fit: cover; border-radius: 12px; border: 1px solid #e8d5c4; }
     .remove-preview-btn {
       position: absolute; top: 8px; right: 8px; background: rgba(239,68,68,0.9); color: #fff;
       border: none; border-radius: 50%; width: 26px; height: 26px; cursor: pointer;
@@ -40,25 +49,25 @@
       transition: all 0.2s;
     }
     .remove-preview-btn:hover { background: #ef4444; transform: scale(1.1); }
-    .form-label { display: block; font-size: 0.85rem; font-weight: 500; color: #374151; margin-bottom: 6px; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 500; color: #2d4a5e; margin-bottom: 6px; }
     .form-input {
-      width: 100%; padding: 10px 14px; border-radius: 10px;
-      background: #FFFFFF; border: 1px solid #DDDDDD;
-      color: #222222; font-size: 0.9rem; outline: none; transition: all 0.2s;
+      width: 100%; padding: 10px 14px; border-radius: 12px;
+      background: #FFFFFF; border: 1px solid #e8d5c4;
+      color: #1a2e3f; font-size: 0.9rem; outline: none; transition: all 0.2s;
     }
-    .form-input:focus { border-color: #FF385C; box-shadow: 0 0 0 3px rgba(255,56,92,0.12); }
+    .form-input:focus { border-color: #e67e5a; box-shadow: 0 0 0 3px rgba(230,126,90,0.12); }
     .hidden { display: none !important; }
     .amenity-pill {
-      padding: 6px 12px; border-radius: 9999px; border: 1px solid #ddd;
+      padding: 6px 12px; border-radius: 9999px; border: 1px solid #e8d5c4;
       font-size: 0.85rem; cursor: pointer; transition: all 0.2s;
       user-select: none;
     }
     .amenity-pill.selected {
-      background-color: #FF385C; color: white; border-color: #FF385C;
+      background-color: #e67e5a; color: white; border-color: #e67e5a;
     }
   </style>
 </head>
-<body class="bg-[#F7F7F7] text-[#222222] min-h-screen flex flex-col">
+<body class="bg-[#f8f6f2] text-[#1a2e3f] min-h-screen flex flex-col justify-between">
 
   <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 transition-all duration-300"></nav>
 
@@ -317,6 +326,47 @@
       </button>
     </form>
   </main>
+
+  <!-- Footer -->
+  <footer class="bg-[#1a2e3f] text-white pt-16 pb-8 relative overflow-hidden mt-auto">
+    <div class="max-w-7xl mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+        <div class="space-y-4">
+          <a href="index.html" class="flex items-center space-x-2 text-white font-bold text-xl">
+            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/></svg>
+            <span>Rent<span class="text-[#e67e5a]">Nest</span></span>
+          </a>
+          <p class="text-white/50 text-sm">Your trusted marketplace for accommodation, services, and more.</p>
+        </div>
+        <div>
+          <h4 class="font-bold text-white/60 text-sm uppercase tracking-wider mb-4">Discover</h4>
+          <div class="space-y-2.5 flex flex-col">
+            <a href="browse-rental.html" class="text-white/50 hover:text-white transition-colors text-sm">Rent Rentals</a>
+            <a href="roommate-finder.html" class="text-white/50 hover:text-white transition-colors text-sm">Find Roommates</a>
+            <a href="services.html" class="text-white/50 hover:text-white transition-colors text-sm">Help Services</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-bold text-white/60 text-sm uppercase tracking-wider mb-4">Host</h4>
+          <div class="space-y-2.5 flex flex-col">
+            <a href="post-listing.html" class="text-white/50 hover:text-white transition-colors text-sm">Post Space / Ad</a>
+            <a href="dashboard.html" class="text-white/50 hover:text-white transition-colors text-sm">Landlord Dashboard</a>
+          </div>
+        </div>
+        <div>
+          <h4 class="font-bold text-white/60 text-sm uppercase tracking-wider mb-4">Contact</h4>
+          <p class="text-white/50 text-sm">support@rentnest.com</p>
+        </div>
+      </div>
+      <div class="border-t border-white/10 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-white/30 text-xs">
+        <p>&copy; 2026 RentNest. All rights reserved.</p>
+        <div class="flex gap-6">
+          <a href="#" class="hover:text-white/50 transition">Terms</a>
+          <a href="#" class="hover:text-white/50 transition">Privacy</a>
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/api.js"></script>
