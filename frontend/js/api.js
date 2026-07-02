@@ -99,7 +99,7 @@ async function apiRequest(method, path, body = null) {
     return result;
   } catch (error) {
     console.error(`API Error (${method} ${path}):`, error);
-    showToast(error.message || "A network error occurred. Please try again.", "error");
+    // showToast(error.message || "A network error occurred. Please try again.", "error");
     throw error;
   }
 }
