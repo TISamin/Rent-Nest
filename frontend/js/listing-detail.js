@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
       
       if (res.success && res.data) {
         const item = res.data;
+        window.currentListingItem = item;
         
         // Populate breadcrumbs
         const categoryLabel = item.category.replace('_', ' ');
@@ -193,6 +194,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (item.userPhotoUrl) {
           document.getElementById('detail-owner-avatar').src = item.userPhotoUrl;
         }
+        const ownerLink = document.getElementById('owner-profile-link');
+        if (ownerLink && item.userId) {
+          ownerLink.href = `public-profile.html?id=${item.userId}`;
+        }
 
         // Setup sticky contact card Show Number click listener
         const showNumberBtn = document.getElementById('show-number-btn');
@@ -327,6 +332,10 @@ document.addEventListener('DOMContentLoaded', () => {
           } else {
             membersCardsContainer.innerHTML = `<p class="text-xs text-gray-400">No members details loaded.</p>`;
           }
+        }
+
+        if (item.category === 'MARKETPLACE') {
+          loadMarketplaceEscrowDetails(listingId, item);
         }
       } else {
         showToast(res.message || "Failed to load listing details.", "error");
@@ -598,4 +607,318 @@ async function refreshRatingDisplay() {
       nextBtn.click();
     }
   });
+
+  // Escrow details loading & action handlers
+  async function loadMarketplaceEscrowDetails(listingId, listingItem) {
+    const escrowSec = document.getElementById('escrow-section');
+    const badgeContainer = document.getElementById('interest-badge-container');
+    const countText = document.getElementById('interest-count-text');
+    const contactWrapper = document.getElementById('contact-wrapper');
+    
+    if (!escrowSec) return;
+
+    try {
+      const res = await apiGet(`/marketplace-escrow/listing/${listingId}`);
+      if (res.success && res.data) {
+        const { escrows, interestCount } = res.data;
+        
+        // Show interest badge
+        if (interestCount > 0 && badgeContainer && countText) {
+          countText.innerText = interestCount;
+          badgeContainer.classList.remove('hidden');
+        } else if (badgeContainer) {
+          badgeContainer.classList.add('hidden');
+        }
+
+        escrowSec.classList.remove('hidden');
+        
+        // If current user is the seller
+        if (currentUserId === listingItem.userId) {
+          // Hide phone actions
+          const showNumBtn = document.getElementById('show-number-btn');
+          const contactBtn = document.getElementById('detail-contact-btn');
+          if (showNumBtn) showNumBtn.classList.add('hidden');
+          if (contactBtn) contactBtn.classList.add('hidden');
+
+          // Check if any request is active
+          const inProgress = escrows.find(e => 
+            e.status === 'ACCEPTED' || 
+            e.status === 'PAID' || 
+            e.status === 'SHIPPED' || 
+            e.status === 'COMPLETED' || 
+            e.status === 'DISPUTED'
+          );
+
+          if (inProgress) {
+            let html = `
+              <div class="p-4 rounded-xl border border-primary/20 bg-[#e67e5a]/5 space-y-3">
+                <p class="text-xs font-bold uppercase tracking-wider text-primary">Escrow Status: ${inProgress.status}</p>
+                <div class="text-sm">
+            `;
+            if (inProgress.status === 'ACCEPTED') {
+              html += `<p>You accepted <b>${inProgress.buyer ? inProgress.buyer.name : 'a buyer'}</b>'s request. Waiting for them to submit payment.</p>`;
+            } else if (inProgress.status === 'PAID') {
+              if (inProgress.adminNotes === 'CONFIRMED') {
+                html += `
+                  <p class="text-emerald-700 font-medium">✅ Admin confirmed payment of BDT ${listingItem.priceMin || listingItem.price}! Please deliver/ship the item to the buyer.</p>
+                  <p class="text-xs text-gray-500 mt-1">Payment Method: ${inProgress.paymentMethod} | TrxID: ${inProgress.transactionReference}</p>
+                  <button onclick="shipItem('${inProgress.id}')" class="w-full mt-3 py-2 bg-primary hover:bg-primary-dark text-white font-bold text-sm rounded-lg transition-all shadow-md transform active:scale-95 focus:outline-none">Mark as Shipped</button>
+                `;
+              } else {
+                html += `
+                  <p>Buyer <b>${inProgress.buyer ? inProgress.buyer.name : 'the buyer'}</b> submitted payment details (TrxID: <code>${inProgress.transactionReference}</code>).</p>
+                  <p class="text-amber-600 font-semibold mt-1">⏳ Waiting for Admin to verify the funds in the escrow ledger. Do NOT ship yet.</p>
+                `;
+              }
+            } else if (inProgress.status === 'SHIPPED') {
+              html += `<p class="text-indigo-700 font-medium">🚚 Item marked as shipped. Waiting for buyer to confirm receipt.</p>`;
+            } else if (inProgress.status === 'DISPUTED') {
+              html += `
+                <p class="text-red-700 font-bold">⚠️ Transaction Disputed!</p>
+                <p class="text-xs bg-red-50 p-2.5 rounded border border-red-100 mt-1">Reason: ${inProgress.disputeReason || 'No reason provided'}</p>
+                <p class="text-xs text-gray-500 mt-2">Admin is currently reviewing evidence to decide refund/payout split.</p>
+              `;
+            } else if (inProgress.status === 'COMPLETED') {
+              html += `<p class="text-emerald-700 font-bold">🎉 Closed & Paid! (15% service charge deducted manually by admin).</p>`;
+            }
+            html += `</div></div>`;
+            escrowSec.innerHTML = html;
+          } else {
+            // Show list of pending requests
+            const pendingRequests = escrows.filter(e => e.status === 'PENDING');
+            if (pendingRequests.length === 0) {
+              escrowSec.innerHTML = `<p class="text-sm text-gray-500 text-center py-2">No buy requests yet. Check back later!</p>`;
+            } else {
+              let html = `
+                <div class="space-y-3">
+                  <h4 class="text-sm font-bold text-gray-900 border-b border-gray-100 pb-2">Pending Buy Requests (${pendingRequests.length})</h4>
+                  <div class="divide-y divide-gray-50 max-h-60 overflow-y-auto">
+              `;
+              pendingRequests.forEach(req => {
+                html += `
+                  <div class="py-3 flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-sm font-bold text-gray-900">${req.buyer ? req.buyer.name : 'Buyer'}</p>
+                        <p class="text-xs text-gray-500">${req.buyer ? req.buyer.email : ''}</p>
+                      </div>
+                      <span class="text-[10px] text-gray-400 font-mono">${new Date(req.createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <div class="flex gap-2">
+                      <button onclick="acceptBuyRequest('${req.id}')" class="flex-1 py-1.5 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded transition-all focus:outline-none">Accept</button>
+                      <button onclick="declineBuyRequest('${req.id}')" class="flex-1 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded transition-all focus:outline-none">Decline</button>
+                    </div>
+                  </div>
+                `;
+              });
+              html += `</div></div>`;
+              escrowSec.innerHTML = html;
+            }
+          }
+        } else {
+          // Logged in buyer view
+          if (!currentUserId) {
+            escrowSec.innerHTML = `
+              <a href="login.html?redirect=${encodeURIComponent(window.location.href)}" class="block w-full text-center py-3 bg-primary hover:bg-primary-dark text-white font-bold text-sm rounded-lg transition-all shadow">
+                🔒 Log in to Request Buy
+              </a>
+            `;
+            return;
+          }
+
+          // Look for escrow record belonging to current user
+          const myEscrow = escrows.find(e => e.buyer && e.buyer.id === currentUserId);
+          
+          if (!myEscrow) {
+            escrowSec.innerHTML = `
+              <button onclick="sendBuyRequest('${listingId}')" class="w-full py-3.5 bg-primary hover:bg-primary-dark text-white font-bold text-sm rounded-lg transition-all shadow-md transform active:scale-95 flex items-center justify-center gap-2 focus:outline-none">
+                🛍️ Send Buy Request
+              </button>
+              <p class="text-[10px] text-gray-400 text-center">Submitting a request does not transfer any funds. You can withdraw anytime before paying.</p>
+            `;
+          } else {
+            let html = `
+              <div class="p-4 rounded-xl border border-primary/20 bg-[#e67e5a]/5 space-y-3 animate-fade-in">
+                <p class="text-xs font-bold uppercase tracking-wider text-primary">Your Buy Request: ${myEscrow.status}</p>
+                <div class="text-sm">
+            `;
+            if (myEscrow.status === 'PENDING') {
+              html += `
+                <p>Waiting for the seller to accept your request.</p>
+                <button onclick="withdrawRequest('${myEscrow.id}')" class="w-full mt-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition-all focus:outline-none">Withdraw Request</button>
+              `;
+            } else if (myEscrow.status === 'ACCEPTED') {
+              html += `
+                <p class="font-medium text-emerald-700">🎉 Seller accepted your request!</p>
+                <p class="mt-2 text-xs text-gray-600 bg-white p-3 rounded-lg border border-gray-100">
+                  Please send <b>BDT ${listingItem.priceMin || listingItem.price}</b> to <b>bKash/Nagad: +8801538366041</b>.
+                  Then enter the Transaction ID (TrxID) below to submit to the admin.
+                </p>
+                <div class="mt-3 space-y-2">
+                  <select id="escrow-pay-method" class="w-full px-3 py-2 border rounded-lg text-sm bg-white focus:outline-none">
+                    <option value="bKash">bKash</option>
+                    <option value="Nagad">Nagad</option>
+                  </select>
+                  <input type="text" id="escrow-trxid" placeholder="Enter TrxID (e.g. 9G87AH1923)" class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none">
+                  <button onclick="submitPaymentForm('${myEscrow.id}')" class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-lg transition-all focus:outline-none">Submit TrxID</button>
+                  <button onclick="withdrawRequest('${myEscrow.id}')" class="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-lg transition-all focus:outline-none">Cancel Request</button>
+                </div>
+              `;
+            } else if (myEscrow.status === 'PAID') {
+              if (myEscrow.adminNotes === 'CONFIRMED') {
+                html += `
+                  <p class="text-emerald-700 font-semibold">✅ Admin confirmed your payment!</p>
+                  <p class="mt-1">Seller has been notified to ship/deliver your item.</p>
+                `;
+              } else {
+                html += `
+                  <p>You submitted payment (TrxID: <code>${myEscrow.transactionReference}</code>).</p>
+                  <p class="text-amber-600 font-semibold mt-1">⏳ Admin is manually verifying the transaction. The seller will ship once confirmed.</p>
+                `;
+              }
+            } else if (myEscrow.status === 'SHIPPED') {
+              html += `
+                <p class="text-indigo-700 font-semibold">🚚 Item has been shipped/delivered!</p>
+                <p class="mt-1">Once you verify the item is in good condition, click confirm below to release money to the seller.</p>
+                <div class="mt-3 space-y-2">
+                  <button onclick="confirmReceipt('${myEscrow.id}')" class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs rounded-lg transition-all focus:outline-none">Confirm Receipt</button>
+                  <button onclick="showDisputeModal('${myEscrow.id}')" class="w-full py-2 bg-red-50 hover:bg-red-100 text-red-500 font-bold text-xs rounded-lg transition-all focus:outline-none">Raise Dispute</button>
+                </div>
+              `;
+            } else if (myEscrow.status === 'DISPUTED') {
+              html += `
+                <p class="text-red-700 font-bold">⚠️ Dispute Raised</p>
+                <p class="text-xs text-gray-500 mt-1">Reason: ${myEscrow.disputeReason || ''}</p>
+                <p class="mt-2 text-xs">Admin is reviewing evidence to settle funds.</p>
+              `;
+            } else if (myEscrow.status === 'COMPLETED') {
+              html += `<p class="text-emerald-700 font-bold">🎉 Completed. Thank you!</p>`;
+            } else if (myEscrow.status === 'DECLINED') {
+              html += `
+                <p class="text-gray-500">This request was declined or cancelled.</p>
+                <button onclick="sendBuyRequest('${listingId}')" class="w-full mt-3 py-2 bg-primary hover:bg-primary-dark text-white font-bold text-xs rounded-lg transition-all focus:outline-none">Request Buy Again</button>
+              `;
+            }
+            html += `</div></div>`;
+            escrowSec.innerHTML = html;
+          }
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load escrow details:", err);
+    }
+  }
+
+  // Global event triggers
+  window.sendBuyRequest = async function(listingId) {
+    if (!isAuthenticated()) {
+      showToast("Please log in to make a request.", "warning");
+      return;
+    }
+    try {
+      const res = await apiPost(`/marketplace-escrow/request/${listingId}`);
+      if (res.success) {
+        showToast("Buy request sent successfully!", "success");
+        loadMarketplaceEscrowDetails(listingId, window.currentListingItem);
+      } else {
+        showToast(res.message || "Failed to send request.", "error");
+      }
+    } catch(e) {}
+  };
+
+  window.acceptBuyRequest = async function(escrowId) {
+    try {
+      const res = await apiPost(`/marketplace-escrow/accept-request/${escrowId}`);
+      if (res.success) {
+        showToast("Buy request accepted!", "success");
+        loadMarketplaceEscrowDetails(window.currentListingItem.id, window.currentListingItem);
+      } else {
+        showToast(res.message || "Failed to accept.", "error");
+      }
+    } catch(e) {}
+  };
+
+  window.declineBuyRequest = async function(escrowId) {
+    try {
+      const res = await apiPost(`/marketplace-escrow/decline-request/${escrowId}`);
+      if (res.success) {
+        showToast("Request declined.", "info");
+        loadMarketplaceEscrowDetails(window.currentListingItem.id, window.currentListingItem);
+      } else {
+        showToast(res.message || "Failed to decline.", "error");
+      }
+    } catch(e) {}
+  };
+
+  window.withdrawRequest = async function(escrowId) {
+    try {
+      const res = await apiPost(`/marketplace-escrow/withdraw/${escrowId}`);
+      if (res.success) {
+        showToast("Request withdrawn.", "info");
+        loadMarketplaceEscrowDetails(window.currentListingItem.id, window.currentListingItem);
+      } else {
+        showToast(res.message || "Failed to withdraw.", "error");
+      }
+    } catch(e) {}
+  };
+
+  window.submitPaymentForm = async function(escrowId) {
+    const method = document.getElementById('escrow-pay-method').value;
+    const trxId = document.getElementById('escrow-trxid').value.trim();
+    if (!trxId) {
+      showToast("Please enter the Transaction ID (TrxID).", "warning");
+      return;
+    }
+    try {
+      const res = await apiPost(`/marketplace-escrow/submit-payment/${escrowId}`, {
+        paymentMethod: method,
+        transactionReference: trxId
+      });
+      if (res.success) {
+        showToast("Payment details submitted successfully!", "success");
+        loadListingDetail(id);
+      } else {
+        showToast(res.message || "Submission failed.", "error");
+      }
+    } catch(e) {}
+  };
+
+  window.shipItem = async function(escrowId) {
+    try {
+      const res = await apiPost(`/marketplace-escrow/ship/${escrowId}`);
+      if (res.success) {
+        showToast("Item marked as shipped!", "success");
+        loadListingDetail(id);
+      } else {
+        showToast(res.message || "Failed to mark as shipped.", "error");
+      }
+    } catch(e) {}
+  };
+
+  window.confirmReceipt = async function(escrowId) {
+    try {
+      const res = await apiPost(`/marketplace-escrow/confirm-receipt/${escrowId}`);
+      if (res.success) {
+        showToast("Receipt confirmed! Transaction closed.", "success");
+        loadListingDetail(id);
+      } else {
+        showToast(res.message || "Failed to confirm receipt.", "error");
+      }
+    } catch(e) {}
+  };
+
+  window.showDisputeModal = async function(escrowId) {
+    const reason = prompt("Enter your reason for the dispute:");
+    if (!reason || !reason.trim()) return;
+    try {
+      const res = await apiPost(`/marketplace-escrow/dispute/${escrowId}`, { reason });
+      if (res.success) {
+        showToast("Dispute raised. Admin will review the case.", "success");
+        loadListingDetail(id);
+      } else {
+        showToast(res.message || "Failed to raise dispute.", "error");
+      }
+    } catch(e) {}
+  };
 });
+

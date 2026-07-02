@@ -5,19 +5,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.UUID;
+
 /**
- * DTO for partial user profile updates.
- * All fields are optional to support patch-style updates.
+ * Public-facing user profile DTO — never exposes sensitive fields like passwordHash or email.
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class UserProfileDTO {
-
+public class PublicUserProfileDTO {
+    private UUID id;
     private String name;
-    private String email;
-    private String phoneNumber;
-    private String address;
     private String profilePhotoUrl;
+    private LocalDateTime memberSince;
 }

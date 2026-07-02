@@ -55,6 +55,8 @@ public class SecurityConfig {
                         .requestMatchers("/ping").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/listing/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/*/public").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/*/listings").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile | RentNest</title>
+  <meta name="description" content="View this user's public profile and their listings on RentNest.">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { DEFAULT: '#e67e5a', dark: '#d06d4a' },
+            surface: '#FFFFFF',
+            background: '#f8f6f2',
+            textPrimary: '#1a2e3f',
+            textSecondary: '#2d4a5e',
+            border: '#e8d5c4',
+          },
+          boxShadow: {
+            card: '0 4px 20px rgba(26,46,63,0.06)',
+            hover: '0 10px 30px rgba(26,46,63,0.12)',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="assets/style.css">
+  <style>
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in-up { animation: fadeInUp 0.45s ease both; }
+    .listing-card { animation: fadeInUp 0.4s ease both; }
+    .listing-card:nth-child(2) { animation-delay: 0.05s; }
+    .listing-card:nth-child(3) { animation-delay: 0.10s; }
+    .listing-card:nth-child(4) { animation-delay: 0.15s; }
+    .listing-card:nth-child(5) { animation-delay: 0.20s; }
+    .listing-card:nth-child(6) { animation-delay: 0.25s; }
+  </style>
+</head>
+<body class="bg-[#f8f6f2] text-[#1a2e3f] min-h-screen flex flex-col">
+
+  <!-- Navbar (injected by ui-common.js) -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-200 transition-all duration-300"></nav>
+
+  <main class="flex-1 max-w-4xl mx-auto w-full px-4 py-12">
+
+    <!-- Profile Header Card -->
+    <div id="profile-header" class="animate-fade-in-up bg-white rounded-2xl shadow-card p-8 mb-8 flex flex-col sm:flex-row items-center sm:items-start gap-6">
+      <!-- Skeleton state shown until loaded -->
+      <div id="header-skeleton" class="w-full flex gap-6 items-center">
+        <div class="w-24 h-24 rounded-full bg-gray-200 animate-pulse flex-shrink-0"></div>
+        <div class="flex-1 space-y-3">
+          <div class="h-6 bg-gray-200 rounded-lg animate-pulse w-48"></div>
+          <div class="h-4 bg-gray-100 rounded-lg animate-pulse w-32"></div>
+        </div>
+      </div>
+      <div id="header-content" class="hidden w-full flex flex-col sm:flex-row items-center sm:items-start gap-6">
+        <!-- Avatar -->
+        <div class="relative flex-shrink-0">
+          <img id="pub-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
+            class="w-24 h-24 rounded-full object-cover ring-4 ring-primary/20 shadow-lg" alt="Profile photo">
+        </div>
+        <!-- Info -->
+        <div class="flex-1 text-center sm:text-left">
+          <h1 id="pub-name" class="text-2xl font-bold text-[#1a2e3f]"></h1>
+          <p id="pub-since" class="text-sm text-gray-400 mt-1"></p>
+          <div class="mt-3 flex flex-wrap gap-2 justify-center sm:justify-start">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 text-xs font-semibold rounded-full border border-emerald-100">
+              ✅ Verified Member
+            </span>
+            <span id="pub-listing-count-badge" class="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full border border-primary/20">
+              📦 0 Listings
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Not Found State -->
+    <div id="not-found-state" class="hidden text-center py-20">
+      <div class="text-6xl mb-4">🔍</div>
+      <h2 class="text-xl font-bold text-gray-700">User not found</h2>
+      <p class="text-gray-400 mt-2">This profile doesn't exist or has been removed.</p>
+      <a href="index.html" class="mt-6 inline-block px-6 py-3 bg-primary text-white rounded-xl font-semibold hover:bg-primary-dark transition-all">Go Home</a>
+    </div>
+
+    <!-- Listings Section -->
+    <div id="listings-section" class="hidden">
+      <h2 class="text-lg font-bold text-[#1a2e3f] mb-4">All Listings by <span id="pub-name-2"></span></h2>
+      <div id="pub-listings-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Injected by JS -->
+      </div>
+      <div id="pub-no-listings" class="hidden text-center py-16">
+        <div class="text-5xl mb-3">📭</div>
+        <p class="text-gray-400 font-medium">No listings posted yet.</p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-[#1a2e3f] text-white py-8 mt-auto">
+    <div class="max-w-4xl mx-auto px-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-white/30 text-xs">
+      <p>© 2026 RentNest. All rights reserved.</p>
+      <div class="flex gap-6">
+        <a href="#" class="hover:text-white/50 transition">Terms</a>
+        <a href="#" class="hover:text-white/50 transition">Privacy</a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/api.js"></script>
+  <script src="js/ui-common.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(window.location.search);
+      const userId = params.get('id');
+
+      if (!userId) {
+        showNotFound();
+        return;
+      }
+
+      // Load public profile
+      try {
+        const res = await apiGet(`/users/${userId}/public`);
+        if (!res.success || !res.data) { showNotFound(); return; }
+
+        const user = res.data;
+        document.title = `${user.name || 'User'} | RentNest`;
+
+        document.getElementById('pub-name').innerText = user.name || 'RentNest User';
+        document.getElementById('pub-name-2').innerText = user.name || 'this user';
+
+        if (user.memberSince) {
+          const since = new Date(user.memberSince).toLocaleDateString('en-GB', { month: 'long', year: 'numeric' });
+          document.getElementById('pub-since').innerText = `Member since ${since}`;
+        }
+
+        if (user.profilePhotoUrl) {
+          document.getElementById('pub-avatar').src = user.profilePhotoUrl;
+        }
+
+        // Show header
+        document.getElementById('header-skeleton').classList.add('hidden');
+        document.getElementById('header-content').classList.remove('hidden');
+
+        // Load their listings
+        loadUserListings(userId, user.name);
+
+      } catch (err) {
+        console.error(err);
+        showNotFound();
+      }
+    });
+
+    async function loadUserListings(userId, userName) {
+      const section = document.getElementById('listings-section');
+      const grid = document.getElementById('pub-listings-grid');
+      const noListings = document.getElementById('pub-no-listings');
+      const countBadge = document.getElementById('pub-listing-count-badge');
+
+      try {
+        // Fetch all active listings for this user
+        const res = await apiGet(`/users/${userId}/listings`);
+        section.classList.remove('hidden');
+
+        const listings = Array.isArray(res.data) ? res.data : [];
+
+        if (!listings || listings.length === 0) {
+          noListings.classList.remove('hidden');
+          return;
+        }
+
+        countBadge.innerText = `📦 ${listings.length} Listing${listings.length !== 1 ? 's' : ''}`;
+
+        grid.innerHTML = listings.map(item => {
+          const imgUrl = item.imageUrl
+            ? formatImageUrl(item.imageUrl.split(',')[0])
+            : 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800';
+
+          const price = formatPriceRange(item);
+          const categoryLabel = item.category ? item.category.replace(/_/g, ' ') : 'Listing';
+          const categoryColors = {
+            'FLAT': 'bg-blue-50 text-blue-700', 'HOUSE': 'bg-green-50 text-green-700',
+            'HOTEL': 'bg-purple-50 text-purple-700', 'MARKETPLACE': 'bg-orange-50 text-orange-700',
+            'ROOMMATE FINDER': 'bg-pink-50 text-pink-700',
+          };
+          const badgeClass = categoryColors[categoryLabel] || 'bg-gray-100 text-gray-600';
+
+          return `
+            <a href="listing-detail.html?id=${item.id}" class="listing-card bg-white rounded-2xl shadow-card overflow-hidden hover:shadow-hover hover:-translate-y-1 transition-all duration-300 block">
+              <div class="relative aspect-[4/3] overflow-hidden">
+                <img src="${imgUrl}" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105" alt="${item.title}" onerror="this.src='https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800'">
+                <span class="absolute top-3 left-3 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${badgeClass}">${categoryLabel}</span>
+              </div>
+              <div class="p-4">
+                <h3 class="font-bold text-[#1a2e3f] text-sm leading-tight mb-1 truncate">${item.title}</h3>
+                <p class="text-xs text-gray-400 truncate mb-2">📍 ${item.locationText || 'Location not specified'}</p>
+                <p class="text-primary font-bold text-sm">${price}</p>
+              </div>
+            </a>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error('Failed to load user listings:', err);
+        section.classList.remove('hidden');
+        noListings.classList.remove('hidden');
+      }
+    }
+
+    function showNotFound() {
+      document.getElementById('header-skeleton').classList.add('hidden');
+      document.getElementById('not-found-state').classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

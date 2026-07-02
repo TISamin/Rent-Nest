@@ -29,6 +29,7 @@ function switchTab(tabId) {
     if (tabId === 'stats') loadStats();
     if (tabId === 'reports') loadReports();
     if (tabId === 'users') searchUsers();
+    if (tabId === 'escrow') loadEscrows();
 }
 
 async function loadStats() {
@@ -204,5 +205,102 @@ async function deleteListing() {
         await apiDelete(`/admin/listings/${id}`);
         showToast("Listing deleted successfully", "success");
         document.getElementById('listing-delete-id').value = '';
+    } catch(e) {}
+}
+
+async function loadEscrows() {
+    try {
+        const response = await apiGet('/admin/marketplace-escrow');
+        const escrows = response.data || [];
+        const tbody = document.getElementById('escrows-table-body');
+        
+        if (escrows.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="px-6 py-8 text-center text-gray-500">No escrow transactions found.</td></tr>`;
+            return;
+        }
+
+        tbody.innerHTML = escrows.map(e => {
+            const reqDate = new Date(e.createdAt).toLocaleDateString();
+            
+            // Render payment detail
+            let payDetail = '-';
+            if (e.transactionReference) {
+                payDetail = `
+                    <div class="text-xs">
+                        <span class="font-bold text-gray-700">${e.paymentMethod}</span><br>
+                        <span class="font-mono text-gray-400">TrxID: ${e.transactionReference}</span><br>
+                        ${e.adminNotes === 'CONFIRMED' ? '<span class="inline-block mt-1 px-1.5 py-0.5 rounded bg-green-50 text-green-600 font-bold text-[9px]">Verified</span>' : '<span class="inline-block mt-1 px-1.5 py-0.5 rounded bg-yellow-50 text-yellow-600 font-bold text-[9px]">Awaiting Confirm</span>'}
+                    </div>
+                `;
+            }
+
+            // Actions mapping
+            let actions = '';
+            if (e.status === 'PAID') {
+                if (e.adminNotes !== 'CONFIRMED') {
+                    actions += `
+                        <button onclick="escrowAction('${e.id}', 'CONFIRM')" class="text-green-600 hover:text-green-950 font-bold mr-3">Confirm Pay</button>
+                        <button onclick="escrowAction('${e.id}', 'REJECT')" class="text-red-500 hover:text-red-800 font-bold mr-3">Reject Pay</button>
+                    `;
+                }
+            }
+            if (e.status === 'SHIPPED' || e.status === 'DISPUTED' || (e.status === 'PAID' && e.adminNotes === 'CONFIRMED')) {
+                actions += `
+                    <button onclick="escrowAction('${e.id}', 'COMPLETE')" class="text-emerald-600 hover:text-emerald-900 font-bold mr-3" title="Release funds with 15% manual fee deducted">Complete (Release)</button>
+                    <button onclick="escrowAction('${e.id}', 'REFUND')" class="text-orange-600 hover:text-orange-900 font-bold mr-3">Refund</button>
+                `;
+            }
+            actions += `<a href="listing-detail.html?id=${e.listing.id}" class="text-xs text-primary font-bold hover:underline" target="_blank">View Item</a>`;
+
+            let statusClasses = 'bg-gray-100 text-gray-600';
+            if (e.status === 'ACCEPTED') statusClasses = 'bg-blue-50 text-blue-600 border border-blue-100';
+            else if (e.status === 'PAID') statusClasses = 'bg-amber-50 text-amber-600 border border-amber-100';
+            else if (e.status === 'SHIPPED') statusClasses = 'bg-indigo-50 text-indigo-600 border border-indigo-100';
+            else if (e.status === 'COMPLETED') statusClasses = 'bg-green-50 text-green-600 border border-green-100';
+            else if (e.status === 'DISPUTED') statusClasses = 'bg-red-50 text-red-600 border border-red-100';
+            else if (e.status === 'REFUNDED') statusClasses = 'bg-orange-50 text-orange-600 border border-orange-100';
+            else if (e.status === 'DECLINED') statusClasses = 'bg-gray-100 text-gray-400';
+
+            const statusBadge = `<span class="px-2.5 py-1 rounded-full text-xs font-semibold ${statusClasses}">${e.status}</span>`;
+
+            return `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-900">${e.listing.title}</div>
+                        <div class="text-xs text-gray-500">${e.listing.priceMin || e.listing.price} BDT</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-800">${e.buyer ? e.buyer.name : 'Buyer'}</div>
+                        <div class="text-xs text-gray-400">${e.buyer ? e.buyer.email : ''}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-800">${e.listing.userName || 'Seller'}</div>
+                        <div class="text-xs text-gray-400">${e.listing.contactPhone || ''}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">${statusBadge}</td>
+                    <td class="px-6 py-4 whitespace-nowrap">${payDetail}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right font-medium text-xs">${actions}</td>
+                </tr>
+            `;
+        }).join('');
+
+    } catch (e) {
+        console.error("Failed to load escrows:", e);
+    }
+}
+
+async function escrowAction(escrowId, action) {
+    if (action === 'COMPLETE' && !confirm("Confirming this releases BDT to the seller minus a 15% manual charge. Make sure you made the manual bKash/Nagad transfer. Proceed?")) return;
+    if (action === 'REFUND' && !confirm("Refund the buyer directly. Make sure you sent the bKash/Nagad transfer. Proceed?")) return;
+    if (action === 'REJECT' && !confirm("Reject payment and decline buy request?")) return;
+
+    try {
+        const response = await apiPost(`/admin/marketplace-escrow/${escrowId}/action`, { action });
+        if (response.success) {
+            showToast(`Escrow action [${action}] succeeded!`, 'success');
+            loadEscrows();
+        } else {
+            showToast(response.message || "Action failed.", 'error');
+        }
     } catch(e) {}
 }

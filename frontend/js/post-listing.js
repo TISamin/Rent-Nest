@@ -333,10 +333,18 @@ document.addEventListener('DOMContentLoaded', () => {
     let priceMin = null;
     let priceMax = null;
     let priceUnit = null;
+
+    const parsePrice = (id) => {
+      const el = document.getElementById(id);
+      if (!el) return null;
+      const val = parseFloat(el.value);
+      return isNaN(val) ? null : val;
+    };
+
     if (!['SHIFTING_SERVICE', 'CATERING_SERVICE', 'MAINTENANCE_SERVICE', 'CLEANING_SERVICE', 'DECORATION_SERVICE', 'EVENT_PLANNING'].includes(cat)) {
-      priceMin = parseFloat(document.getElementById('listing-price-min').value) || null;
-      priceMax = parseFloat(document.getElementById('listing-price-max').value) || null;
-      priceUnit = document.getElementById('listing-price-unit').value || null;
+      priceMin = parsePrice('listing-price-min');
+      priceMax = parsePrice('listing-price-max');
+      priceUnit = document.getElementById('listing-price-unit') ? document.getElementById('listing-price-unit').value : null;
     }
 
     const locText = document.getElementById('listing-location-text').value.trim();

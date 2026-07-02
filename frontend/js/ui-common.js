@@ -133,9 +133,13 @@ function injectCommonNavbar() {
           </a>
           <div class="relative">
             <button id="profileDropdownBtn" class="flex items-center space-x-2 focus:outline-none">
-              <div class="w-10 h-10 rounded-full bg-[#e67e5a] text-white flex items-center justify-center font-bold shadow-lg shadow-[#e67e5a]/20 transition-transform hover:scale-105">
-                ${getUserInitials(user.name || user.email)}
-              </div>
+              ${user.profilePhotoUrl ? `
+                <img src="${user.profilePhotoUrl}" class="w-10 h-10 rounded-full object-cover shadow-lg shadow-[#e67e5a]/20 transition-transform hover:scale-105" alt="Profile">
+              ` : `
+                <div class="w-10 h-10 rounded-full bg-[#e67e5a] text-white flex items-center justify-center font-bold shadow-lg shadow-[#e67e5a]/20 transition-transform hover:scale-105">
+                  ${getUserInitials(user.name || user.email)}
+                </div>
+              `}
             </button>
             <div id="profileDropdown" class="hidden absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-fade-in-up">
               <div class="px-4 py-3 border-b border-gray-100">
@@ -144,6 +148,7 @@ function injectCommonNavbar() {
               </div>
               <a href="profile.html" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">My Profile</a>
               <a href="wishlist.html" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">My Wishlist</a>
+              <a href="marketplace-activity.html" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">Marketplace Activity</a>
               <a href="post-listing.html" class="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors">Post Listing</a>
               <button onclick="handleLogout()" class="w-full text-left block px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors">Logout</button>
             </div>
@@ -178,6 +183,7 @@ function injectCommonNavbar() {
           <a href="dashboard.html" class="block hover:text-primary transition-colors">Dashboard</a>
           <a href="profile.html" class="block hover:text-primary transition-colors border-t pt-4 border-gray-100">My Profile</a>
           <a href="wishlist.html" class="block hover:text-primary transition-colors">My Wishlist</a>
+          <a href="marketplace-activity.html" class="block hover:text-primary transition-colors">Marketplace Activity</a>
           <a href="post-listing.html" class="block hover:text-primary transition-colors">Post Ad</a>
           ${user ? `
             <button onclick="handleLogout()" class="w-full text-left text-red-500 block hover:text-red-600 transition-colors">Logout</button>
@@ -354,7 +360,11 @@ window.formatImageUrl = function(url, fallback = 'https://images.unsplash.com/ph
 window.formatPriceRange = function(item) {
   const min = item.priceMin || item.price;
   const max = item.priceMax;
-  const unit = item.priceUnit ? ` / ${item.priceUnit}` : '';
+  
+  let unit = '';
+  if (item.category !== 'MARKETPLACE' && item.priceUnit) {
+    unit = ` / ${item.priceUnit}`;
+  }
   
   if (min && max && min !== max) {
     return `${min} - ${max} BDT${unit}`;

@@ -5,7 +5,9 @@ import com.rentnest.dto.ApiResponse;
 import com.rentnest.dto.BanRequest;
 import com.rentnest.model.Report;
 import com.rentnest.model.User;
+import com.rentnest.model.MarketplaceEscrow;
 import com.rentnest.service.AdminService;
+import com.rentnest.service.MarketplaceEscrowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class AdminController {
 
     private final AdminService adminService;
+    private final MarketplaceEscrowService escrowService;
 
     @GetMapping("/reports")
     public ResponseEntity<ApiResponse<List<Report>>> getReports() {
@@ -67,5 +70,38 @@ public class AdminController {
         // We accept a reason payload, though currently we just delete.
         adminService.deleteListing(id);
         return ResponseEntity.ok(ApiResponse.success(null, "Listing deleted"));
+    }
+
+    @GetMapping("/marketplace-escrow")
+    public ResponseEntity<ApiResponse<List<MarketplaceEscrowController.EscrowResponse>>> getMarketplaceEscrows() {
+        List<MarketplaceEscrow> escrows = escrowService.getAllEscrowsForAdmin();
+        List<MarketplaceEscrowController.EscrowResponse> dtos = escrows.stream()
+                .map(MarketplaceEscrowController.EscrowResponse::fromEntity)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(ApiResponse.success(dtos, "Escrows fetched"));
+    }
+
+    @PostMapping("/marketplace-escrow/{id}/action")
+    public ResponseEntity<ApiResponse<MarketplaceEscrowController.EscrowResponse>> handleEscrowAction(
+            @PathVariable UUID id,
+            @RequestBody Map<String, String> payload) {
+        try {
+            String action = payload.get("action");
+            MarketplaceEscrow escrow;
+            if ("CONFIRM".equalsIgnoreCase(action)) {
+                escrow = escrowService.adminConfirmPayment(id, true);
+            } else if ("REJECT".equalsIgnoreCase(action)) {
+                escrow = escrowService.adminConfirmPayment(id, false);
+            } else if ("COMPLETE".equalsIgnoreCase(action)) {
+                escrow = escrowService.adminCompleteTransaction(id);
+            } else if ("REFUND".equalsIgnoreCase(action)) {
+                escrow = escrowService.adminRefundTransaction(id);
+            } else {
+                return ResponseEntity.badRequest().body(ApiResponse.error("Invalid escrow action"));
+            }
+            return ResponseEntity.ok(ApiResponse.success(MarketplaceEscrowController.EscrowResponse.fromEntity(escrow), "Action performed successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getMessage()));
+        }
     }
 }

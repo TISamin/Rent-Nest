@@ -229,18 +229,23 @@
           <div class="pb-4 border-b border-gray-100 text-center">
             <p class="text-gray-500 text-xs font-semibold uppercase tracking-wider mb-1">Asking Price</p>
             <p id="detail-price-text" class="text-3xl font-extrabold text-gray-900"></p>
+            <div id="interest-badge-container" class="hidden mt-2">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-[#e67e5a]/10 text-[#e67e5a]">
+                🔥 <span id="interest-count-text">0</span> people are interested
+              </span>
+            </div>
           </div>
 
           <div class="space-y-4">
             <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Listed By</h4>
-            <div class="flex items-center gap-3">
+            <a id="owner-profile-link" href="#" class="flex items-center gap-3 group hover:bg-gray-50 rounded-xl p-2 -mx-2 transition-colors">
               <img id="detail-owner-avatar" src="https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y" alt="Owner avatar"
-                class="w-12 h-12 rounded-full object-cover border border-gray-200">
+                class="w-12 h-12 rounded-full object-cover border border-gray-200 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
               <div class="text-left">
-                <p id="detail-owner-name" class="font-bold text-gray-900 text-sm"></p>
-                <p class="text-xs text-gray-400">Verified User</p>
+                <p id="detail-owner-name" class="font-bold text-gray-900 text-sm group-hover:text-primary transition-colors"></p>
+                <p class="text-xs text-gray-400">View profile →</p>
               </div>
-            </div>
+            </a>
           </div>
 
           <!-- Sticky Contact Actions -->
@@ -257,6 +262,11 @@
             <button id="detail-delete-btn" class="hidden w-full text-center py-3 rounded-lg bg-red-50 hover:bg-red-100 text-red-500 border border-red-200 font-bold text-sm transition-all transform active:scale-[0.98] flex items-center justify-center gap-1.5">
               🗑️ Delete Listing
             </button>
+          </div>
+
+          <!-- Marketplace Escrow Section (Interactive Escrow Card) -->
+          <div id="escrow-section" class="hidden border-t border-gray-100 pt-4 space-y-4">
+            <!-- Dynamic elements loaded via js -->
           </div>
         </div>
       </div>
