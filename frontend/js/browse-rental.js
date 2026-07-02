@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   const searchForm = document.getElementById('search-filter-form');
   const listingsGrid = document.getElementById('listings-grid');
+  const listingsWrapper = document.getElementById('listings-wrapper');
   const mapToggleBtn = document.getElementById('map-toggle-btn');
   const mapToggleIcon = document.getElementById('map-toggle-icon');
   const mapToggleText = document.getElementById('map-toggle-text');
@@ -217,13 +218,13 @@ document.addEventListener('DOMContentLoaded', () => {
   mapToggleBtn.addEventListener('click', () => {
     isMapView = !isMapView;
     if (isMapView) {
-      listingsGrid.classList.add('hidden');
+      if (listingsWrapper) listingsWrapper.classList.add('hidden');
       mapContainer.classList.remove('hidden');
       mapToggleText.textContent = 'Grid View';
       mapToggleIcon.textContent = '📱';
       initMap();
     } else {
-      listingsGrid.classList.remove('hidden');
+      if (listingsWrapper) listingsWrapper.classList.remove('hidden');
       mapContainer.classList.add('hidden');
       mapToggleText.textContent = 'Map View';
       mapToggleIcon.textContent = '🗺️';
@@ -346,8 +347,9 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentListings.length === 0) {
       showEmptyState();
       // Even if list is empty, update map to show circle/searched center
-      if (isMapView && mapInstance) {
-        updateMapMarkers();
+      const isMapVisible = !mapContainer.classList.contains('hidden') || window.innerWidth >= 1024;
+      if (isMapVisible) {
+        initMap();
       }
       return;
     }
@@ -424,9 +426,10 @@ document.addEventListener('DOMContentLoaded', () => {
     // Sync wishlist states
     syncHeartStates();
 
-    // Render map markers if map view is active
-    if (isMapView && mapInstance) {
-      updateMapMarkers();
+    // Render map markers if map view is active or visible in desktop layout
+    const isMapVisible = !mapContainer.classList.contains('hidden') || window.innerWidth >= 1024;
+    if (isMapVisible) {
+      initMap();
     }
   }
 
