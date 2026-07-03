@@ -581,9 +581,13 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // // Accepted — publish
+    // closeTncModal();
+    // await publishListing(pendingPayload || {});
     // Accepted — publish
-    closeTncModal();
-    await publishListing(pendingPayload || {});
+  const payloadToSubmit = pendingPayload || {};
+  closeTncModal();
+  await publishListing(payloadToSubmit);
   });
 
   // Close via X or overlay click
