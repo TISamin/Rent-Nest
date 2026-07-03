@@ -294,9 +294,10 @@ All responses follow `{ success, message, data }` envelope via `ApiResponse<T>`.
 ## ✅ What's Built
 
 - Full auth flow: signup via OTP → set password → profile setup (onboarding guard enforced)
-- Listing CRUD with category-specific sub-data (residential, convention, roommate, service offerings)
-- Multi-image Cloudinary upload on listing creation and profile photo
+- Listing CRUD with category-specific sub-data (residential, convention, roommate with member profiles, service offerings)
+- Multi-image Cloudinary upload on listing creation, profile photo, and roommate member photos
 - Leaflet map with Nominatim geocoding on listing creation
+- Terms & Conditions modal before publishing (details 15% platform fee, escrow, and refund policies)
 - Browse/search page with radius filter, category tabs, map toggle
 - Listing detail page (images, amenities, roommate members, service offerings, contact)
 - **Wishlist & Comparison System**: Global saving of any listing type, side-by-side comparison modal enforcing category-specific rules
