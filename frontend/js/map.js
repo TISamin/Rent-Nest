@@ -155,7 +155,7 @@ function setupMapAutocomplete(searchInputId, resultsDivId) {
           resultsDiv.classList.remove('hidden');
           data.forEach(item => {
             const row = document.createElement('div');
-            row.className = 'px-4 py-2.5 hover:bg-white/10 cursor-pointer text-sm border-b border-white/5 last:border-b-0 text-black-200 transition-colors duration-150';
+            row.className = 'px-4 py-2.5 hover:bg-gray-100 cursor-pointer text-sm border-b border-gray-100 last:border-b-0 text-gray-800 transition-colors duration-150';
             row.innerText = item.display_name;
             row.addEventListener('click', () => {
               // Populate search input
