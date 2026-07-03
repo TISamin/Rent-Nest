@@ -65,6 +65,81 @@
     .amenity-pill.selected {
       background-color: #e67e5a; color: white; border-color: #e67e5a;
     }
+
+    /* ── Terms & Conditions Modal ── */
+    #tnc-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(10,20,30,0.65); backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 16px;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    #tnc-overlay.active { opacity: 1; pointer-events: all; }
+    #tnc-modal {
+      background: #fff; border-radius: 24px;
+      max-width: 680px; width: 100%;
+      max-height: 90vh; display: flex; flex-direction: column;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+      transform: translateY(24px) scale(0.97);
+      transition: transform 0.3s ease;
+      overflow: hidden;
+    }
+    #tnc-overlay.active #tnc-modal { transform: translateY(0) scale(1); }
+    #tnc-header {
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid #f0ece8;
+      flex-shrink: 0;
+      background: linear-gradient(135deg,#1a2e3f 0%,#2d4a5e 100%);
+      color: #fff;
+    }
+    #tnc-body {
+      overflow-y: auto; padding: 24px 28px;
+      flex: 1; font-size: 0.875rem; line-height: 1.7; color: #374151;
+    }
+    #tnc-body h3 {
+      font-size: 0.95rem; font-weight: 700; color: #1a2e3f;
+      margin: 22px 0 6px; display: flex; align-items: center; gap-6px;
+    }
+    #tnc-body h3:first-child { margin-top: 0; }
+    #tnc-body p { margin-bottom: 10px; }
+    #tnc-body ul { list-style: disc; padding-left: 20px; margin-bottom: 10px; }
+    #tnc-body ul li { margin-bottom: 4px; }
+    .tnc-highlight {
+      background: #fdf5f1; border-left: 3px solid #e67e5a;
+      border-radius: 0 8px 8px 0; padding: 10px 14px; margin: 12px 0;
+      font-size: 0.84rem;
+    }
+    #tnc-footer {
+      padding: 18px 28px 22px;
+      border-top: 1px solid #f0ece8;
+      flex-shrink: 0;
+      background: #fafafa;
+    }
+    .tnc-choice-label {
+      display: flex; align-items: center; gap: 10px;
+      padding: 13px 16px; border-radius: 12px;
+      border: 2px solid #e8d5c4; cursor: pointer;
+      font-weight: 500; font-size: 0.9rem; color: #1a2e3f;
+      transition: all 0.2s; user-select: none;
+    }
+    .tnc-choice-label:hover { border-color: #e67e5a; background: #fdf5f1; }
+    .tnc-choice-label.selected-accept { border-color: #16a34a; background: #f0fdf4; color: #15803d; }
+    .tnc-choice-label.selected-reject { border-color: #dc2626; background: #fef2f2; color: #b91c1c; }
+    .tnc-choice-label input[type=radio] { accent-color: #e67e5a; width: 18px; height: 18px; }
+    #tnc-confirm-btn {
+      width: 100%; padding: 13px; border-radius: 12px;
+      font-weight: 700; font-size: 0.95rem;
+      border: none; cursor: pointer; transition: all 0.2s;
+      background: #e8d5c4; color: #9ca3af;
+    }
+    #tnc-confirm-btn.ready-accept {
+      background: #e67e5a; color: #fff;
+      box-shadow: 0 4px 14px rgba(230,126,90,0.35);
+    }
+    #tnc-confirm-btn.ready-accept:hover { background: #d06d4a; transform: translateY(-1px); }
+    #tnc-confirm-btn.ready-reject { background: #fee2e2; color: #b91c1c; }
+    #tnc-confirm-btn.ready-reject:hover { background: #fecaca; }
   </style>
 </head>
 <body class="bg-[#f8f6f2] text-[#1a2e3f] min-h-screen flex flex-col justify-between">
@@ -335,7 +410,101 @@
       </div>
 
       <!-- Hidden navbar avatar -->
-      <img id="navbar-avatar" src="" alt="" class="hidden">
+  <img id="navbar-avatar" src="" alt="" class="hidden">
+
+  <!-- ── Terms & Conditions Modal ── -->
+  <div id="tnc-overlay" role="dialog" aria-modal="true" aria-labelledby="tnc-title">
+    <div id="tnc-modal">
+
+      <!-- Header -->
+      <div id="tnc-header">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <p class="text-xs font-semibold text-white/50 uppercase tracking-widest mb-1">Before you publish</p>
+            <h2 id="tnc-title" class="text-xl font-bold text-white">Terms &amp; Conditions</h2>
+            <p class="text-white/60 text-sm mt-1">Please read carefully. By accepting you agree to be legally bound by these terms.</p>
+          </div>
+          <button id="tnc-close-x" type="button" class="text-white/40 hover:text-white transition text-2xl leading-none flex-shrink-0 mt-1" title="Close">&times;</button>
+        </div>
+      </div>
+
+      <!-- Scrollable body -->
+      <div id="tnc-body">
+
+        <h3>1. Acceptance of Terms</h3>
+        <p>By publishing a listing on RentNest, you confirm that you are at least 18 years old, legally authorised to offer the property, service, or item described, and agree to abide by all policies set forth in this agreement as well as applicable laws of Bangladesh.</p>
+
+        <h3>2. Listing Accuracy &amp; Responsibility</h3>
+        <p>You are solely responsible for ensuring that all information provided in your listing — including title, description, pricing, photos, and location — is truthful, accurate, and not misleading. RentNest reserves the right to remove any listing that violates these standards without prior notice.</p>
+        <ul>
+          <li>Photos must represent the actual property or item being listed.</li>
+          <li>Pricing must reflect the actual amount charged to renters or buyers.</li>
+          <li>Duplicate or spam listings are strictly prohibited and may result in account suspension.</li>
+        </ul>
+
+        <h3>3. Marketplace Transaction Policy</h3>
+        <p>RentNest facilitates secure transactions between listers and renters/buyers through an <strong>escrow-based payment system</strong>. No funds are transferred directly between parties. Instead:</p>
+        <div class="tnc-highlight">
+          <strong>🔒 Escrow Hold:</strong> All payments made by a renter or buyer are held securely by the RentNest admin team until the transaction is confirmed as successfully completed by both parties. Funds are only released to the lister after confirmation.
+        </div>
+        <p>This protects both parties from fraud and ensures accountability throughout the transaction lifecycle.</p>
+
+        <h3>4. Platform Service Fee (15%)</h3>
+        <div class="tnc-highlight">
+          <strong>💳 Commission:</strong> RentNest charges a <strong>15% platform service fee</strong> on every successfully completed transaction. This fee is automatically deducted from the payment before the remaining 85% is disbursed to the lister.
+        </div>
+        <p>Example: If a renter pays BDT 10,000 for your listing, RentNest retains BDT 1,500 (15%) and you receive BDT 8,500 (85%). This fee covers platform maintenance, payment processing, fraud protection, and customer support.</p>
+
+        <h3>5. Failed or Disputed Transactions</h3>
+        <p>A transaction is considered <strong>failed</strong> if:</p>
+        <ul>
+          <li>The lister cancels the booking after payment has been received.</li>
+          <li>The listing is found to be materially misrepresented.</li>
+          <li>Either party files a formal dispute that is upheld by RentNest.</li>
+          <li>The renter/buyer does not receive access or the item within the agreed timeframe.</li>
+        </ul>
+        <div class="tnc-highlight">
+          <strong>🔄 Refund Policy:</strong> In the event of a failed transaction, the full payment held in escrow will be refunded to the renter/buyer within 5–7 business days. Listers are not entitled to any portion of the payment for failed transactions, and repeat offenders may face listing suspension or account termination.
+        </div>
+
+        <h3>6. Prohibited Listings</h3>
+        <p>The following listings are strictly prohibited on RentNest:</p>
+        <ul>
+          <li>Properties or items you do not own or have legal authority to list.</li>
+          <li>Listings that violate any local, national, or international law.</li>
+          <li>Services that are fraudulent, illegal, or harmful in nature.</li>
+          <li>Content that is discriminatory, offensive, or violates RentNest's community standards.</li>
+        </ul>
+
+        <h3>7. Privacy &amp; Data</h3>
+        <p>Your contact information, listing details, and transaction history are stored securely in accordance with RentNest's Privacy Policy. Contact details shared in listings may be visible to registered users for the purpose of facilitating genuine enquiries only.</p>
+
+        <h3>8. Modifications &amp; Termination</h3>
+        <p>RentNest reserves the right to modify these terms at any time. Continued use of the platform following any changes constitutes acceptance of the revised terms. We also reserve the right to suspend or terminate any account or listing found to be in breach of these terms at our sole discretion.</p>
+
+        <h3>9. Limitation of Liability</h3>
+        <p>RentNest acts solely as an intermediary platform and is not liable for any direct, indirect, or consequential damages arising from transactions between users, unless caused by our own gross negligence or misconduct.</p>
+
+        <p class="text-xs text-gray-400 mt-6 border-t border-gray-100 pt-4">Last updated: July 2026 &nbsp;·&nbsp; RentNest Bangladesh &nbsp;·&nbsp; support@rentnest.com</p>
+      </div>
+
+      <!-- Footer: choice + confirm -->
+      <div id="tnc-footer">
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <label id="tnc-label-accept" class="tnc-choice-label" for="tnc-accept">
+            <input type="radio" id="tnc-accept" name="tnc-choice" value="accept">
+            <span>✅ I Accept</span>
+          </label>
+          <label id="tnc-label-reject" class="tnc-choice-label" for="tnc-reject">
+            <input type="radio" id="tnc-reject" name="tnc-choice" value="reject">
+            <span>❌ I Reject</span>
+          </label>
+        </div>
+        <button id="tnc-confirm-btn" type="button" disabled>Select an option above to continue</button>
+      </div>
+
+    </div>
+  </div>
 
       <!-- Submit -->
       <button type="submit" id="submit-listing-btn" class="hidden w-full py-4 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold text-base shadow-sm transition-all duration-200 active:scale-[0.98]">

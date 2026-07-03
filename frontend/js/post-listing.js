@@ -517,6 +517,87 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Open T&C modal — actual publish happens only after acceptance
+    openTncModal(payload);
+  });
+
+
+  // --- Terms & Conditions Modal Controller ---
+  const tncOverlay   = document.getElementById('tnc-overlay');
+  const tncAcceptRad = document.getElementById('tnc-accept');
+  const tncRejectRad = document.getElementById('tnc-reject');
+  const tncLabelAccept = document.getElementById('tnc-label-accept');
+  const tncLabelReject = document.getElementById('tnc-label-reject');
+  const tncConfirmBtn  = document.getElementById('tnc-confirm-btn');
+  const tncCloseX      = document.getElementById('tnc-close-x');
+
+  let pendingPayload = null;
+
+  function openTncModal(payload) {
+    pendingPayload = payload;
+    // Reset state
+    tncAcceptRad.checked = false;
+    tncRejectRad.checked = false;
+    tncLabelAccept.classList.remove('selected-accept');
+    tncLabelReject.classList.remove('selected-reject');
+    tncConfirmBtn.className = '';
+    tncConfirmBtn.disabled = true;
+    tncConfirmBtn.textContent = 'Select an option above to continue';
+    tncOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeTncModal() {
+    tncOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+    pendingPayload = null;
+  }
+
+  // Radio change handlers
+  tncAcceptRad.addEventListener('change', () => {
+    tncLabelAccept.classList.add('selected-accept');
+    tncLabelReject.classList.remove('selected-reject');
+    tncConfirmBtn.className = 'ready-accept';
+    tncConfirmBtn.disabled = false;
+    tncConfirmBtn.textContent = '✅ Confirm & Publish Listing';
+  });
+
+  tncRejectRad.addEventListener('change', () => {
+    tncLabelReject.classList.add('selected-reject');
+    tncLabelAccept.classList.remove('selected-accept');
+    tncConfirmBtn.className = 'ready-reject';
+    tncConfirmBtn.disabled = false;
+    tncConfirmBtn.textContent = '❌ Reject & Go Back to Editing';
+  });
+
+  // Confirm button
+  tncConfirmBtn.addEventListener('click', async () => {
+    const choice = document.querySelector('input[name="tnc-choice"]:checked');
+    if (!choice) return;
+
+    if (choice.value === 'reject') {
+      closeTncModal();
+      showToast('You rejected the Terms & Conditions. Your listing was not published.', 'warning');
+      return;
+    }
+
+    // Accepted — publish
+    closeTncModal();
+    await publishListing(pendingPayload || {});
+  });
+
+  // Close via X or overlay click
+  tncCloseX.addEventListener('click', closeTncModal);
+  tncOverlay.addEventListener('click', (e) => {
+    if (e.target === tncOverlay) closeTncModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && tncOverlay.classList.contains('active')) closeTncModal();
+  });
+
+
+  // --- Actual API publish call ---
+  async function publishListing(payload) {
     try {
       submitBtn.disabled = true;
       submitBtn.innerText = 'Publishing...';
@@ -533,5 +614,5 @@ document.addEventListener('DOMContentLoaded', () => {
       submitBtn.disabled = false;
       submitBtn.innerText = 'Publish Listing';
     }
-  });
+  }
 });
