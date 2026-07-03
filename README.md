@@ -80,10 +80,15 @@ This project was developed collaboratively by our dedicated team:
    The API will be available at `http://localhost:8080`.
 
 ### Frontend Setup
-1. The frontend relies on static HTML/JS and doesn't require a build process.
-2. Serve the `frontend/` directory using any local web server. For example, using Python:
+1. The frontend consists of static HTML, CSS, and JS files. It doesn't require a framework build process (like React/npm).
+2. However, to avoid browser CORS issues with `file://` protocols, the files must be served via a local web server.
+3. **Recommended Method (VS Code):** 
+   - Install the **Live Server** extension.
+   - Right-click `index.html` in the `frontend/` folder and select "Open with Live Server".
+4. **Alternative Method (Python):** If you have Python installed, you can quickly serve the files via terminal:
    ```bash
    cd frontend
    python -m http.server 3000
    ```
-3. Open `http://localhost:3000` in your browser. The `api.js` script will automatically detect `localhost` and route API calls to `http://localhost:8080`.
+   Then open `http://localhost:3000` in your browser.
+5. The `api.js` script will automatically detect `localhost` and route API calls to your local Java backend at `http://localhost:8080`.
