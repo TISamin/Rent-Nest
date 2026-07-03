@@ -65,6 +65,7 @@ This project was developed collaboratively by our dedicated team:
 - **Shrabonti Paul** (Quality Assurance & Documentation Specialist)
   - Handled testing, bug tracking, and comprehensive project documentation.
   - Email: [u2304101@student.cuet.ac.bd](mailto:u2304101@student.cuet.ac.bd)
+  - Github: [https://github.com/shrabontinodi](https://github.com/shrabontinodi)
 
 ## 💻 Getting Started (Local Development)
 
