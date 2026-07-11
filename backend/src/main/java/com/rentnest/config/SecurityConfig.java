@@ -52,6 +52,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/search/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/ai/parse-search-query").permitAll()
                         .requestMatchers("/ping").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/listings/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/reviews/listing/**").permitAll()

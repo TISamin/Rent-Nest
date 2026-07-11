@@ -52,6 +52,27 @@
   <!-- Top Horizontal Filter Bar -->
   <div class="sticky top-[72px] z-40 bg-white border-b border-gray-200 py-4 shadow-sm w-full">
     <div class="max-w-[1600px] 2xl:max-w-none w-full px-6 md:px-12 lg:px-20 mx-auto">
+      <!-- AI Natural Language Search -->
+      <div class="flex items-center gap-3 mb-3">
+        <div class="relative flex-1">
+          <svg class="w-5 h-5 text-violet-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+          </svg>
+          <input type="text" id="ai-search-input"
+            placeholder="Try: '2 bedroom flat near Dhanmondi under 20k'"
+            class="w-full pl-10 pr-4 py-2.5 rounded-full border border-violet-200 bg-violet-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-violet-300 focus:border-violet-400 transition-all shadow-sm placeholder:text-violet-300">
+        </div>
+        <button type="button" id="ai-search-btn"
+          class="px-5 py-2.5 rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white font-bold text-sm shadow-sm hover:shadow-md transition-all transform active:scale-95 flex items-center gap-2">
+          <span class="ai-search-icon">✨</span>
+          <span class="ai-search-text">AI Search</span>
+          <svg class="ai-search-spinner hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+        </button>
+      </div>
+
       <form id="search-filter-form" class="flex flex-col md:flex-row items-center gap-4">
         
         <!-- Location input -->

@@ -41,3 +41,14 @@ jwt:
 # ========================
 cors:
   allowed-origins: ${CORS_ORIGINS:http://localhost:3000,http://localhost:5500,http://127.0.0.1:5500,http://localhost:5501,http://127.0.0.1:5501,https://tisamin.github.io,https://rent-nest-pi.vercel.app}
+
+# ========================
+# AI Providers Configuration
+# ========================
+ai:
+  gemini:
+    api-key: ${GEMINI_API_KEY:}
+    model: gemini-2.0-flash
+  groq:
+    api-key: ${GROQ_API_KEY:}
+    model: llama-3.3-70b-versatile

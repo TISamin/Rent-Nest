@@ -652,4 +652,119 @@ document.addEventListener('DOMContentLoaded', () => {
       card.classList.remove('bg-gray-100', 'ring-2', 'ring-primary/20', 'scale-[1.01]', 'shadow-sm');
     }
   }
+  // AI Natural Language Search Parser
+  const aiSearchBtn = document.getElementById('ai-search-btn');
+  const aiSearchInput = document.getElementById('ai-search-input');
+
+  if (aiSearchBtn && aiSearchInput) {
+    const handleAiSearch = async () => {
+      const queryVal = aiSearchInput.value.trim();
+      if (!queryVal) {
+        showToast("Please enter a search query first.", "warning");
+        return;
+      }
+
+      const spinner = aiSearchBtn.querySelector('.ai-search-spinner');
+      const icon = aiSearchBtn.querySelector('.ai-search-icon');
+      const textSpan = aiSearchBtn.querySelector('.ai-search-text');
+
+      try {
+        aiSearchBtn.disabled = true;
+        if (spinner) spinner.classList.remove('hidden');
+        if (icon) icon.classList.add('hidden');
+        if (textSpan) textSpan.textContent = 'Parsing...';
+
+        const res = await apiPost('/ai/parse-search-query', { query: queryVal });
+        if (res.success && res.data) {
+          const data = res.data;
+          
+          let parsedAny = false;
+
+          // 1. Populate location if present
+          if (data.locationText) {
+            locationInput.value = data.locationText;
+            parsedAny = true;
+          }
+
+          // 2. Populate category if present
+          if (data.category) {
+            categorySelect.value = data.category;
+            const categoryLabels = {
+              'FLAT': 'Flat',
+              'HOTEL': 'Hotel',
+              'HOUSE': 'House',
+              'CONVENTION_HALL': 'Convention Hall'
+            };
+            const labelElem = document.getElementById('selectedCategoryLabel');
+            if (labelElem) {
+              labelElem.textContent = categoryLabels[data.category] || 'Any type';
+            }
+            parsedAny = true;
+          }
+
+          // 3. Populate priceMax if present
+          if (data.priceMax != null) {
+            budgetMax.value = data.priceMax;
+            parsedAny = true;
+          }
+
+          // 4. Populate radius if present (convert meters to km)
+          if (data.radius != null) {
+            const radiusKm = Math.round(data.radius / 1000);
+            const validRadiusValues = [5, 15, 30, 50];
+            // Find closest valid value
+            const closest = validRadiusValues.reduce((prev, curr) => 
+              Math.abs(curr - radiusKm) < Math.abs(prev - radiusKm) ? curr : prev
+            );
+            radiusSlider.value = closest.toString();
+            const selectedRadiusLabel = document.getElementById('selectedRadiusLabel');
+            if (selectedRadiusLabel) {
+              selectedRadiusLabel.textContent = `Within ${closest} km`;
+            }
+            parsedAny = true;
+          }
+
+          // 5. Bedroom count warning info
+          if (data.bedroomCount != null) {
+            showToast(`Note: Query specifies ${data.bedroomCount} bedrooms (informational)`, "info");
+          }
+
+          if (parsedAny) {
+            showToast("Filters updated from your query — review and click Search!", "success");
+          } else {
+            // Fallback if all fields parsed null
+            locationInput.value = queryVal;
+            showToast("Could not extract specific filter parameters. Performing text location search.", "warning");
+          }
+
+        } else {
+          // Graceful fallback to location search on server failure
+          locationInput.value = queryVal;
+          showToast("AI parser failed. Using raw query as a location search instead.", "warning");
+        }
+      } catch (err) {
+        // Graceful fallback to location search on network error
+        locationInput.value = queryVal;
+        showToast("Error communicating with AI. Using query as a location search instead.", "warning");
+      } finally {
+        if (spinner) spinner.classList.add('hidden');
+        if (icon) icon.classList.remove('hidden');
+        if (textSpan) textSpan.textContent = 'Cooldown (5s)...';
+
+        // 5-second Cooldown
+        setTimeout(() => {
+          aiSearchBtn.disabled = false;
+          if (textSpan) textSpan.textContent = 'AI Search';
+        }, 5000);
+      }
+    };
+
+    aiSearchBtn.addEventListener('click', handleAiSearch);
+    aiSearchInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleAiSearch();
+      }
+    });
+  }
 });

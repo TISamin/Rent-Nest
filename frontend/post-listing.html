@@ -190,8 +190,20 @@
           <input type="text" id="listing-title" required placeholder="e.g. Spacious 2-bedroom flat in Dhanmondi" class="form-input">
         </div>
         <div>
-          <label class="form-label">Description</label>
           <textarea id="listing-description" rows="4" placeholder="Describe your listing in detail..." class="form-input resize-none"></textarea>
+          <div class="flex items-center gap-3">
+            <button type="button" id="ai-generate-desc-btn"
+              class="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-violet-500 to-indigo-500 text-white text-sm font-medium shadow-sm hover:shadow-md transition-all transform hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              disabled>
+              <span class="ai-btn-icon">✨</span>
+              <span class="ai-btn-text">Generate description with AI</span>
+              <svg class="ai-btn-spinner hidden w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+            </button>
+            <span class="text-xs text-gray-400 mt-2" id="ai-desc-hint">Select a category first to enable AI.</span>
+          </div>
         </div>
         
         <!-- Base Price Range (Hidden for services that use offerings) -->
@@ -428,7 +440,7 @@
         </div>
       </div>
 
-      <!-- Scrollable body -->
+      <!-- Scrollable body
       <div id="tnc-body">
 
         <h3>1. Acceptance of Terms</h3>
@@ -484,6 +496,72 @@
 
         <h3>9. Limitation of Liability</h3>
         <p>RentNest acts solely as an intermediary platform and is not liable for any direct, indirect, or consequential damages arising from transactions between users, unless caused by our own gross negligence or misconduct.</p>
+
+        <p class="text-xs text-gray-400 mt-6 border-t border-gray-100 pt-4">Last updated: July 2026 &nbsp;·&nbsp; RentNest Bangladesh &nbsp;·&nbsp; support@rentnest.com</p>
+      </div> -->
+      <!-- Scrollable body -->
+      <div id="tnc-body">
+
+        <h3>1. Acceptance of Terms</h3>
+        <p>By publishing a listing on RentNest, you confirm that you are at least 18 years old, legally authorised to offer the property, service, or item described, and agree to abide by all policies set forth in this agreement as well as applicable laws of Bangladesh.</p>
+
+        <h3>2. Listing Accuracy &amp; Responsibility</h3>
+        <p>You are solely responsible for ensuring that all information provided in your listing — including title, description, pricing, photos, and location — is truthful, accurate, and not misleading. RentNest reserves the right to remove any listing that violates these standards without prior notice.</p>
+        <ul>
+          <li>Photos must represent the actual property, service, or item being listed.</li>
+          <li>Pricing must reflect the actual amount charged to renters or buyers.</li>
+          <li>Duplicate or spam listings are strictly prohibited and may result in account suspension.</li>
+        </ul>
+
+        <h3>3. Marketplace Transaction Policy</h3>
+        <p><em>Sections 3–5 apply specifically to items sold through the Marketplace category. Rental, roommate, service, and convention hall listings are not subject to escrow holds or the commission fee described below.</em></p>
+        <p>For Marketplace transactions, RentNest facilitates trust between buyers and sellers through an <strong>admin-mediated escrow process</strong>. No funds are transferred directly between parties. Instead:</p>
+        <div class="tnc-highlight">
+          <strong>🔒 Escrow Hold:</strong> Payment from a buyer is sent to and held by the RentNest admin team, not the seller. Funds are only released to the seller after the buyer confirms receipt of the item.
+        </div>
+        <p>Please note: at this stage, payment collection and disbursement are handled <strong>manually</strong> by the RentNest admin team (e.g. via mobile financial services), not through an automated payment processor. Processing times may vary and are not instantaneous.</p>
+
+        <h3>4. Platform Service Fee (15%)</h3>
+        <div class="tnc-highlight">
+          <strong>💳 Commission:</strong> RentNest charges a <strong>15% platform service fee</strong> on every successfully completed Marketplace transaction. This fee is deducted from the payment before the remaining 85% is disbursed to the seller.
+        </div>
+        <p>Example: If a buyer pays BDT 10,000 for a listed item, RentNest retains BDT 1,500 (15%) and the seller receives BDT 8,500 (85%). This fee covers escrow handling, dispute mediation, and platform maintenance.</p>
+
+        <h3>5. Failed or Disputed Transactions</h3>
+        <p>A Marketplace transaction may be considered <strong>failed or disputed</strong> if:</p>
+        <ul>
+          <li>The seller declines to proceed after payment has already been received by RentNest.</li>
+          <li>The item is not delivered within a reasonable agreed timeframe.</li>
+          <li>The buyer claims the item is materially different from, or damaged compared to, what was listed.</li>
+          <li>Either party raises a formal dispute with RentNest.</li>
+        </ul>
+        <div class="tnc-highlight">
+          <strong>🔄 Resolution Policy:</strong>
+          <ul>
+            <li>If the seller declines the sale after payment is received, the full amount is refunded to the buyer, and no fee is charged.</li>
+            <li>If a dispute is raised after delivery (e.g. item not as described, or not received), RentNest will first ask both parties to resolve the matter directly. If unresolved, RentNest will review available evidence (such as messages, photos, or timestamps) and determine a fair outcome at its sole discretion — which may include a full refund to the buyer, full release to the seller, or a partial division of the held funds between both parties, depending on the circumstances.</li>
+            <li>Refunds, where applicable, are processed within 5–7 business days of a resolution being reached.</li>
+            <li>Users found to have repeatedly acted in bad faith (e.g. non-delivery, false claims, ghosting) may face listing suspension or account termination at RentNest's discretion.</li>
+          </ul>
+        </div>
+
+        <h3>6. Prohibited Listings</h3>
+        <p>The following are strictly prohibited on RentNest:</p>
+        <ul>
+          <li>Properties, services, or items you do not own or have legal authority to list.</li>
+          <li>Listings that violate any local, national, or international law.</li>
+          <li>Services or items that are fraudulent, illegal, or harmful in nature.</li>
+          <li>Content that is discriminatory, offensive, or violates RentNest's community standards.</li>
+        </ul>
+
+        <h3>7. Privacy &amp; Data</h3>
+        <p>Your contact information, listing details, and transaction history are stored securely in accordance with RentNest's Privacy Policy. Contact details shared in listings may be visible to registered users for the purpose of facilitating genuine enquiries only.</p>
+
+        <h3>8. Modifications &amp; Termination</h3>
+        <p>RentNest reserves the right to modify these terms at any time. Continued use of the platform following any changes constitutes acceptance of the revised terms. RentNest also reserves the right to suspend or terminate any account or listing found to be in breach of these terms at its sole discretion.</p>
+
+        <h3>9. Limitation of Liability</h3>
+        <p>RentNest acts solely as an intermediary platform and is not liable for any direct, indirect, or consequential damages arising from transactions between users, unless caused by RentNest's own gross negligence or misconduct.</p>
 
         <p class="text-xs text-gray-400 mt-6 border-t border-gray-100 pt-4">Last updated: July 2026 &nbsp;·&nbsp; RentNest Bangladesh &nbsp;·&nbsp; support@rentnest.com</p>
       </div>

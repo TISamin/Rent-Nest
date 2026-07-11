@@ -86,6 +86,19 @@ document.addEventListener('DOMContentLoaded', () => {
         priceUnitContainer.classList.remove('hidden');
       }
     }
+
+    // AI Button Enable/Disable
+    const aiBtn = document.getElementById('ai-generate-desc-btn');
+    const aiHint = document.getElementById('ai-desc-hint');
+    if (aiBtn && aiHint) {
+      if (cat && cat.trim() !== '') {
+        aiBtn.disabled = false;
+        aiHint.textContent = "Ready to generate listing description.";
+      } else {
+        aiBtn.disabled = true;
+        aiHint.textContent = "Select a category first to enable AI.";
+      }
+    }
   });
 
   // --- Stepper Logic ---
@@ -618,5 +631,83 @@ document.addEventListener('DOMContentLoaded', () => {
       submitBtn.disabled = false;
       submitBtn.innerText = 'Publish Listing';
     }
+  }
+
+  // AI Listing Description Generator
+  const aiBtn = document.getElementById('ai-generate-desc-btn');
+  if (aiBtn) {
+    aiBtn.addEventListener('click', async () => {
+      const cat = categorySelect.value;
+      if (!cat) {
+        showToast("Please select a category first.", "warning");
+        return;
+      }
+
+      // Collect structured fields filled so far
+      const fields = {
+        category: cat,
+        title: document.getElementById('listing-title').value.trim(),
+        priceMin: document.getElementById('listing-price-min').value,
+        priceMax: document.getElementById('listing-price-max').value,
+        priceUnit: document.getElementById('listing-price-unit') ? document.getElementById('listing-price-unit').value : 'month',
+        contactPhone: document.getElementById('listing-contact-phone').value.trim(),
+        locationText: document.getElementById('location-text') ? document.getElementById('location-text').value.trim() : ''
+      };
+
+      // Category-specific details
+      if (['FLAT', 'HOUSE', 'HOTEL'].includes(cat)) {
+        fields.bedroomCount = document.getElementById('residential-beds').value;
+        fields.bathroomCount = document.getElementById('residential-baths').value;
+        fields.otherRoomsCount = document.getElementById('residential-other').value;
+      } else if (cat === 'CONVENTION_HALL') {
+        fields.capacity = document.getElementById('convention-capacity') ? document.getElementById('convention-capacity').value : '';
+        fields.hallCount = document.getElementById('convention-halls') ? document.getElementById('convention-halls').value : '';
+      }
+
+      // Add checked amenities
+      const checkedAmenities = [];
+      document.querySelectorAll('.amenities-container .amenity-pill.selected').forEach(pill => {
+        checkedAmenities.push(pill.textContent.trim());
+      });
+      if (checkedAmenities.length > 0) {
+        fields.amenities = checkedAmenities;
+      }
+
+      const spinner = aiBtn.querySelector('.ai-btn-spinner');
+      const icon = aiBtn.querySelector('.ai-btn-icon');
+      const textSpan = aiBtn.querySelector('.ai-btn-text');
+
+      try {
+        aiBtn.disabled = true;
+        if (spinner) spinner.classList.remove('hidden');
+        if (icon) icon.classList.add('hidden');
+        if (textSpan) textSpan.textContent = 'Generating...';
+
+        const res = await apiPost('/ai/generate-description', fields);
+        if (res.success && res.data && res.data.description) {
+          const descArea = document.getElementById('listing-description');
+          if (descArea) {
+            descArea.value = res.data.description;
+            // Trigger input/change event for other listeners if any
+            descArea.dispatchEvent(new Event('input'));
+          }
+          showToast("AI description populated successfully!", "success");
+        } else {
+          showToast(res.message || "Failed to generate description with AI.", "error");
+        }
+      } catch (err) {
+        showToast(err.message || "A network error occurred during AI generation.", "error");
+      } finally {
+        if (spinner) spinner.classList.add('hidden');
+        if (icon) icon.classList.remove('hidden');
+        if (textSpan) textSpan.textContent = 'Cooldown (5s)...';
+
+        // 5-second Cooldown
+        setTimeout(() => {
+          aiBtn.disabled = false;
+          if (textSpan) textSpan.textContent = 'Generate description with AI';
+        }, 5000);
+      }
+    });
   }
 });

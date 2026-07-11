@@ -198,6 +198,12 @@ function injectCommonNavbar() {
   existingNav.className = 'sticky top-0 z-50 bg-white/95 backdrop-blur-xl border-b border-[#1a2e3f]/8 transition-all duration-300 shadow-[0_4px_30px_rgba(26,46,63,0.05)]';
   existingNav.innerHTML = navHtml;
 
+  // Move mobileDrawer to body to escape the navbar's backdrop-filter stacking context
+  const drawerEl = document.getElementById('mobileDrawer');
+  if (drawerEl) {
+    document.body.appendChild(drawerEl);
+  }
+
   // Inject nav hover underline animation styles
   if (!document.getElementById('nav-hover-styles')) {
     const styleEl = document.createElement('style');
