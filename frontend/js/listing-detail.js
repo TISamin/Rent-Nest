@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let galleryImages = [];
   let currentImageIndex = 0;
   let currentReviewRating = 0;
+  let detailMap = null; // Track Leaflet instance to prevent re-init crashes
   const localUser = localStorage.getItem('rentnest_user');
   const currentUserId = localUser ? JSON.parse(localUser).id : null;
 
@@ -73,10 +74,12 @@ document.addEventListener('DOMContentLoaded', () => {
           });
         }
 
-        // Add click listener to main cover image to open lightbox
-        document.getElementById('primary-gallery-img').addEventListener('click', () => {
-          openLightbox(0);
-        });
+        // Add click listener to main cover image to open lightbox (guard against duplicate)
+        const primaryGalleryImg = document.getElementById('primary-gallery-img');
+        if (primaryGalleryImg && !primaryGalleryImg._lightboxBound) {
+          primaryGalleryImg.addEventListener('click', () => openLightbox(0));
+          primaryGalleryImg._lightboxBound = true;
+        }
 
         // Render Category Badge
         const categoryBadge = document.getElementById('detail-category-badge');
@@ -291,17 +294,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const lat = item.latitude || 23.8103;
         const lng = item.longitude || 90.4125;
         
-        const map = L.map('leaflet-detail-map').setView([lat, lng], 15);
+        // Destroy existing map instance before re-creating (prevents "Map container is already initialized" error)
+        if (detailMap) {
+          detailMap.remove();
+          detailMap = null;
+        }
+        
+        detailMap = L.map('leaflet-detail-map').setView([lat, lng], 15);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
+        }).addTo(detailMap);
         
-        L.marker([lat, lng]).addTo(map)
+        L.marker([lat, lng]).addTo(detailMap)
           .bindPopup(`<b>${item.title}</b><br>${item.locationText || ''}`)
           .openPopup();
         
         // Ensure map tiles render fully
-        setTimeout(() => map.invalidateSize(), 200);
+        setTimeout(() => detailMap.invalidateSize(), 200);
 
         // Render Roommates specs dynamically if category is ROOMMATE_FINDER
         if (item.category === 'ROOMMATE_FINDER' && item.roommateInfo) {
