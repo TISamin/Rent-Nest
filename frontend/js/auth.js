@@ -72,6 +72,7 @@ async function loginWithPassword(email, password) {
  * Request OTP for Signup.
  */
 async function requestSignupOtp(email) {
+  let backendSuccess = false;
   try {
     const res = await apiPost('/auth/signup/request-otp', { email });
 
@@ -82,6 +83,7 @@ async function requestSignupOtp(email) {
 
     currentOtp = res.data.otp;
     currentEmail = email;
+    backendSuccess = true;
 
     // Send OTP to the user's email via EmailJS
     await emailjs.send("service_o9wjmag", "template_xrdy6ao", {
@@ -94,7 +96,15 @@ async function requestSignupOtp(email) {
     return true;
   } catch (error) {
     console.error("requestSignupOtp error:", error);
-    showToast("Failed to request OTP: " + (error.message || "Unknown error"), "error");
+    // EmailJS errors are objects with a .text property, not standard Error instances
+    const msg = error?.text || error?.message || (typeof error === 'string' ? error : JSON.stringify(error));
+    if (backendSuccess) {
+      // OTP was generated but email delivery failed — still allow proceeding
+      console.warn("EmailJS send failed, but OTP was generated. User can check console for OTP.", currentOtp);
+      showToast("Email delivery failed, but your code was generated. Check your spam folder or try again.", "warning");
+      return true;
+    }
+    showToast("Failed to request OTP: " + msg, "error");
     return false;
   }
 }
@@ -128,6 +138,7 @@ async function verifySignupOtp(email, otp) {
  * Request OTP for Forgot Password.
  */
 async function requestForgotPasswordOtp(email) {
+  let backendSuccess = false;
   try {
     const res = await apiPost('/auth/forgot-password/request-otp', { email });
 
@@ -138,6 +149,7 @@ async function requestForgotPasswordOtp(email) {
 
     currentOtp = res.data.otp;
     currentEmail = email;
+    backendSuccess = true;
 
     // Send OTP to the user's email via EmailJS
     await emailjs.send("service_o9wjmag", "template_xrdy6ao", {
@@ -150,7 +162,15 @@ async function requestForgotPasswordOtp(email) {
     return true;
   } catch (error) {
     console.error("requestForgotPasswordOtp error:", error);
-    showToast("Failed to request OTP: " + (error.message || "Unknown error"), "error");
+    // EmailJS errors are objects with a .text property, not standard Error instances
+    const msg = error?.text || error?.message || (typeof error === 'string' ? error : JSON.stringify(error));
+    if (backendSuccess) {
+      // OTP was generated but email delivery failed — still allow proceeding
+      console.warn("EmailJS send failed, but OTP was generated. User can check console for OTP.", currentOtp);
+      showToast("Email delivery failed, but your code was generated. Check your spam folder or try again.", "warning");
+      return true;
+    }
+    showToast("Failed to request OTP: " + msg, "error");
     return false;
   }
 }

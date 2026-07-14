@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rent-Nest — Project Presentation</title>
+    <!-- Modern Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chart.js for Dashboard Visual -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --color-bg: #09090b;
+            --color-card-bg: #18181b;
+            --color-card-border: #27272a;
+            --color-primary: #6366f1; /* Indigo */
+            --color-secondary: #ec4899; /* Pink */
+            --color-accent: #14b8a6; /* Teal */
+            --color-text-main: #f4f4f5;
+            --color-text-muted: #a1a1aa;
+            --font-heading: 'Space Grotesk', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --gradient-primary: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+            --gradient-glow: radial-gradient(circle at center, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: var(--color-text-main);
+            font-family: var(--font-body);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 16:9 Aspect Ratio Safe Area lock on Desktop */
+        .slide-deck {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (min-width: 1025px) {
+            .slide-deck {
+                max-width: calc(100vh * 16 / 9);
+                max-height: calc(100vw * 9 / 16);
+                margin: auto;
+                position: absolute;
+                inset: 0;
+            }
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 60px 80px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            transform: scale(0.98) translateY(10px);
+            background: var(--color-bg);
+            background-image: var(--gradient-glow);
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1) translateY(0);
+        }
+
+        /* Grid layout utilities */
+        .slide-grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: center;
+            width: 100%;
+        }
+
+        .slide-grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .slide-grid-4 {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        /* Card styles */
+        .card {
+            background: var(--color-card-bg);
+            border: 1px solid var(--color-card-border);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-accent-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--gradient-primary);
+        }
+
+        /* Typography spacing & accents */
+        h1, h2, h3, h4 {
+            font-family: var(--font-heading);
+            font-weight: 700;
+        }
+
+        .slide-header {
+            margin-bottom: 24px;
+        }
+
+        .slide-title-gradient {
+            font-size: clamp(32px, 4vw, 56px);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+
+        .slide-subtitle {
+            font-size: 18px;
+            color: var(--color-text-muted);
+            font-weight: 400;
+        }
+
+        p {
+            line-height: 1.6;
+            color: var(--color-text-main);
+            font-size: 16px;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            position: relative;
+            padding-left: 24px;
+            margin-bottom: 12px;
+            line-height: 1.5;
+            color: var(--color-text-main);
+            font-size: 15px;
+        }
+
+        li::before {
+            content: "✦";
+            position: absolute;
+            left: 0;
+            color: var(--color-primary);
+        }
+
+        .highlight-text {
+            color: var(--color-secondary);
+            font-weight: 600;
+        }
+
+        .highlight-accent {
+            color: var(--color-accent);
+            font-weight: 600;
+        }
+
+        /* Navigation elements */
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: var(--gradient-primary);
+            transition: width 0.3s ease;
+            z-index: 1000;
+        }
+
+        .nav-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            background: rgba(24, 24, 27, 0.85);
+            border: 1px solid var(--color-card-border);
+            padding: 8px 20px;
+            border-radius: 9999px;
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--color-text-main);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--color-primary);
+        }
+
+        .slide-counter {
+            color: var(--color-text-muted);
+            font-family: var(--font-heading);
+            font-size: 14px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        /* Dashboard Slide Layout adjustments */
+        .chart-wrapper {
+            background: #111;
+            border: 1px solid var(--color-card-border);
+            border-radius: 12px;
+            padding: 16px;
+            height: 280px;
+            width: 100%;
+        }
+
+        /* Architecture diagram block */
+        .arch-box {
+            font-family: monospace;
+            background: #121214;
+            border: 1px solid var(--color-card-border);
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            line-height: 1.4;
+            color: var(--color-accent);
+            overflow-x: auto;
+            white-space: pre;
+        }
+
+        /* Animation timings */
+        .animate-stagger > * {
+            opacity: 0;
+            animation: slideIn 0.5s ease-out forwards;
+        }
+        .slide.active .animate-stagger > *:nth-child(1) { animation-delay: 0.1s; }
+        .slide.active .animate-stagger > *:nth-child(2) { animation-delay: 0.2s; }
+        .slide.active .animate-stagger > *:nth-child(3) { animation-delay: 0.3s; }
+        .slide.active .animate-stagger > *:nth-child(4) { animation-delay: 0.4s; }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Top Progress Bar -->
+    <div class="progress-bar" id="progressBar"></div>
+
+    <!-- Presentation Viewport Container -->
+    <div class="slide-deck">
+
+        <!-- SLIDE 1: TITLE SLIDE -->
+        <div class="slide active">
+            <div style="text-align: center; max-width: 800px; margin: 0 auto;" class="animate-stagger">
+                <h1 class="slide-title-gradient" style="font-size: 64px;">Rent-Nest</h1>
+                <p class="slide-subtitle" style="font-size: 22px; margin-bottom: 40px; color: var(--color-text-main);">
+                    A Modern, AI-Powered Platform for Renters, Landlords & Community Commerce
+                </p>
+                <div style="height: 2px; background: var(--gradient-primary); width: 100px; margin: 0 auto 30px;"></div>
+                <p style="color: var(--color-text-muted); font-size: 15px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase;">
+                    Smart Rentals. Smarter Management.
+                </p>
+            </div>
+        </div>
+
+        <!-- SLIDE 2: THE PROBLEM -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">The Rental Ecosystem is Broken</h2>
+                <p class="slide-subtitle">Current platforms focus on disjointed, unverified transactions that isolate users.</p>
+            </div>
+            <div class="slide-grid-3 animate-stagger">
+                <div class="card">
+                    <div class="card-accent-bar" style="background: var(--color-primary)"></div>
+                    <h3 style="color: var(--color-primary); margin-bottom: 12px;">Renters in the Dark</h3>
+                    <ul>
+                        <li>Scattered properties with outdated, unverified listing data.</li>
+                        <li>No native radius searches or interactive map metrics.</li>
+                        <li>Roommate searches require disjointed social group posts.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-accent-bar" style="background: var(--color-secondary)"></div>
+                    <h3 style="color: var(--color-secondary); margin-bottom: 12px;">Landlord Overhead</h3>
+                    <ul>
+                        <li>Spreadsheet patchwork to track separate leases and dues.</li>
+                        <li>Decentralized tenant chats and undocumented maintenance.</li>
+                        <li>No direct dashboard mapping properties to financial KPIs.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-accent-bar" style="background: var(--color-accent)"></div>
+                    <h3 style="color: var(--color-accent); margin-bottom: 12px;">Trust Deficit</h3>
+                    <ul>
+                        <li>No verified review system to hold bad actors accountable.</li>
+                        <li>Lack of clear escrow framework for platform transactions.</li>
+                        <li>No built-in user reporting or active admin banning filters.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 3: THE SOLUTION -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">Introducing Rent-Nest</h2>
+                <p class="slide-subtitle">A unified portal connecting the entire rental lifecycle from query to lease closure.</p>
+            </div>
+            <div class="slide-grid-2 animate-stagger">
+                <div class="card">
+                    <h3 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span style="color: var(--color-primary);">🏠</span> For Seekers & Renters
+                    </h3>
+                    <ul>
+                        <li>Find flats, houses, hotels, and halls on an interactive map.</li>
+                        <li>Compare properties side-by-side inside structured tables.</li>
+                        <li>Build roommate groups with member profile listings.</li>
+                        <li>Query properties using plain natural language AI search.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                        <span style="color: var(--color-accent);">📊</span> For Owners & Landlords
+                    </h3>
+                    <ul>
+                        <li>Guided wizard onboarding for properties, units, and leases.</li>
+                        <li>Auto-generate professional descriptions using AI.</li>
+                        <li>Issue rental invoices, record payments, and track net profits.</li>
+                        <li>Kanban board to drag-and-drop maintenance requests.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 4: SEARCH SYSTEM -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">Smart Search That Understands You</h2>
+                <p class="slide-subtitle">A location-aware map explorer coupled with next-generation natural language parsing.</p>
+            </div>
+            <div class="slide-grid-3 animate-stagger">
+                <div class="card">
+                    <h3 style="color: var(--color-primary); margin-bottom: 12px;">Interactive Map Engine</h3>
+                    <p style="font-size: 14px; margin-bottom: 12px; color: var(--color-text-muted);">
+                        Leaflet.js + OpenStreetMap tiles let users pan, zoom, and select location pins easily.
+                    </p>
+                    <ul>
+                        <li>Draggable marker on listing.</li>
+                        <li>Free forward & reverse geocoding via Nominatim.</li>
+                        <li>Radius filter (from 500m to 50km).</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-secondary); margin-bottom: 12px;">AI Query Parsing</h3>
+                    <p style="font-size: 14px; margin-bottom: 12px; color: var(--color-text-muted);">
+                        Converts natural phrases into structured search parameters instantly.
+                    </p>
+                    <ul>
+                        <li>Dual backend AI model chain (Gemini + Groq fallback).</li>
+                        <li>Extracts budget, beds, and category from raw query text.</li>
+                        <li>Anti-abuse IP-based rate limiting.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-accent); margin-bottom: 12px;">AI Copywriter</h3>
+                    <p style="font-size: 14px; margin-bottom: 12px; color: var(--color-text-muted);">
+                        Landlords can generate appealing listings instantly without manual drafting.
+                    </p>
+                    <ul>
+                        <li>Extracts listing details to draft rich descriptive paragraphs.</li>
+                        <li>Maintains professional, engaging visual marketing tone.</li>
+                        <li>Single-click trigger in the post-listing steps.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: RENTER TOOLS -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">Decision-Making Tools for Renters</h2>
+                <p class="slide-subtitle">Enhancing user confidence through structured comparison frameworks.</p>
+            </div>
+            <div class="slide-grid-3 animate-stagger">
+                <div class="card">
+                    <h3 style="color: var(--color-primary); margin-bottom: 12px;">Roommate Matching</h3>
+                    <ul>
+                        <li>Group profile listings featuring multiple member details.</li>
+                        <li>Specific budget scopes (min/max) and target area lookups.</li>
+                        <li>Reduces friction when setting up group living.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-secondary); margin-bottom: 12px;">Persistent Wishlist</h3>
+                    <ul>
+                        <li>Db-backed wishlist matching logins across sessions.</li>
+                        <li>Clean interface heart buttons on listing headers.</li>
+                        <li>Works globally for rentals, marketplace and services.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-accent); margin-bottom: 12px;">Tabular Comparison</h3>
+                    <ul>
+                        <li>Side-by-side comparison modal overlays.</li>
+                        <li>Category rules prevent invalid mixes (e.g. houses vs. halls).</li>
+                        <li>Highlights prices, amenities, and locations directly.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 6: MARKETPLACE & SERVICES -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">The Local Community Hub</h2>
+                <p class="slide-subtitle">Extending listings into community commerce for all transactional home needs.</p>
+            </div>
+            <div class="slide-grid-2 animate-stagger">
+                <div class="card">
+                    <h3 style="color: var(--color-primary); margin-bottom: 12px;">Local Marketplace</h3>
+                    <p style="font-size: 14px; color: var(--color-text-muted); margin-bottom: 16px;">
+                        Buy and sell household items (electronics, beds, tables) within your proximity network.
+                    </p>
+                    <ul>
+                        <li>Direct browser-to-Cloudinary image uploads.</li>
+                        <li>Proximity search lets you find deals in your own building.</li>
+                        <li>Direct seller contact links bypass middleman fees.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-accent); margin-bottom: 12px;">Local Services Directory</h3>
+                    <p style="font-size: 14px; color: var(--color-text-muted); margin-bottom: 16px;">
+                        Quick access to verified local handymen, painters, cleaners, and movers.
+                    </p>
+                    <ul>
+                        <li>Multiple service lines with detailed cost structures.</li>
+                        <li>Filtered by neighborhood to match close service providers.</li>
+                        <li>Review rankings help screen reputable contractors.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 7: LANDLORD DASHBOARD -->
+        <div class="slide" id="dashboardSlide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">Landlord Dashboard</h2>
+                <p class="slide-subtitle">A centralized financial ledger, maintenance tracker, and occupant portal.</p>
+            </div>
+            <div class="slide-grid-2">
+                <div class="animate-stagger">
+                    <div class="card" style="margin-bottom: 16px; padding: 16px;">
+                        <h4 style="color: var(--color-accent); margin-bottom: 8px;">1. Guided Tenant Wizard</h4>
+                        <p style="font-size: 13px; color: var(--color-text-muted);">
+                            Wizard to add property ➜ create individual units ➜ register occupant.
+                        </p>
+                    </div>
+                    <div class="card" style="margin-bottom: 16px; padding: 16px;">
+                        <h4 style="color: var(--color-primary); margin-bottom: 8px;">2. Kanban Maintenance</h4>
+                        <p style="font-size: 13px; color: var(--color-text-muted);">
+                            Drag-and-drop tickets across Open, In Progress, and Resolved.
+                        </p>
+                    </div>
+                    <div class="card" style="padding: 16px;">
+                        <h4 style="color: var(--color-secondary); margin-bottom: 8px;">3. Direct WhatsApp Alerts</h4>
+                        <p style="font-size: 13px; color: var(--color-text-muted);">
+                            Collect rent buttons open WhatsApp chats directly, with pre-filled billing templates.
+                        </p>
+                    </div>
+                </div>
+                <!-- Interactive Chart.js Simulation -->
+                <div style="display: flex; flex-direction: column; justify-content: center;">
+                    <div class="chart-wrapper">
+                        <canvas id="financialChart"></canvas>
+                    </div>
+                    <p style="font-size: 12px; color: var(--color-text-muted); text-align: center; margin-top: 12px;">
+                        Live simulation: Rent vs Fees vs Net Profits over time.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 8: TRUST, SAFETY & ADMIN -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">Trust, Safety & Moderator Oversight</h2>
+                <p class="slide-subtitle">Enforcing rules to scale the marketplace safely without fraud loops.</p>
+            </div>
+            <div class="slide-grid-3 animate-stagger">
+                <div class="card">
+                    <h3 style="color: var(--color-primary); margin-bottom: 12px;">Transactional T&C</h3>
+                    <p style="font-size: 14px; margin-bottom: 12px; color: var(--color-text-muted);">
+                        Strict guidelines accepted before any landlord listing goes live.
+                    </p>
+                    <ul>
+                        <li>Clear 15% platform commission fees.</li>
+                        <li>Escrow protection parameters.</li>
+                        <li>Fair refund & safety statements.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-secondary); margin-bottom: 12px;">Report & Ban Engine</h3>
+                    <p style="font-size: 14px; margin-bottom: 12px; color: var(--color-text-muted);">
+                        Community-driven report channels flag invalid or misleading posts.
+                    </p>
+                    <ul>
+                        <li>Report counters mapped to listings and profiles.</li>
+                        <li>Admin moderation controls to apply bans.</li>
+                        <li>`is_banned` flag stored with custom reasons.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-accent); margin-bottom: 12px;">Review Ratings</h3>
+                    <p style="font-size: 14px; margin-bottom: 12px; color: var(--color-text-muted);">
+                        Two-way review schemas build reputation across renters and properties.
+                    </p>
+                    <ul>
+                        <li>Aggregated star ratings on renter feeds.</li>
+                        <li>Audit log trace records inside databases.</li>
+                        <li>Ensures bad actors are exposed quickly.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 9: ARCHITECTURE & TECH STACK -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">Technical Architecture & Stack</h2>
+                <p class="slide-subtitle">Stateless Java API linked to spatial databases and rich visual clients.</p>
+            </div>
+            <div class="slide-grid-2">
+                <div class="animate-stagger">
+                    <div class="card" style="margin-bottom: 12px; padding: 12px 20px;">
+                        <h4 style="color: var(--color-primary); font-size: 15px; margin-bottom: 4px;">Backend: Spring Boot 3.3.6</h4>
+                        <p style="font-size: 13px; color: var(--color-text-muted);">
+                            Java 17, Spring Security 6 stateless JWT chains, Lombok, JJWT.
+                        </p>
+                    </div>
+                    <div class="card" style="margin-bottom: 12px; padding: 12px 20px;">
+                        <h4 style="color: var(--color-secondary); font-size: 15px; margin-bottom: 4px;">Frontend: Static HTML5 / Vanilla JS</h4>
+                        <p style="font-size: 13px; color: var(--color-text-muted);">
+                            Tailwind CSS CDN styling, interactive Leaflet mapping, zero build step.
+                        </p>
+                    </div>
+                    <div class="card" style="padding: 12px 20px;">
+                        <h4 style="color: var(--color-accent); font-size: 15px; margin-bottom: 4px;">Integrations & Infrastructure</h4>
+                        <p style="font-size: 13px; color: var(--color-text-muted);">
+                            Vercel SPA static hosting, Render Docker containers, Neon Serverless PG.
+                        </p>
+                    </div>
+                </div>
+                <div style="display: flex; flex-direction: column; justify-content: center;">
+                    <div class="arch-box">
+┌─────────────────┐       REST API + JWT     ┌─────────────────────┐
+│    Frontend      │ ──────────────────────► │       Backend       │
+│  (Static HTML5)  │ ◄────────────────────── │   (Spring Boot 3)   │
+└─────────────────┘                          └──────────┬──────────┘
+                                                        │
+                      ┌─────────────────────────────────┴─────────┐
+                ┌─────▼─────┐     ┌──────▼──────┐           ┌─────▼─────┐
+                │ PostgreSQL│     │ Cloudinary  │           │ Gemini AI │
+                │  + PostGIS│     │ (Image CDN) │           │ (Primary) │
+                └───────────┘     └─────────────┘           └───────────┘</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 10: GEOSPATIAL POSTGIS -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">Geospatial Intelligence via PostGIS</h2>
+                <p class="slide-subtitle">How we perform millisecond-level location searches at scale.</p>
+            </div>
+            <div class="slide-grid-2 animate-stagger">
+                <div class="card">
+                    <h3 style="color: var(--color-primary); margin-bottom: 12px;">Spatial Geometry Logic</h3>
+                    <p style="margin-bottom: 16px; font-size: 14px; color: var(--color-text-muted);">
+                        PostGIS stores coordinate metrics natively inside our Postgres db tables, converting standard coordinates into geometry vectors.
+                    </p>
+                    <ul>
+                        <li>Natively measures true ellipsoidal ground distances.</li>
+                        <li>Triggers accurate searches across variable curves.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-accent); margin-bottom: 12px;">Optimized Index Matching</h3>
+                    <p style="margin-bottom: 16px; font-size: 14px; color: var(--color-text-muted);">
+                        Flyway V7 adds a custom GiST spatial expression index over coordinates.
+                    </p>
+                    <div class="arch-box" style="font-size: 11px; margin-bottom: 12px;">
+-- Spatial query execution
+SELECT l.* FROM listings l
+WHERE ST_DWithin(l.coords, ST_MakePoint(?1, ?2), ?3)</div>
+                    <ul>
+                        <li>ST_DWithin limits spatial scans in milliseconds.</li>
+                        <li>Haversine math sorts nearest results dynamically.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 11: SECURITY & AUTH -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">Security & Authentication</h2>
+                <p class="slide-subtitle">Securing users and payments without compromising on API scaling.</p>
+            </div>
+            <div class="slide-grid-3 animate-stagger">
+                <div class="card">
+                    <h3 style="color: var(--color-primary); margin-bottom: 12px;">Secure OTP Signup</h3>
+                    <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 12px;">
+                        Verifies signups and password changes using unique codes.
+                    </p>
+                    <ul>
+                        <li>DB-backed OTP table tracking token reuse.</li>
+                        <li>5-minute validation TTL with auto-cleaning.</li>
+                        <li>Email delivery via safe EmailJS requests.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-secondary); margin-bottom: 12px;">Stateless JWT</h3>
+                    <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 12px;">
+                        Maintains authorization without database lookup chains on every REST call.
+                    </p>
+                    <ul>
+                        <li>JWT tokens injected inside Request headers.</li>
+                        <li>Signed using custom server cryptographic secrets.</li>
+                        <li>Zero state stored on the server memory.</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <h3 style="color: var(--color-accent); margin-bottom: 12px;">Spring Security</h3>
+                    <p style="font-size: 13px; color: var(--color-text-muted); margin-bottom: 12px;">
+                        Granular URL matching intercepting unauthorized operations.
+                    </p>
+                    <ul>
+                        <li>Restricts CRUD endpoints to verified listing creators.</li>
+                        <li>Robust CORS filters blocking suspicious domains.</li>
+                        <li>Passwords stored with secure hash models.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 12: ROADMAP & CONTACT -->
+        <div class="slide">
+            <div class="slide-header">
+                <h2 class="slide-title-gradient">Future Roadmap & Summary</h2>
+                <p class="slide-subtitle">Expanding Rent-Nest into a comprehensive, automated property assistant.</p>
+            </div>
+            <div class="slide-grid-2">
+                <div class="card animate-stagger">
+                    <h3 style="color: var(--color-accent); margin-bottom: 12px;">Product Roadmap</h3>
+                    <ul>
+                        <li><span class="highlight-accent">In-app Messaging:</span> Direct renter-to-landlord chats.</li>
+                        <li><span class="highlight-accent">Booking Flow:</span> In-app calendars and rent deposits.</li>
+                        <li><span class="highlight-accent">Interactive Editing:</span> Frontend listing updates.</li>
+                        <li><span class="highlight-accent">Notifications:</span> WhatsApp & email push notifications.</li>
+                    </ul>
+                </div>
+                <div class="card" style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
+                    <h3 style="color: var(--color-primary); margin-bottom: 16px;">Thank You!</h3>
+                    <p style="font-size: 14px; color: var(--color-text-muted); margin-bottom: 24px;">
+                        Rent-Nest: Making rentals easier for everyone.
+                    </p>
+                    <div style="font-size: 13px; text-align: left; line-height: 1.8;">
+                        🌐 <span style="color: var(--color-accent);">Frontend:</span> rent-nest-pi.vercel.app<br>
+                        ⚙️ <span style="color: var(--color-primary);">Backend:</span> rent-nest-wntm.onrender.com
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Navigation Controller overlay -->
+    <div class="nav-controls">
+        <button class="nav-btn" onclick="prevSlide()">←</button>
+        <span class="slide-counter"><span id="current">1</span> / <span id="total">12</span></span>
+        <button class="nav-btn" onclick="nextSlide()">→</button>
+    </div>
+
+    <script>
+        let current = 1;
+        const slides = document.querySelectorAll('.slide');
+        const total = slides.length;
+        document.getElementById('total').textContent = total;
+
+        let financialChartInstance = null;
+
+        function initChart() {
+            const ctx = document.getElementById('financialChart');
+            if (!ctx) return;
+            
+            if (financialChartInstance) {
+                financialChartInstance.destroy();
+            }
+
+            financialChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Gross Rent ($)',
+                            data: [4200, 4200, 5800, 5800, 6400, 6400],
+                            backgroundColor: 'rgba(99, 102, 241, 0.65)',
+                            borderColor: '#6366f1',
+                            borderWidth: 1.5,
+                            order: 2
+                        },
+                        {
+                            label: 'Platform Fees ($)',
+                            data: [630, 630, 870, 870, 960, 960],
+                            backgroundColor: 'rgba(236, 72, 153, 0.65)',
+                            borderColor: '#ec4899',
+                            borderWidth: 1.5,
+                            order: 2
+                        },
+                        {
+                            label: 'Net Profits ($)',
+                            data: [3570, 3570, 4930, 4930, 5440, 5440],
+                            borderColor: '#14b8a6',
+                            backgroundColor: 'rgba(20, 184, 166, 0.1)',
+                            borderWidth: 3,
+                            type: 'line',
+                            tension: 0.35,
+                            fill: true,
+                            order: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: { color: '#f4f4f5', font: { family: 'Space Grotesk', size: 10 } }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#a1a1aa', font: { family: 'Inter', size: 10 } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#a1a1aa', font: { family: 'Inter', size: 10 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        function showSlide(n) {
+            if (n < 1) n = 1;
+            if (n > total) n = total;
+            current = n;
+            
+            slides.forEach((slide, idx) => {
+                slide.classList.toggle('active', idx === n - 1);
+            });
+
+            document.getElementById('current').textContent = n;
+            document.getElementById('progressBar').style.width = (n / total * 100) + '%';
+
+            // Lazy initialize / reload chart when visiting Slide 7 (index 6)
+            if (n === 7) {
+                // Wait for transitions to finish to prevent render sizing issues
+                setTimeout(initChart, 250);
+            }
+        }
+
+        function nextSlide() { showSlide(current + 1); }
+        function prevSlide() { showSlide(current - 1); }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+            if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
+        });
+
+        // Click transition exception when tapping controls or canvas
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.nav-controls') || e.target.closest('canvas') || e.target.closest('.card')) return;
+            nextSlide();
+        });
+
+        showSlide(1);
+    </script>
+</body>
+</html>

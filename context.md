@@ -170,6 +170,8 @@ Rent-Nest/
 | `DATABASE_URL` | Neon pooler connection string (hardcoded fallback) | JDBC URL with `sslmode=require` |
 | `JWT_SECRET` | `rentnest-dev-secret-key-change-in-production-min-256-bits-long!!` | **Change in production** |
 | `CORS_ORIGINS` | `localhost` variants + `tisamin.github.io` + `rent-nest-pi.vercel.app` | Comma-separated, no trailing slashes |
+| `GEMINI_API_KEY` | (None) | Required for AI Search and AI Description generation |
+| `GROQ_API_KEY` | (None) | Required for fallback AI generation |
 
 > ⚠ The Neon DB credentials are currently hardcoded in `application.yml` as the fallback. This is a security risk — they should be moved to the `DATABASE_URL` env var on Render and the hardcoded fallback stripped.
 
@@ -254,6 +256,13 @@ All responses follow `{ success, message, data }` envelope via `ApiResponse<T>`.
 | `POST` | `/wishlist/toggle/{id}` | — | 🔒 Toggle wishlist status for a listing |
 | `POST` | `/wishlist/check` | `[UUID, ...]` | 🔒 Check which of provided listing IDs are wishlisted |
 
+### AI Features — `/api/ai/**`
+
+| Method | Path | Body | Notes |
+|---|---|---|---|
+| `POST` | `/ai/generate-description` | `Map<String, Object>` (fields) | 🔒 Generate listing desc with Gemini (fallback Groq). Rate limited per user. |
+| `POST` | `/ai/parse-search-query` | `{ query }` | Public. Parse natural language search (Gemini/Groq). Rate limited per IP. |
+
 ### Dashboard — `/api/dashboard/**` 🔒 (all require JWT) — NEW
 
 | Method | Path | Body / Params | Notes |
@@ -302,6 +311,10 @@ All responses follow `{ success, message, data }` envelope via `ApiResponse<T>`.
 - Listing detail page (images, amenities, roommate members, service offerings, contact)
 - **Wishlist & Comparison System**: Global saving of any listing type, side-by-side comparison modal enforcing category-specific rules
 - Marketplace, Services, Roommate Finder listing/search pages
+- **AI-Powered Features:**
+  - AI Natural Language Search parsing on the browse page (understands locations, bedrooms, budgets).
+  - AI Listing Description Generator on the post-listing page.
+  - Multi-provider architecture (Gemini 2.0 Flash primary, Groq Llama 3.3 70B fallback) with in-memory rate limiting.
 - **Fully functional Landlord Dashboard** (replaced mock UI):
   - **First-time onboarding wizard**: 3-step setup to add property → define units → assign tenants
   - **Overview tab**: 4 live stat cards (net earnings, active tenants, open maintenance, occupancy rate) + Recharts financial chart (rent vs fees vs net profit)
