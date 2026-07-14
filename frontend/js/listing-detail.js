@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // const localUser = localStorage.getItem('rentnest_user');
         // const localUser = localStorage.getItem('rentnest_user');
         // const currentUserId = localUser ? JSON.parse(localUser).id : null;
-        if (['FLAT', 'HOTEL', 'HOUSE', 'CONVENTION_HALL', 'SHIFTING_SERVICE', 'CATERING_SERVICE'].includes(item.category)) {
+        if (['FLAT', 'HOTEL', 'HOUSE', 'CONVENTION_HALL', 'SHIFTING_SERVICE', 'CATERING_SERVICE', 'EVENT_PLANNING', 'DECORATION_SERVICE', 'MAINTENANCE_SERVICE', 'CLEANING_SERVICE'].includes(item.category)) {
           document.getElementById('detail-rating-container').classList.remove('hidden');
           const avg = (item.averageRating || 0).toFixed(1);
           document.getElementById('detail-rating-score').innerText = avg;
