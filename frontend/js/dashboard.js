@@ -9,11 +9,15 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initialize data
   loadDashboardData();
   
-  // Setup lease search listener
-  const searchInput = document.getElementById('lease-search');
-  if (searchInput) {
-    searchInput.addEventListener('input', renderLeasesTable);
-  }
+  // Setup lease search listener on all search inputs
+  document.querySelectorAll('.lease-search-input').forEach(input => {
+    input.addEventListener('input', (e) => {
+      document.querySelectorAll('.lease-search-input').forEach(other => {
+        if (other !== e.target) other.value = e.target.value;
+      });
+      renderLeasesTable();
+    });
+  });
 });
 
 // Global state variables
@@ -247,9 +251,10 @@ window.toggleUnitsSection = function(propId) {
 // ─── LEASES TABLE ────────────────────────────────────────────
 
 function renderLeasesTable() {
-  const tbody = document.getElementById('lease-table-body');
-  const searchVal = (document.getElementById('lease-search')?.value || '').toLowerCase();
-  if (!tbody) return;
+  const tbodies = document.querySelectorAll('.lease-table-body-target');
+  const searchInput = document.querySelector('.lease-search-input');
+  const searchVal = (searchInput?.value || '').toLowerCase();
+  if (tbodies.length === 0) return;
 
   const filtered = globalLeases.filter(l => 
     l.tenantName.toLowerCase().includes(searchVal) ||
@@ -257,56 +262,60 @@ function renderLeasesTable() {
     l.unitName.toLowerCase().includes(searchVal)
   );
 
+  let html = '';
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-gray-500 text-sm">No active leases found.</td></tr>`;
-    return;
-  }
+    html = `<tr><td colspan="6" class="p-6 text-center text-gray-500 text-sm">No active leases found.</td></tr>`;
+  } else {
+    html = filtered.map(l => {
+      const isDue = l.monthsDue > 0;
+      const statusClass = isDue 
+        ? 'bg-rose-50 text-primary font-bold border border-rose-100' 
+        : 'bg-emerald-50 text-emerald-600 font-bold border border-emerald-100';
 
-  tbody.innerHTML = filtered.map(l => {
-    const isDue = l.monthsDue > 0;
-    const statusClass = isDue 
-      ? 'bg-rose-50 text-primary font-bold border border-rose-100' 
-      : 'bg-emerald-50 text-emerald-600 font-bold border border-emerald-100';
-
-    return `
-      <tr class="hover:bg-gray-50/50 transition-colors">
-        <td class="p-4 font-semibold text-gray-800">
-          <div class="flex items-center space-x-2">
-            <span>${l.tenantName}</span>
-            ${l.whatsappNumber 
-              ? `<a href="https://wa.me/${l.whatsappNumber.replace(/[^0-9]/g, '')}" target="_blank" class="p-1 hover:bg-emerald-50 rounded text-emerald-500" title="Chat on WhatsApp">
-                   <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2C6.5 2 2.012 6.5 2.012 12c0 2.088.638 4.025 1.737 5.625L2.025 23l5.525-1.787A9.927 9.927 0 0 0 12.013 22c5.513 0 10-4.5 10-10s-4.5-10-10-10zm5.675 13.913c-.225.625-1.312 1.2-1.8 1.262-.438.063-.988.088-2.938-.687-2.5-1-4.075-3.575-4.2-3.738-.125-.162-1.013-1.375-1.013-2.613 0-1.238.625-1.85 1.013-2.225.3-.287.675-.425.962-.425.263 0 .525.013.725.025.237.013.563-.087.875.688.325.8 1.1 2.725 1.2 2.925.1.2.175.438.038.713-.138.287-.275.413-.438.613-.162.2-.338.4-.488.575-.162.187-.337.387-.137.737.2.35.887 1.488 1.9 2.4 1.3 1.163 2.4 1.525 2.738 1.7.35.175.563.15.775-.088.225-.262.975-1.125 1.238-1.513.262-.387.525-.325.875-.187.35.137 2.225 1.05 2.613 1.238.387.187.637.287.725.438.1.15.1.862-.125 1.487z"/></svg>
-                 </a>`
+      return `
+        <tr class="hover:bg-gray-50/50 transition-colors">
+          <td class="p-4 font-semibold text-gray-800">
+            <div class="flex items-center space-x-2">
+              <span>${l.tenantName}</span>
+              ${l.whatsappNumber 
+                ? `<a href="https://wa.me/${l.whatsappNumber.replace(/[^0-9]/g, '')}" target="_blank" class="p-1 hover:bg-emerald-50 rounded text-emerald-500" title="Chat on WhatsApp">
+                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12.012 2C6.5 2 2.012 6.5 2.012 12c0 2.088.638 4.025 1.737 5.625L2.025 23l5.525-1.787A9.927 9.927 0 0 0 12.013 22c5.513 0 10-4.5 10-10s-4.5-10-10-10zm5.675 13.913c-.225.625-1.312 1.2-1.8 1.262-.438.063-.988.088-2.938-.687-2.5-1-4.075-3.575-4.2-3.738-.125-.162-1.013-1.375-1.013-2.613 0-1.238.625-1.85 1.013-2.225.3-.287.675-.425.962-.425.263 0 .525.013.725.025.237.013.563-.087.875.688.325.8 1.1 2.725 1.2 2.925.1.2.175.438.038.713-.138.287-.275.413-.438.613-.162.2-.338.4-.488.575-.162.187-.337.387-.137.737.2.35.887 1.488 1.9 2.4 1.3 1.163 2.4 1.525 2.738 1.7.35.175.563.15.775-.088.225-.262.975-1.125 1.238-1.513.262-.387.525-.325.875-.187.35.137 2.225 1.05 2.613 1.238.387.187.637.287.725.438.1.15.1.862-.125 1.487z"/></svg>
+                   </a>`
+                : ''
+              }
+            </div>
+          </td>
+          <td class="p-4 text-gray-600">
+            <p class="font-medium">${l.propertyName}</p>
+            <p class="text-xs text-gray-400">${l.unitName}</p>
+          </td>
+          <td class="p-4 text-gray-500">${l.startDate}</td>
+          <td class="p-4">
+            <p class="font-bold text-gray-900">${l.rentAmount} BDT</p>
+            <p class="text-xs text-gray-400">Day ${l.collectionDay} • ${l.rentPeriod}</p>
+          </td>
+          <td class="p-4">
+            <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${statusClass}">
+              ${l.rentStatus}
+            </span>
+          </td>
+          <td class="p-4 text-right space-x-2">
+            ${isDue 
+              ? `<button onclick="payRent('${l.dueRecords[0].id}')" class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-xs font-semibold">Collect Rent</button>` 
               : ''
             }
-          </div>
-        </td>
-        <td class="p-4 text-gray-600">
-          <p class="font-medium">${l.propertyName}</p>
-          <p class="text-xs text-gray-400">${l.unitName}</p>
-        </td>
-        <td class="p-4 text-gray-500">${l.startDate}</td>
-        <td class="p-4">
-          <p class="font-bold text-gray-900">${l.rentAmount} BDT</p>
-          <p class="text-xs text-gray-400">Day ${l.collectionDay} • ${l.rentPeriod}</p>
-        </td>
-        <td class="p-4">
-          <span class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${statusClass}">
-            ${l.rentStatus}
-          </span>
-        </td>
-        <td class="p-4 text-right space-x-2">
-          ${isDue 
-            ? `<button onclick="payRent('${l.dueRecords[0].id}')" class="px-2.5 py-1 bg-emerald-500 hover:bg-emerald-600 text-white rounded text-xs font-semibold">Collect Rent</button>` 
-            : ''
-          }
-          <button onclick="openAddRentRecordModal('${l.id}', '${l.rentAmount}')" class="px-2.5 py-1 border border-gray-200 hover:border-primary text-gray-700 hover:text-primary rounded text-xs font-semibold" title="Issue Due rent manually">Issue DUE</button>
-          <button onclick="openEditLeaseModal('${l.id}')" class="text-gray-400 hover:text-gray-600">✏️</button>
-          <button onclick="deleteLease('${l.id}')" class="text-gray-400 hover:text-red-500">🗑️</button>
-        </td>
-      </tr>
-    `;
-  }).join('');
+            <button onclick="openAddRentRecordModal('${l.id}', '${l.rentAmount}')" class="px-2.5 py-1 border border-gray-200 hover:border-primary text-gray-700 hover:text-primary rounded text-xs font-semibold" title="Issue Due rent manually">Issue DUE</button>
+            <button onclick="openEditLeaseModal('${l.id}')" class="text-gray-400 hover:text-gray-600">✏️</button>
+            <button onclick="deleteLease('${l.id}')" class="text-gray-400 hover:text-red-500">🗑️</button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  tbodies.forEach(tb => {
+    tb.innerHTML = html;
+  });
 }
 
 // ─── KANBAN BOARD ────────────────────────────────────────────
@@ -354,20 +363,18 @@ window.handleDrop = async function(ev, targetStatus) {
 };
 
 function renderKanban() {
-  const cols = {
-    OPEN: document.getElementById('col-open'),
-    IN_PROGRESS: document.getElementById('col-progress'),
-    RESOLVED: document.getElementById('col-resolved')
-  };
+  const targetOpenCols = document.querySelectorAll('.col-open-target');
+  const targetProgressCols = document.querySelectorAll('.col-progress-target');
+  const targetResolvedCols = document.querySelectorAll('.col-resolved-target');
 
-  const countEls = {
-    OPEN: document.getElementById('count-open'),
-    IN_PROGRESS: document.getElementById('count-progress'),
-    RESOLVED: document.getElementById('count-resolved')
-  };
+  const countOpenEls = document.querySelectorAll('.count-open-target');
+  const countProgressEls = document.querySelectorAll('.count-progress-target');
+  const countResolvedEls = document.querySelectorAll('.count-resolved-target');
 
   // Clear Columns
-  Object.values(cols).forEach(col => { if (col) col.innerHTML = ''; });
+  [targetOpenCols, targetProgressCols, targetResolvedCols].forEach(colList => {
+    colList.forEach(col => { if (col) col.innerHTML = ''; });
+  });
 
   const priorityClasses = {
     HIGH: 'bg-rose-50 text-primary border-rose-100',
@@ -377,50 +384,59 @@ function renderKanban() {
 
   const counts = { OPEN: 0, IN_PROGRESS: 0, RESOLVED: 0 };
 
+  const colTargetMap = {
+    OPEN: targetOpenCols,
+    IN_PROGRESS: targetProgressCols,
+    RESOLVED: targetResolvedCols
+  };
+
   globalMaintenance.forEach(req => {
-    const colEl = cols[req.status];
-    if (!colEl) return;
+    const colsList = colTargetMap[req.status];
+    if (!colsList || colsList.length === 0) return;
 
     counts[req.status]++;
 
-    const card = document.createElement('div');
-    card.id = req.id;
-    card.className = 'bg-white p-4 rounded-xl border border-gray-100 shadow-sm kanban-card flex flex-col justify-between hover:shadow-md transition-all cursor-grab';
-    card.draggable = true;
-    card.setAttribute('ondragstart', 'drag(event)');
-    card.setAttribute('ondragend', 'dragEnd(event)');
-
     const dateLabel = req.createdAt ? req.createdAt.substring(0, 10) : '';
 
-    card.innerHTML = `
-      <div>
-        <div class="flex items-start justify-between gap-2 mb-2">
-          <span class="px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase border rounded ${priorityClasses[req.priority] || ''}">
-            ${req.priority}
-          </span>
-          <span class="text-[10px] text-gray-400 font-medium">${dateLabel}</span>
-        </div>
-        <h4 class="text-sm font-semibold text-gray-800 line-clamp-2 mb-1">${req.title}</h4>
-        <p class="text-xs text-gray-500 mb-2">${req.description || 'No description provided'}</p>
-        <p class="text-xs text-gray-400 flex items-center">
-          <span class="mr-1">📍</span> ${req.propertyName || 'General Property'} ${req.unitName ? `• ${req.unitName}` : ''}
-        </p>
-        ${req.cost ? `<p class="text-xs font-bold text-gray-700 mt-2">Cost: ${req.cost} BDT</p>` : ''}
-      </div>
-      <div class="mt-4 pt-3 border-t border-gray-50 flex justify-end space-x-2">
-        <button onclick="openEditMaintenanceModal('${req.id}')" class="text-xs text-gray-400 hover:text-gray-600">Edit</button>
-        <span class="text-gray-300">|</span>
-        <button onclick="deleteMaintenance('${req.id}')" class="text-xs text-red-400 hover:text-red-600">Delete</button>
-      </div>
-    `;
+    colsList.forEach((colEl, idx) => {
+      const card = document.createElement('div');
+      card.id = idx === 0 ? req.id : `${req.id}-copy-${idx}`;
+      card.dataset.reqId = req.id;
+      card.className = 'bg-white p-4 rounded-xl border border-gray-100 shadow-sm kanban-card flex flex-col justify-between hover:shadow-md transition-all cursor-grab';
+      card.draggable = true;
+      card.setAttribute('ondragstart', 'drag(event)');
+      card.setAttribute('ondragend', 'dragEnd(event)');
 
-    colEl.appendChild(card);
+      card.innerHTML = `
+        <div>
+          <div class="flex items-start justify-between gap-2 mb-2">
+            <span class="px-2 py-0.5 text-[10px] font-bold tracking-wide uppercase border rounded ${priorityClasses[req.priority] || ''}">
+              ${req.priority}
+            </span>
+            <span class="text-[10px] text-gray-400 font-medium">${dateLabel}</span>
+          </div>
+          <h4 class="text-sm font-semibold text-gray-800 line-clamp-2 mb-1">${req.title}</h4>
+          <p class="text-xs text-gray-500 mb-2">${req.description || 'No description provided'}</p>
+          <p class="text-xs text-gray-400 flex items-center">
+            <span class="mr-1">📍</span> ${req.propertyName || 'General Property'} ${req.unitName ? `• ${req.unitName}` : ''}
+          </p>
+          ${req.cost ? `<p class="text-xs font-bold text-gray-700 mt-2">Cost: ${req.cost} BDT</p>` : ''}
+        </div>
+        <div class="mt-4 pt-3 border-t border-gray-50 flex justify-end space-x-2">
+          <button onclick="openEditMaintenanceModal('${req.id}')" class="text-xs text-gray-400 hover:text-gray-600">Edit</button>
+          <span class="text-gray-300">|</span>
+          <button onclick="deleteMaintenance('${req.id}')" class="text-xs text-red-400 hover:text-red-600">Delete</button>
+        </div>
+      `;
+
+      colEl.appendChild(card);
+    });
   });
 
   // Update counters
-  Object.keys(countEls).forEach(k => {
-    if (countEls[k]) countEls[k].textContent = counts[k];
-  });
+  countOpenEls.forEach(el => el.textContent = counts.OPEN);
+  countProgressEls.forEach(el => el.textContent = counts.IN_PROGRESS);
+  countResolvedEls.forEach(el => el.textContent = counts.RESOLVED);
 }
 
 // ─── EXPENDITURES RENDERING ──────────────────────────────────
