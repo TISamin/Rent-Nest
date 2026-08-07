@@ -1,0 +1,17 @@
+# Git
+.git
+.gitignore
+
+# Node (if ever added)
+node_modules/
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# Vercel config (not needed in Docker)
+vercel.json
+
+# OS files
+.DS_Store
+Thumbs.db

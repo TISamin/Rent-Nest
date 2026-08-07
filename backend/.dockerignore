@@ -1,0 +1,29 @@
+# Build outputs (Maven builds inside the container, these are not needed)
+target/
+
+# Git history
+.git
+.gitignore
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+.project
+.classpath
+.settings/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files not needed in Docker context
+TestRegex.java
+TestRegex.class
+
+# Logs
+*.log
+
+# Docker files (prevent recursive context)
+Dockerfile
+.dockerignore

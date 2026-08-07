@@ -1,0 +1,27 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (not needed in any Docker build)
+*.md
+context.md
+file_explanations.md
+setup_blueprint.md
+presentation.html
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Agent config
+.agents/

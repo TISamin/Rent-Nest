@@ -1,7 +1,22 @@
 // Auto-detect: use local backend when running locally or opened from local files, Render backend when deployed
-const API_BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '' || window.location.protocol === 'file:')
-  ? 'http://localhost:8080/api'
-  : 'https://rent-nest-wntm.onrender.com/api';
+const getApiBaseUrl = () => {
+  // If served via Nginx (Docker or Production proxy), use relative path so Nginx handles proxying/routing
+  if (window.location.protocol !== 'file:' && !['5500', '5501', '3000'].includes(window.location.port)) {
+    // This allows it to work seamlessly on http://localhost (port 80) proxying to http://backend:8080/api/
+    return `${window.location.origin}/api`;
+  }
+  
+  // If running from VS Code Live Server or similar dev servers, use port 8080 (or 8081 if 8080 is in use)
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.hostname === '' || window.location.protocol === 'file:') {
+    return 'http://localhost:8080/api';
+  }
+  
+  // Production fallback if not using proxy
+  return 'https://rent-nest-wntm.onrender.com/api';
+};
+
+const API_BASE_URL = getApiBaseUrl();
+console.log("[RentNest] API Base URL configured as:", API_BASE_URL);
 
 /**
  * Perform an HTTP fetch request against the RentNest backend API.

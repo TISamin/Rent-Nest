@@ -39,3 +39,8 @@ npm-debug.log*
 dist/
 build/
 out/
+
+# === Docker ===
+# Never commit the actual .env file (contains secrets)
+# .env is already listed above under Environment
+docker-compose.override.yml
