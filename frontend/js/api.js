@@ -1,5 +1,10 @@
 // Auto-detect: use local backend when running locally or opened from local files, Render backend when deployed
 const getApiBaseUrl = () => {
+  // If deployed on Vercel or GitHub Pages, route directly to Render backend
+  if (window.location.hostname.endsWith('.vercel.app') || window.location.hostname.endsWith('.github.io')) {
+    return 'https://rent-nest-wntm.onrender.com/api';
+  }
+
   // If served via Nginx (Docker or Production proxy), use relative path so Nginx handles proxying/routing
   if (window.location.protocol !== 'file:' && !['5500', '5501', '3000'].includes(window.location.port)) {
     // This allows it to work seamlessly on http://localhost (port 80) proxying to http://backend:8080/api/
